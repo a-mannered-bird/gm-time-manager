@@ -1,0 +1,35 @@
+
+/* Selection or extract */
+.search-highlight,
+.document-viewer [class^=extract--] {
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid white;
+}
+
+/* Selection for new extract */
+.document-viewer .extract--new {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Extract in document */
+.search-highlight,
+[class^=extract--id-] {
+  background: #3f51b5;
+}
+
+[class^=extract--id-] [class^=extract--id-] {
+  background: #477970;
+}
+
+.extract--selected {
+  background: black !important;
+}
+
+.document-viewer img {
+  max-width: 100%;
+}
+
+.hide {
+  display: none;
+}
