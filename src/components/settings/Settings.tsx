@@ -1,5 +1,8 @@
 
 import * as React from 'react';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
 
 export interface SettingsProps {
   projectId?: number;
@@ -24,7 +27,21 @@ export class Settings extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    return (<div>Hello World!</div>);
+    return <>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Settings
+      </Typography>
+
+      <Paper>
+        <Box p={2}>
+          <Typography variant="h6" component="h2" gutterBottom>
+            Time definitions
+          </Typography>
+
+
+        </Box>
+      </Paper>
+    </>;
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
