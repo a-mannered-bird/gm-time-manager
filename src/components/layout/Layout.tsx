@@ -87,7 +87,7 @@ class Layout extends React.Component<
             </Route>
             <Route path="/:projectId/settings">
               <Settings
-                projectId={selectedProjectId}
+                project={this.state.selectedProject}
               />
             </Route>
             <Route path="/:projectId/backups">
@@ -104,7 +104,6 @@ class Layout extends React.Component<
   }
 
   public displayRedirections () {
-    console.log(this.state.goTo);
     if (!this.state.goTo) {
       return null;
     }

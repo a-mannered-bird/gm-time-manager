@@ -1,14 +1,29 @@
 
+/**
+  TODO: Add form validation
+*/
+
 import * as React from 'react';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
+import Paper from '@material-ui/core/Paper';
+import SaveIcon from '@material-ui/icons/Save';
+import Typography from '@material-ui/core/Typography';
+
+import { SettingsTimeDefinitions } from './SettingsTimeDefinitions'
+import { putItem } from '../../api/localdb';
+
+import Project from '../../models/Project';
 
 export interface SettingsProps {
-  projectId?: number;
+  project?: Project;
 }
 
-export interface SettingsState {}
+export interface SettingsState {
+  pristine: boolean;
+  project?: Project;
+  projectCached?: Project;
+}
 
 export class Settings extends React.Component<
   SettingsProps,
@@ -21,7 +36,11 @@ export class Settings extends React.Component<
   constructor(props: SettingsProps) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      pristine: true,
+    };
+
+    this.onChangeSettings = this.onChangeSettings.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -32,13 +51,35 @@ export class Settings extends React.Component<
         Settings
       </Typography>
 
+      {this.displaySettings()}
+
+      {/* SAVE BUTTON */}
+      <Box mt={2} display="flex" flexDirection="row-reverse">
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={this.state.pristine}
+          startIcon={<SaveIcon />}
+          onClick={() => this.saveSettings()}
+        >
+          Save
+        </Button>
+      </Box>
+    </>;
+  }
+
+  public displaySettings() {
+    if (!this.state.project){
+      return;
+    }
+
+    return <>
       <Paper>
         <Box p={2}>
-          <Typography variant="h6" component="h2" gutterBottom>
-            Time definitions
-          </Typography>
-
-          
+          <SettingsTimeDefinitions
+            project={this.state.project}
+            onChangeSettings={this.onChangeSettings}
+          />
         </Box>
       </Paper>
     </>;
@@ -46,6 +87,48 @@ export class Settings extends React.Component<
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
+  // tslint:disable-next-line:member-ordering
+  public static getDerivedStateFromProps(props: SettingsProps, state: SettingsState) {
+    let {project} = state;
+
+    if (state.projectCached !== props.project) {
+      project = props.project;
+    }
+
+    return {
+      project,
+      projectCached: props.project,
+    };
+  }
+
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
+  private onChangeSettings(e: any, settingProperty: string) {
+    const project = this.state.project;
+    if (!project) {
+      return;
+    }
+
+    const fieldName = e.currentTarget.name;
+    const fieldNameSplit = fieldName.split(".");
+
+    if (fieldNameSplit.length > 1) {
+      project.settings[settingProperty][fieldNameSplit[0]][fieldNameSplit[1]] = e.currentTarget.value;
+    } else {
+      project.settings[settingProperty][fieldNameSplit[0]] = e.currentTarget.value;
+    }
+
+    this.setState({
+      pristine: false,
+      project,
+    });
+  }
+
+  private saveSettings() {
+    putItem('projects', this.state.project, (data) => {
+      this.setState({
+        pristine: true,
+      })
+    });
+  }
 }
