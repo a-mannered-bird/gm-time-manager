@@ -1,4 +1,5 @@
 {
   "projectTitle": "GM Time Manager",
-  "projectTitleCodename": "gmtm" 
+  "projectTitleCodename": "gmtm",
+  "projectTitleKebabCase": "gm-time-manager"
 }

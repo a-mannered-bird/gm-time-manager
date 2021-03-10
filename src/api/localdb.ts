@@ -3,8 +3,9 @@ import low from 'lowdb';
 import LocalStorage from 'lowdb/adapters/LocalStorage'
 import defaultDb from './defaultdb';
 import {isArray} from '../helpers/utils';
+import { projectTitleKebabCase } from '../general-settings.json';
 
-const adapter = new LocalStorage('text-tagger-db')
+const adapter = new LocalStorage(projectTitleKebabCase + '-db')
 const db = low(adapter)
 
 // Item names plural

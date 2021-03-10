@@ -38,7 +38,7 @@ export class Settings extends React.Component<
             Time definitions
           </Typography>
 
-
+          
         </Box>
       </Paper>
     </>;
