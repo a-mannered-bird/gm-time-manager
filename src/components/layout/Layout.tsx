@@ -10,6 +10,7 @@ import {
 import { Backups } from '../backups/Backups';
 import { Menu } from './Menu';
 import { Projects } from '../sortingDatas/Projects';
+import { Settings } from '../settings/Settings';
 import { TopBar } from './TopBar';
 
 import Project from '../../models/Project';
@@ -82,6 +83,11 @@ class Layout extends React.Component<
                   selectedProject,
                   goTo: 'documents',
                 })}
+              />
+            </Route>
+            <Route path="/:projectId/settings">
+              <Settings
+                projectId={selectedProjectId}
               />
             </Route>
             <Route path="/:projectId/backups">
