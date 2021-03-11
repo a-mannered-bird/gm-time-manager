@@ -10,12 +10,7 @@ export default {
       {
         id: 1,
         projectId: 1,
-        year: 0,
-        month: 1,
-        day: 1,
-        hour: 12,
-        minute: 0,
-        second: 0,
+        value: '0/1/1/12/0/0',
       }
     ],
   },

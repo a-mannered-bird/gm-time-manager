@@ -9,6 +9,7 @@ import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
 import { getAllFromProject } from '../../api/localdb';
 
 import RoleTime from '../../models/RoleTime';
+import PresentTime from '../../models/PresentTime';
 import Project from '../../models/Project';
 
 
@@ -48,7 +49,6 @@ export class Dashboard extends React.Component<
 
         {/* COUNTER */}
         <RoleTimeCounter
-          timeDefinitions={this.props.project.settings.timeDefinitions}
           roleTime={this.state.presentTimes[0]}
         />
       </Box>
@@ -67,10 +67,13 @@ export class Dashboard extends React.Component<
    * Gather all the datas we need
    */
   public loadDatas() {
-    getAllFromProject('presentTimes', this.props.project.id, (presentTimes: RoleTime[]) => {
-      this.setState({
-        presentTimes,
+    getAllFromProject('presentTimes', this.props.project.id, (results: PresentTime[]) => {
+      const timeDefs = this.props.project.settings.timeDefinitions;
+      // Transform strings formats into RoleTime objects
+      const presentTimes = results.map((presentTime) => {
+        return new RoleTime(presentTime.value, timeDefs);
       });
+      this.setState({presentTimes});
     });
   }
 
