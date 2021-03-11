@@ -81,7 +81,7 @@ export function Menu(props: MenuProps) {
           <List>
             {displayItem('Dashboard', 'dashboard', <HomeIcon />)}
             {displayItem('Settings', 'settings', <SettingsIcon />)}
-            {displayItem('Backups', 'backups', <HomeIcon />)}
+            {displayItem('Backups', 'backups', <SaveIcon />)}
           </List>
         </div>
       </Drawer>

@@ -8,15 +8,6 @@ import { projectTitleKebabCase } from '../general-settings.json';
 const adapter = new LocalStorage(projectTitleKebabCase + '-db')
 const db = low(adapter)
 
-// Item names plural
-const dbItems = [
-  "categories",
-  "extracts",
-  "documents",
-  "tags",
-  "tagCategories",
-];
-
 /******** DEFAULT DB ********/
 
 db.defaults(defaultDb)
