@@ -2,6 +2,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
+import HomeIcon from '@material-ui/icons/Home';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -15,11 +16,12 @@ import { Omit } from '@material-ui/types';
 interface ListItemLinkProps {
   icon?: React.ReactElement;
   primary: string;
+  selected: boolean;
   to: string;
 }
 
 function ListItemLink(props: ListItemLinkProps) {
-  const { icon, primary, to } = props;
+  const { icon, primary, to, selected } = props;
 
   const renderLink = React.useMemo(
     () =>
@@ -35,7 +37,11 @@ function ListItemLink(props: ListItemLinkProps) {
 
   return (
     <li>
-      <ListItem button component={renderLink}>
+      <ListItem
+        button
+        component={renderLink}
+        selected={selected}
+      >
         {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
         <ListItemText primary={primary} />
       </ListItem>
@@ -50,6 +56,7 @@ const useStyles = makeStyles({
 });
 
 export interface MenuProps {
+  location: any;
   open: boolean;
   selectedProjectId?: number;
   toggleDrawer: (open: boolean) => any;
@@ -62,7 +69,7 @@ export function Menu(props: MenuProps) {
     return <div></div>;
   }
 
-  return (
+  const render = () => (
     <div>
       <Drawer open={props.open} onClose={props.toggleDrawer(false)}>
         <div
@@ -72,17 +79,24 @@ export function Menu(props: MenuProps) {
           onKeyDown={props.toggleDrawer(false)}
         >
           <List>
-            <ListItemLink
-              to={"/" + props.selectedProjectId + "/settings"}
-              primary="Settings"
-              icon={<SettingsIcon />} />
-            <ListItemLink
-              to={"/" + props.selectedProjectId + "/backups"}
-              primary="Backups"
-              icon={<SaveIcon />} />
+            {displayItem('Dashboard', 'dashboard', <HomeIcon />)}
+            {displayItem('Settings', 'settings', <SettingsIcon />)}
+            {displayItem('Backups', 'backups', <HomeIcon />)}
           </List>
         </div>
       </Drawer>
     </div>
   );
+
+  const displayItem = (label: string, routeName: string, icon: React.ReactElement) => {
+    const pathname = "/" + props.selectedProjectId + "/" + routeName;
+    return <ListItemLink
+      icon={icon}
+      to={routeName}
+      primary={label}
+      selected={pathname === props.location.pathname}
+    />
+  };
+
+  return render();
 }

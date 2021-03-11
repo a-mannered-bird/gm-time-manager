@@ -17,6 +17,7 @@ import Project from '../../models/Project';
 
 export interface SettingsProps {
   project?: Project;
+  updateProject: (project: Project) => void;
 }
 
 export interface SettingsState {
@@ -125,10 +126,15 @@ export class Settings extends React.Component<
   }
 
   private saveSettings() {
-    putItem('projects', this.state.project, (data) => {
+    const project = this.state.project;
+    if (!project) {
+      return;
+    }
+
+    putItem('projects', project, (data) => {
       this.setState({
         pristine: true,
-      })
+      }, () => this.props.updateProject(project));
     });
   }
 }

@@ -8,6 +8,7 @@ import {
   withRouter
 } from "react-router-dom";
 import { Backups } from '../backups/Backups';
+import { Dashboard } from '../dashboard/Dashboard';
 import { Menu } from './Menu';
 import { Projects } from '../sortingDatas/Projects';
 import { Settings } from '../settings/Settings';
@@ -47,6 +48,7 @@ class Layout extends React.Component<
     };
 
     this.toggleDrawer = this.toggleDrawer.bind(this);
+    this.updateProject = this.updateProject.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -68,9 +70,11 @@ class Layout extends React.Component<
           toggleDrawer={this.toggleDrawer} />
 
         <Menu
+          location={this.props.location}
           open={this.state.menuIsOpen}
           selectedProjectId={(this.state.selectedProject || {}).id}
-          toggleDrawer={this.toggleDrawer} />
+          toggleDrawer={this.toggleDrawer}
+        />
 
         <Container>
           <br/><br/>
@@ -81,13 +85,19 @@ class Layout extends React.Component<
                 setProjects={(projects: Project[]) => this.setState({projects})}
                 selectProject={(selectedProject: Project) => this.setState({
                   selectedProject,
-                  goTo: 'documents',
+                  goTo: 'dashboard',
                 })}
+              />
+            </Route>
+            <Route path="/:projectId/dashboard">
+              <Dashboard
+                project={this.state.selectedProject}
               />
             </Route>
             <Route path="/:projectId/settings">
               <Settings
                 project={this.state.selectedProject}
+                updateProject={this.updateProject}
               />
             </Route>
             <Route path="/:projectId/backups">
@@ -117,8 +127,8 @@ class Layout extends React.Component<
     }
 
     let path = "" as any;
-    if (this.state.goTo === 'documents') {
-      path = "/" + this.state.selectedProject.id + "/documents";
+    if (this.state.goTo === 'dashboard') {
+      path = "/" + this.state.selectedProject.id + "/dashboard";
     }
 
     if (this.state.goTo === 'switchProject') {
@@ -154,6 +164,22 @@ class Layout extends React.Component<
         projects,
         selectedProject: selectedProject || projects[0],
       });
+    });
+  }
+
+  /**
+   * Update all related projects states
+   *
+   * @param project  Project
+   */
+  public updateProject(project: Project) {
+    const {projects} = this.state;
+    const index = this.state.projects.findIndex((p) => project.id === p.id);
+    projects[index] = project;
+
+    this.setState({
+      projects,
+      selectedProject: project,
     });
   }
 
