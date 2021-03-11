@@ -1,4 +1,8 @@
 
+/*
+  // TODO: Initialize datas in project on creation
+*/
+
 import * as React from 'react';
 import { EditableTable } from './EditableTable';
 import Project from '../../models/Project';

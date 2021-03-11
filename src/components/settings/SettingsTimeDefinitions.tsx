@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 
 // import { } from '../../api/localdb';
 
-import Project from '../../models/Project';
+import Project, {TimeDefinitions} from '../../models/Project';
 
 export interface SettingsTimeDefinitionsProps {
   project: Project;
@@ -77,7 +77,7 @@ export class SettingsTimeDefinitions extends React.Component<
     </Accordion>;
   }
 
-  public displayInputListForCount(inputCount: number, label: string, valueType: string, propertyTarget: string){
+  public displayInputListForCount(inputCount: number, label: string, valueType: string, propertyTarget: keyof TimeDefinitions){
     const fields = [];
     for (let i = 0; i < inputCount; i++) {
       fields.push(this.displayInput(label, valueType, propertyTarget, i));
@@ -87,7 +87,7 @@ export class SettingsTimeDefinitions extends React.Component<
     </>;
   }
 
-  public displayInput(label: string, valueType: string, propertyTarget: string, key?: number){
+  public displayInput(label: string, valueType: string, propertyTarget: keyof TimeDefinitions, key?: number){
 
     const {timeDefinitions} = this.props.project.settings;
 

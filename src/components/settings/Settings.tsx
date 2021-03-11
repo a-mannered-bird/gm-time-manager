@@ -16,14 +16,14 @@ import { putItem } from '../../api/localdb';
 import Project from '../../models/Project';
 
 export interface SettingsProps {
-  project?: Project;
+  project: Project;
   updateProject: (project: Project) => void;
 }
 
 export interface SettingsState {
   pristine: boolean;
-  project?: Project;
-  projectCached?: Project;
+  project: Project;
+  projectCached: Project;
 }
 
 export class Settings extends React.Component<
@@ -39,6 +39,8 @@ export class Settings extends React.Component<
 
     this.state = {
       pristine: true,
+      project: props.project,
+      projectCached: props.project,
     };
 
     this.onChangeSettings = this.onChangeSettings.bind(this);
@@ -106,10 +108,6 @@ export class Settings extends React.Component<
 
   private onChangeSettings(e: any, settingProperty: string) {
     const project = this.state.project;
-    if (!project) {
-      return;
-    }
-
     const fieldName = e.currentTarget.name;
     const fieldNameSplit = fieldName.split(".");
 
@@ -127,9 +125,6 @@ export class Settings extends React.Component<
 
   private saveSettings() {
     const project = this.state.project;
-    if (!project) {
-      return;
-    }
 
     putItem('projects', project, (data) => {
       this.setState({

@@ -54,7 +54,11 @@ class Layout extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const selectedProjectId = (this.state.selectedProject || {}).id;
+    if (!this.state.selectedProject) {
+      return null;
+    }
+
+    const selectedProjectId = this.state.selectedProject.id;
     return (
       <div>
         <TopBar
