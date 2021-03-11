@@ -4,7 +4,7 @@ export default {
     lastBackupDate: new Date().valueOf(),
   },
 
-  presentMoments: {
+  presentTimes: {
     count: 1,
     items: [
       {

@@ -4,26 +4,26 @@ import * as React from 'react';
 // import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
-import Moment from '../../models/Moment';
+import RoleTime from '../../models/RoleTime';
 import {TimeDefinitions} from '../../models/Project';
 
 
-export interface MomentCounterProps {
+export interface RoleTimeCounterProps {
   timeDefinitions: TimeDefinitions;
-  moment: Moment;
+  roleTime: RoleTime;
 }
 
-export interface MomentCounterState {}
+export interface RoleTimeCounterState {}
 
-export class MomentCounter extends React.Component<
-  MomentCounterProps,
-  MomentCounterState
+export class RoleTimeCounter extends React.Component<
+  RoleTimeCounterProps,
+  RoleTimeCounterState
 > {
 
-  public static defaultProps: Partial<MomentCounterProps> = {
+  public static defaultProps: Partial<RoleTimeCounterProps> = {
   };
 
-  constructor(props: MomentCounterProps) {
+  constructor(props: RoleTimeCounterProps) {
     super(props);
 
     this.state = {};
@@ -34,10 +34,10 @@ export class MomentCounter extends React.Component<
   public render() {
     const timeDefs = this.props.timeDefinitions;
     const {yearMonthsCount, monthDaysCount} = timeDefs;
-    const {year, month, day, hour, minute, second} = this.props.moment;
+    const {year, month, day, hour, minute, second} = this.props.roleTime;
 
     return <Typography variant="h6" component="h6" align="center">
-      {this.displayWeekDayName(this.props.moment, timeDefs)} {day}
+      {this.displayWeekDayName(this.props.roleTime, timeDefs)} {day}
       {" "} {timeDefs.monthNames[month - 1]}
       {" "} {year} {" "}
       ({this.displayZerosBeforeValue(year, 9999)}/
@@ -58,8 +58,8 @@ export class MomentCounter extends React.Component<
     return zeros + value;
   }
 
-  displayWeekDayName(moment: Moment, timeDefs: TimeDefinitions){
-    const {year, month, day} = moment;
+  displayWeekDayName(roleTime: RoleTime, timeDefs: TimeDefinitions){
+    const {year, month, day} = roleTime;
     const {monthDaysCount, weekDaysCount, weekDaysNames} = timeDefs;
     const daysPerYear = monthDaysCount.reduce((pre, cur) => pre + cur);
     const daysInYearSoFar = [0].concat(monthDaysCount).reduce((pre, cur, i) => i < month ? pre + cur : pre);

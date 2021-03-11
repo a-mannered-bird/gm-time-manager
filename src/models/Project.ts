@@ -1,11 +1,11 @@
 
-import Moment from './Moment';
+import RoleTime from './RoleTime';
 
 
 export default interface Project {
   id: number;
   name: string;
-  presentMoment: Moment;
+  presentRoleTime: RoleTime;
   settings: {
     [key: string]: any,
     timeDefinitions: TimeDefinitions;

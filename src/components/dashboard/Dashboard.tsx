@@ -4,11 +4,11 @@ import * as React from 'react';
 import Box from '@material-ui/core/Box';
 // import Typography from '@material-ui/core/Typography';
 
-import { MomentCounter } from '../moment/MomentCounter';
+import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
 
 import { getAllFromProject } from '../../api/localdb';
 
-import Moment from '../../models/Moment';
+import RoleTime from '../../models/RoleTime';
 import Project from '../../models/Project';
 
 
@@ -17,7 +17,7 @@ export interface DashboardProps {
 }
 
 export interface DashboardState {
-  presentMoments: Moment[];
+  presentTimes: RoleTime[];
 }
 
 export class Dashboard extends React.Component<
@@ -32,14 +32,14 @@ export class Dashboard extends React.Component<
     super(props);
 
     this.state = {
-      presentMoments: [],
+      presentTimes: [],
     };
   }
 
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    if (!this.state.presentMoments.length) {
+    if (!this.state.presentTimes.length) {
       return null;
     }
 
@@ -47,9 +47,9 @@ export class Dashboard extends React.Component<
       <Box display="flex" alignItems="center" justifyContent="center">
 
         {/* COUNTER */}
-        <MomentCounter
+        <RoleTimeCounter
           timeDefinitions={this.props.project.settings.timeDefinitions}
-          moment={this.state.presentMoments[0]}
+          roleTime={this.state.presentTimes[0]}
         />
       </Box>
     </>;
@@ -67,9 +67,9 @@ export class Dashboard extends React.Component<
    * Gather all the datas we need
    */
   public loadDatas() {
-    getAllFromProject('presentMoments', this.props.project.id, (presentMoments: Moment[]) => {
+    getAllFromProject('presentTimes', this.props.project.id, (presentTimes: RoleTime[]) => {
       this.setState({
-        presentMoments,
+        presentTimes,
       });
     });
   }

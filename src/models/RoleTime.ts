@@ -1,5 +1,5 @@
 
-export default interface Moment {
+export default interface RoleTime {
   year: number;
   month: number;
   day: number;
