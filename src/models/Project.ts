@@ -8,6 +8,7 @@ export default interface Project {
   presentRoleTime: PresentTime;
   settings: {
     [key: string]: any,
+    changeTimeType: 'absolute' | 'relative',
     timeDefinitions: TimeDefinitions;
   }
 }

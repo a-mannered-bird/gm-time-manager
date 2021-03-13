@@ -6,11 +6,11 @@ import Box from '@material-ui/core/Box';
 
 import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
 
-import { getAllFromProject } from '../../api/localdb';
+import { getAllFromProject, putItem } from '../../api/localdb';
 
-import RoleTime from '../../models/RoleTime';
 import PresentTime from '../../models/PresentTime';
 import Project from '../../models/Project';
+import RoleTime from '../../models/RoleTime';
 
 
 export interface DashboardProps {
@@ -18,7 +18,7 @@ export interface DashboardProps {
 }
 
 export interface DashboardState {
-  presentTimes: RoleTime[];
+  presentTimes: PresentTime[];
 }
 
 export class Dashboard extends React.Component<
@@ -35,6 +35,8 @@ export class Dashboard extends React.Component<
     this.state = {
       presentTimes: [],
     };
+
+    this.onRoleTimeChange = this.onRoleTimeChange.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -44,12 +46,17 @@ export class Dashboard extends React.Component<
       return null;
     }
 
+    const timeDefs = this.props.project.settings.timeDefinitions;
+    const roleTime = new RoleTime(this.state.presentTimes[0].value, timeDefs);
+
     return <>
       <Box display="flex" alignItems="center" justifyContent="center">
 
         {/* COUNTER */}
         <RoleTimeCounter
-          roleTime={this.state.presentTimes[0]}
+          onChange={this.onRoleTimeChange}
+          project={this.props.project}
+          roleTime={roleTime}
         />
       </Box>
     </>;
@@ -67,14 +74,18 @@ export class Dashboard extends React.Component<
    * Gather all the datas we need
    */
   public loadDatas() {
-    getAllFromProject('presentTimes', this.props.project.id, (results: PresentTime[]) => {
-      const timeDefs = this.props.project.settings.timeDefinitions;
-      // Transform strings formats into RoleTime objects
-      const presentTimes = results.map((presentTime) => {
-        return new RoleTime(presentTime.value, timeDefs);
-      });
+    getAllFromProject('presentTimes', this.props.project.id, (presentTimes: PresentTime[]) => {
       this.setState({presentTimes});
     });
   }
 
+  onRoleTimeChange(roleTime: RoleTime) {
+    const timeString = roleTime.formatToFullString();
+    const presentTimes = this.state.presentTimes;
+    console.log(timeString);
+    presentTimes[0].value = timeString;
+    putItem('presentTimes', presentTimes, (data) => {
+      this.setState({presentTimes});
+    });
+  }
 }

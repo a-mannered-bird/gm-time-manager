@@ -24,6 +24,7 @@ export default {
 
         // **** SETTINGS ****
         settings: {
+          changeTimeType: 'relative',
           timeDefinitions: {
             yearNames: {
               2000: "L'année du test",
