@@ -7,18 +7,18 @@ export default interface Project {
   name: string;
   presentRoleTime: PresentTime;
   settings: {
-    [key: string]: any,
-    changeTimeType: 'absolute' | 'relative',
+    [key: string]: any;
+    changeTimeType: 'absolute' | 'relative';
     timeDefinitions: TimeDefinitions;
   }
 }
 
 export interface TimeDefinitions {
-  [key: string]: any,
-  monthDaysCount: number[],
-  monthNames: string[],
-  weekDaysNames: string[],
-  weekDaysCount: number,
-  yearMonthsCount: number,
-  yearNames: { [key: number]: string },
+  [key: string]: any;
+  monthDaysCount: number[];
+  monthNames: string[];
+  weekDaysNames: string[];
+  weekDaysCount: number;
+  yearMonthsCount: number;
+  yearNames: { [key: number]: string };
 }

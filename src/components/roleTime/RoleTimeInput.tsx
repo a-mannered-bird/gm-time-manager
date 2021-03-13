@@ -61,7 +61,7 @@ export class RoleTimeInput extends React.Component<
     </>;
   }
 
-  public displayInput(label: string, name: keyof RoleTimeValue, value: number, width: number, min?: number, max?: number) {
+  public displayInput(label: string, name: keyof RoleTimeValue, value: number | undefined, width: number, min?: number, max?: number) {
     const inputProps = this.props.useTimeDefinitionsForMaxMin ? {min, max} : {};
 
     return <TextField
@@ -69,12 +69,13 @@ export class RoleTimeInput extends React.Component<
       label={label}
       name={name}
       onChange={this.onChangeInput}
+      onFocus={(e) => (e.currentTarget as HTMLInputElement).select()}
       style={{
         margin: '20px 10px',
         width,
       }}
       type="number"
-      value={value}
+      value={value !== undefined ? value : ''}
     />
   }
 
@@ -85,15 +86,12 @@ export class RoleTimeInput extends React.Component<
   private onChangeInput(e: React.ChangeEvent<HTMLInputElement>) {
     const newRoleTime = new RoleTime(this.props.value);
     const property = e.currentTarget.name as keyof RoleTimeValue;
-    const value = parseInt(e.currentTarget.value);
+    const value = e.currentTarget.value ? parseInt(e.currentTarget.value) : undefined;
     newRoleTime[property] = value;
 
-    // Reduce day to month max if it's exceeding it
-    const hasMax = this.props.useTimeDefinitionsForMaxMin;
-    const maxForThisMonth = newRoleTime.timeDefinitions.monthDaysCount[newRoleTime.month - 1];
-    const dayIsExceedingMonthMax = newRoleTime.day > maxForThisMonth;
-    if (hasMax && dayIsExceedingMonthMax) {
-      newRoleTime['day'] = maxForThisMonth;
+    // Adjust value if it's exceeding the maximum or minimum (for absolute values)
+    if (this.props.useTimeDefinitionsForMaxMin) {
+      newRoleTime.applyMaxMinToAll();
     }
 
     this.props.onChange(newRoleTime);

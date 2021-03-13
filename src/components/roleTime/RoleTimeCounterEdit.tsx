@@ -114,7 +114,6 @@ export class RoleTimeCounterEdit extends React.Component<
       this.props.roleTime.addRoleTime(this.state.relativeTime) :
       this.state.absoluteTime;
 
-    console.log(roleTime.second, this.state.absoluteTime.second);
     this.props.onConfirm(roleTime);
   }
 }
