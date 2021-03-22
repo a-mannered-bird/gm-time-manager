@@ -12,7 +12,7 @@ import RoleTime from '../../models/RoleTime';
 
 export interface RoleTimeCounterProps {
   roleTime: RoleTime;
-  onChange: (roleTime: RoleTime) => void;
+  onChange: (roleTime: RoleTime, clockOn?: boolean) => void;
   defaultTimeType: 'relative' | 'absolute';
 }
 
@@ -76,6 +76,6 @@ export class RoleTimeCounter extends React.Component<
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
   onRoleTimeChange(roleTime: RoleTime) {
-    this.setState({showEditModal: false}, () => this.props.onChange(roleTime));
+    this.setState({showEditModal: false}, () => this.props.onChange(roleTime, false));
   }
 }

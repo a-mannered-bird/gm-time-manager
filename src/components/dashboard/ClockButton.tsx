@@ -8,13 +8,15 @@ import Tooltip from '@material-ui/core/Tooltip';
 import RoleTime from '../../models/RoleTime';
 
 export interface ClockButtonProps {
+  clockOn: boolean;
   roleTime: RoleTime;
-  onChange: (roleTime: RoleTime) => void;
+  onChange: (roleTime: RoleTime, clockOn?: boolean) => void;
 }
 
 export interface ClockButtonState {
   clockInterval?: NodeJS.Timeout;
   clockOn: boolean;
+  clockOnCached: boolean;
 }
 
 export class ClockButton extends React.Component<
@@ -29,7 +31,8 @@ export class ClockButton extends React.Component<
     super(props);
 
     this.state = {
-      clockOn: false,
+      clockOn: props.clockOn,
+      clockOnCached: props.clockOn,
     };
   }
 
@@ -53,6 +56,27 @@ export class ClockButton extends React.Component<
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
+  // tslint:disable-next-line:member-ordering
+  public static getDerivedStateFromProps(props: ClockButtonProps, state: ClockButtonState) {
+    let {clockOn, clockInterval} = state;
+    console.log(props.clockOn, state.clockOnCached);
+
+    if (state.clockOnCached !== props.clockOn) {
+      clockOn = props.clockOn;
+
+      if (!clockOn && clockInterval) {
+        clearInterval(clockInterval as NodeJS.Timeout);
+        clockInterval = undefined;
+      }
+    }
+
+    return {
+      clockInterval,
+      clockOn,
+      clockOnCached: props.clockOn,
+    };
+  }
+
   componentWillUnmount() {
     if (this.state.clockInterval) {
       clearInterval(this.state.clockInterval as NodeJS.Timeout);
@@ -71,7 +95,7 @@ export class ClockButton extends React.Component<
         // Add one second to current time
         this.props.onChange(new RoleTime(this.props.roleTime).addRoleTime(
           new RoleTime('0/0/0/0/0/1', this.props.roleTime.timeDefinitions)
-        ));
+        ), true);
       }, 1000);
     } else {
       clearInterval(clockInterval as NodeJS.Timeout);

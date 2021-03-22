@@ -19,6 +19,7 @@ export interface DashboardProps {
 }
 
 export interface DashboardState {
+  clockOn: boolean;
   presentTimes: PresentTime[];
 }
 
@@ -34,6 +35,7 @@ export class Dashboard extends React.Component<
     super(props);
 
     this.state = {
+      clockOn: false,
       presentTimes: [],
     };
 
@@ -61,6 +63,7 @@ export class Dashboard extends React.Component<
 
         <Box>
           <ClockButton
+            clockOn={this.state.clockOn}
             roleTime={roleTime}
             onChange={this.onRoleTimeChange}
           />
@@ -86,11 +89,16 @@ export class Dashboard extends React.Component<
     });
   }
 
-  onRoleTimeChange(roleTime: RoleTime) {
+  onRoleTimeChange(roleTime: RoleTime, clockOn?: boolean) {
     const timeString = roleTime.formatToFullString();
     const presentTimes = this.state.presentTimes;
     console.log(timeString);
     presentTimes[0].value = timeString;
+
+    if (clockOn !== undefined) {
+      this.setState({clockOn});
+    }
+
     putItem('presentTimes', presentTimes, (data) => {
       this.setState({presentTimes});
     });
