@@ -8,14 +8,12 @@ import Typography from '@material-ui/core/Typography';
 import { RoleTimeCounterEdit } from './RoleTimeCounterEdit';
 import Modal from '../utilities/Modal';
 
-// import {TimeDefinitions} from '../../models/Project';
-import Project from '../../models/Project';
 import RoleTime from '../../models/RoleTime';
 
 export interface RoleTimeCounterProps {
   roleTime: RoleTime;
   onChange: (roleTime: RoleTime) => void;
-  project: Project;
+  defaultTimeType: 'relative' | 'absolute';
 }
 
 export interface RoleTimeCounterState {
@@ -67,7 +65,7 @@ export class RoleTimeCounter extends React.Component<
         <RoleTimeCounterEdit
           onConfirm={this.onRoleTimeChange}
           roleTime={this.props.roleTime}
-          changeType={this.props.project.settings.changeTimeType}
+          changeType={this.props.defaultTimeType}
         />
       </></Modal>
     </>;

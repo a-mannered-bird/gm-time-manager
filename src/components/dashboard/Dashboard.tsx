@@ -5,6 +5,7 @@ import Box from '@material-ui/core/Box';
 // import Typography from '@material-ui/core/Typography';
 
 import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
+import { ClockButton } from './ClockButton';
 
 import { getAllFromProject, putItem } from '../../api/localdb';
 
@@ -50,14 +51,20 @@ export class Dashboard extends React.Component<
     const roleTime = new RoleTime(this.state.presentTimes[0].value, timeDefs);
 
     return <>
-      <Box display="flex" alignItems="center" justifyContent="center">
-
+      <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
         {/* COUNTER */}
         <RoleTimeCounter
           onChange={this.onRoleTimeChange}
-          project={this.props.project}
+          defaultTimeType={this.props.project.settings.changeTimeType}
           roleTime={roleTime}
         />
+
+        <Box>
+          <ClockButton
+            roleTime={roleTime}
+            onChange={this.onRoleTimeChange}
+          />
+        </Box>
       </Box>
     </>;
   }
