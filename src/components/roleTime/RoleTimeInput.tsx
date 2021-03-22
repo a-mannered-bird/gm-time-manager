@@ -1,8 +1,4 @@
 
-/*
- TODO: When focusing input, select the whole value
-*/
-
 import * as React from 'react';
 
 import Box from '@material-ui/core/Box';
@@ -15,6 +11,7 @@ export interface RoleTimeInputProps {
   useTimeDefinitionsForMaxMin: boolean;
   label?: string | React.ReactElement;
   onChange: (roleTime: RoleTime) => void;
+  timeInputFormat: 'full' | 'date' | 'time';
   value: RoleTime;
 }
 
@@ -26,6 +23,7 @@ export class RoleTimeInput extends React.Component<
 > {
 
   public static defaultProps: Partial<RoleTimeInputProps> = {
+    timeInputFormat: 'full',
     useTimeDefinitionsForMaxMin: false,
   };
 
@@ -42,6 +40,25 @@ export class RoleTimeInput extends React.Component<
     const {year, month, day, hour, minute, second} = this.props.value;
     const {monthMin, dayMin, hourMin, minuteMin, secondMin} = this.props.value;
     const {monthMax, dayMax, hourMax, minuteMax, secondMax} = this.props.value;
+    const {timeInputFormat} = this.props;
+
+    // Set which parts of the date and time we display
+    let inputs = [] as any[];
+    if (['full', 'date'].indexOf(timeInputFormat) !== -1) {
+      inputs = inputs.concat([
+        ["Year", "year", year, 70],
+        ["Month", "month", month, 50, monthMin, monthMax],
+        ["Day", "day", day, 50, dayMin, dayMax],
+      ]);
+    }
+
+    if (['full', 'time'].indexOf(timeInputFormat) !== -1) {
+      inputs = inputs.concat([
+        ["Hour", "hour", hour, 50, hourMin, hourMax],
+        ["Minute", "minute", minute, 50, minuteMin, minuteMax],
+        ["Second", "second", second, 50, secondMin, secondMax],
+      ]);
+    }
 
     return <>
       {this.props.label && <Box>
@@ -51,12 +68,9 @@ export class RoleTimeInput extends React.Component<
       </Box>}
 
       <Box>
-        {this.displayInput("Year", "year", year, 70)}
-        {this.displayInput("Month", "month", month, 50, monthMin, monthMax)}
-        {this.displayInput("Day", "day", day, 50, dayMin, dayMax)}
-        {this.displayInput("Hour", "hour", hour, 50, hourMin, hourMax)}
-        {this.displayInput("Minute", "minute", minute, 50, minuteMin, minuteMax)}
-        {this.displayInput("Second", "second", second, 50, secondMin, secondMax)}
+        {/*
+        // @ts-ignore */}
+        {inputs.map((i) => this.displayInput(i[0], i[1], i[2], i[3], i[4], i[5]))}
       </Box>
     </>;
   }
@@ -66,6 +80,7 @@ export class RoleTimeInput extends React.Component<
 
     return <TextField
       inputProps={inputProps}
+      key={name}
       label={label}
       name={name}
       onChange={this.onChangeInput}

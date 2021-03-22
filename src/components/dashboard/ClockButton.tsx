@@ -59,7 +59,6 @@ export class ClockButton extends React.Component<
   // tslint:disable-next-line:member-ordering
   public static getDerivedStateFromProps(props: ClockButtonProps, state: ClockButtonState) {
     let {clockOn, clockInterval} = state;
-    console.log(props.clockOn, state.clockOnCached);
 
     if (state.clockOnCached !== props.clockOn) {
       clockOn = props.clockOn;

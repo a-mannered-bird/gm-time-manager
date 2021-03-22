@@ -14,15 +14,16 @@ import {RoleTimeInput} from './RoleTimeInput';
 import RoleTime from '../../models/RoleTime';
 
 export interface RoleTimeCounterEditProps {
+  changeType: 'absolute' | 'relative';
   roleTime: RoleTime;
   onConfirm: (roleTime: RoleTime) => void;
-  changeType: 'absolute' | 'relative';
+  timeInputFormat: 'full' | 'date' |'time';
 }
 
 export interface RoleTimeCounterEditState {
   absoluteTime: RoleTime;
-  relativeTime: RoleTime;
   changeType: 'absolute' | 'relative';
+  relativeTime: RoleTime;
 }
 
 export class RoleTimeCounterEdit extends React.Component<
@@ -31,6 +32,7 @@ export class RoleTimeCounterEdit extends React.Component<
 > {
 
   public static defaultProps: Partial<RoleTimeCounterEditProps> = {
+    timeInputFormat: 'full',
   };
 
   constructor(props: RoleTimeCounterEditProps) {
@@ -81,8 +83,9 @@ export class RoleTimeCounterEdit extends React.Component<
 
       {/* TIME INPUT */}
       <RoleTimeInput
-        useTimeDefinitionsForMaxMin={changeType === 'absolute'}
         onChange={this.onChangeRoleTime}
+        timeInputFormat={this.props.timeInputFormat}
+        useTimeDefinitionsForMaxMin={changeType === 'absolute'}
         value={roleTime}
       />
 
