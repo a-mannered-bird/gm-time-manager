@@ -83,6 +83,15 @@ export default class RoleTime implements RoleTimeValue {
     this.timeString = this.formatToTimeString();
   }
 
+  /**
+   * Test if a variable is a roletime variable
+   *
+   * @param time  string | RoleTime
+   */
+  isRoleTime(time: string | RoleTime):time is RoleTime {
+    return (time as RoleTime).timeDefinitions !== undefined;
+  }
+
   // ******************** FORMATING METHODS *********************
 
   /**
@@ -168,16 +177,7 @@ export default class RoleTime implements RoleTimeValue {
     return weekDaysNames[dayIndex];
   }
 
-// ********************* UTILITY METHODS *****************
-
-  /**
-   * Test if a variable is a roletime variable
-   *
-   * @param time  string | RoleTime
-   */
-  isRoleTime(time: string | RoleTime):time is RoleTime {
-    return (time as RoleTime).timeDefinitions !== undefined;
-  }
+// ********************* MATH METHODS *****************
 
   /**
    * Return number of days in a year

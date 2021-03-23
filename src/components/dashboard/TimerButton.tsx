@@ -15,6 +15,7 @@ export interface TimerButtonProps {
   clockOn: boolean;
   roleTime: RoleTime;
   onTimerSet: () => void;
+  onTimerStop?: () => void;
 }
 
 export interface TimerButtonState {
@@ -63,6 +64,13 @@ export class TimerButton extends React.Component<
         open={this.state.showEditModal}
         onClose={() => this.setState({showEditModal: false})}
       ><>
+        {this.state.timeLimit && <Typography align="center">
+          Time left:
+          {" "}
+          {/* TODO: Create RoleTime with timestamp and display full time */}
+          {this.state.timeLimit.formatToNumber() - this.props.roleTime.formatToNumber()}
+        </Typography>}
+
         <Typography variant="h6" component="h6" align="center">
           Set the timer to
         </Typography>
@@ -73,18 +81,42 @@ export class TimerButton extends React.Component<
           roleTime={this.props.roleTime}
           timeInputFormat={'time'}
         />
+
+        {/* TODO: Add option to stop clock when timer stops */}
       </></Modal>
     </>;
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
+  componentDidUpdate(prevProps: TimerButtonProps) {
+
+    // If the timer has been reached
+    if (
+      this.state.timeLimit &&
+      this.props.roleTime.formatToNumber() >= this.state.timeLimit.formatToNumber()
+    ) {
+      this.stopTimer()
+    }
+  }
+
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
-  private setTimer(roleTime: RoleTime) {
+  setTimer(roleTime: RoleTime) {
+    const isPastOrPresent = roleTime.formatToNumber() <= this.props.roleTime.formatToNumber();
+
     this.setState({
       showEditModal: false,
-      timeLimit: roleTime,
-    }, () => this.props.onTimerSet());
+      timeLimit: isPastOrPresent ? undefined : roleTime,
+    }, !isPastOrPresent ? () => this.props.onTimerSet() : undefined);
+  }
+
+  stopTimer() {
+    const audio = new Audio('/bell.mp3');
+    audio.play();
+
+    this.setState({
+      timeLimit: undefined,
+    }, this.props.onTimerStop ? () => this.props.onTimerStop() : undefined);
   }
 }
