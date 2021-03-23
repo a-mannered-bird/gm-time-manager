@@ -6,6 +6,7 @@ import Box from '@material-ui/core/Box';
 
 import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
 import { ClockButton } from './ClockButton';
+import { TimerButton } from './TimerButton';
 
 import { getAllFromProject, putItem } from '../../api/localdb';
 
@@ -65,7 +66,13 @@ export class Dashboard extends React.Component<
           <ClockButton
             clockOn={this.state.clockOn}
             roleTime={roleTime}
-            onChange={this.onRoleTimeChange}
+            onClick={() => this.setState({clockOn: !this.state.clockOn})}
+            onClockTick={this.onRoleTimeChange}
+          />
+          <TimerButton
+            clockOn={this.state.clockOn}
+            roleTime={roleTime}
+            onTimerSet={() => this.setState({clockOn: true})}
           />
         </Box>
       </Box>
@@ -89,15 +96,11 @@ export class Dashboard extends React.Component<
     });
   }
 
-  onRoleTimeChange(roleTime: RoleTime, clockOn?: boolean) {
+  onRoleTimeChange(roleTime: RoleTime) {
     const timeString = roleTime.formatToFullString();
     const presentTimes = this.state.presentTimes;
-    console.log(timeString);
     presentTimes[0].value = timeString;
-
-    if (clockOn !== undefined) {
-      this.setState({clockOn});
-    }
+    console.log(timeString);
 
     putItem('presentTimes', presentTimes, (data) => {
       this.setState({presentTimes});

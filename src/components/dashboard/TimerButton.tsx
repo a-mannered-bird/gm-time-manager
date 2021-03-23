@@ -14,6 +14,7 @@ import RoleTime from '../../models/RoleTime';
 export interface TimerButtonProps {
   clockOn: boolean;
   roleTime: RoleTime;
+  onTimerSet: () => void;
 }
 
 export interface TimerButtonState {
@@ -35,6 +36,8 @@ export class TimerButton extends React.Component<
     this.state = {
       showEditModal: false,
     };
+
+    this.setTimer = this.setTimer.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -58,14 +61,15 @@ export class TimerButton extends React.Component<
       {/* EDIT MODAL */}
       <Modal
         open={this.state.showEditModal}
+        onClose={() => this.setState({showEditModal: false})}
       ><>
         <Typography variant="h6" component="h6" align="center">
-          When to?
+          Set the timer to
         </Typography>
 
         <RoleTimeCounterEdit
           changeType={'relative'}
-          onConfirm={() => {}}
+          onConfirm={this.setTimer}
           roleTime={this.props.roleTime}
           timeInputFormat={'time'}
         />
@@ -77,4 +81,10 @@ export class TimerButton extends React.Component<
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
+  private setTimer(roleTime: RoleTime) {
+    this.setState({
+      showEditModal: false,
+      timeLimit: roleTime,
+    }, () => this.props.onTimerSet());
+  }
 }

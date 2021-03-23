@@ -57,6 +57,7 @@ export class RoleTimeCounter extends React.Component<
       {/* EDIT MODAL */}
       <Modal
         open={this.state.showEditModal}
+        onClose={() => this.setState({showEditModal: false})}
       ><>
         <Typography variant="h6" component="h6" align="center">
           When to?

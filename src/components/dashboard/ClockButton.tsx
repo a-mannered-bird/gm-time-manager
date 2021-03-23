@@ -10,13 +10,12 @@ import RoleTime from '../../models/RoleTime';
 export interface ClockButtonProps {
   clockOn: boolean;
   roleTime: RoleTime;
-  onChange: (roleTime: RoleTime, clockOn?: boolean) => void;
+  onClockTick: (roleTime: RoleTime) => void;
+  onClick: () => void;
 }
 
 export interface ClockButtonState {
   clockInterval?: NodeJS.Timeout;
-  clockOn: boolean;
-  clockOnCached: boolean;
 }
 
 export class ClockButton extends React.Component<
@@ -24,22 +23,18 @@ export class ClockButton extends React.Component<
   ClockButtonState
 > {
 
-  public static defaultProps: Partial<ClockButtonProps> = {
-  };
+  public static defaultProps: Partial<ClockButtonProps> = {};
 
   constructor(props: ClockButtonProps) {
     super(props);
 
-    this.state = {
-      clockOn: props.clockOn,
-      clockOnCached: props.clockOn,
-    };
+    this.state = {};
   }
 
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {clockOn} = this.state;
+    const {clockOn} = this.props;
 
     return <Tooltip
       title={!clockOn ? "Start clock" : "Stop clock"}
@@ -47,7 +42,7 @@ export class ClockButton extends React.Component<
       <IconButton
         color={clockOn ? "secondary" : "default"}
         aria-label={!clockOn ? "Start clock" : "Stop clock"}
-        onClick={() => this.toggleClock()}
+        onClick={() => this.props.onClick()}
       >
         <TimerIcon />
       </IconButton>
@@ -56,24 +51,10 @@ export class ClockButton extends React.Component<
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
-  // tslint:disable-next-line:member-ordering
-  public static getDerivedStateFromProps(props: ClockButtonProps, state: ClockButtonState) {
-    let {clockOn, clockInterval} = state;
-
-    if (state.clockOnCached !== props.clockOn) {
-      clockOn = props.clockOn;
-
-      if (!clockOn && clockInterval) {
-        clearInterval(clockInterval as NodeJS.Timeout);
-        clockInterval = undefined;
-      }
+  componentDidUpdate(prevProps: ClockButtonProps) {
+    if (prevProps.clockOn !== this.props.clockOn) {
+      this.toggleClock(this.props.clockOn);
     }
-
-    return {
-      clockInterval,
-      clockOn,
-      clockOnCached: props.clockOn,
-    };
   }
 
   componentWillUnmount() {
@@ -87,23 +68,21 @@ export class ClockButton extends React.Component<
   /**
    * Start or stop the roletime from passing realistically 
    */
-  toggleClock() {
+  toggleClock(toggle: boolean) {
     let clockInterval = this.state.clockInterval;
-    if (!this.state.clockOn) {
+
+    if (toggle) {
       clockInterval = setInterval(() => {
         // Add one second to current time
-        this.props.onChange(new RoleTime(this.props.roleTime).addRoleTime(
+        this.props.onClockTick(new RoleTime(this.props.roleTime).addRoleTime(
           new RoleTime('0/0/0/0/0/1', this.props.roleTime.timeDefinitions)
-        ), true);
+        ));
       }, 1000);
-    } else {
+    } else if (clockInterval) {
       clearInterval(clockInterval as NodeJS.Timeout);
       clockInterval = undefined;
     }
 
-    this.setState({
-      clockInterval,
-      clockOn: !this.state.clockOn,
-    });
+    this.setState({clockInterval});
   }
 }
