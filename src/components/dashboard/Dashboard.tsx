@@ -100,7 +100,7 @@ export class Dashboard extends React.Component<
     const timeString = roleTime.formatToFullString();
     const presentTimes = this.state.presentTimes;
     presentTimes[0].value = timeString;
-    console.log(timeString);
+    console.log(timeString, roleTime.formatToNumber());
 
     putItem('presentTimes', presentTimes, (data) => {
       this.setState({presentTimes});

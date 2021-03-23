@@ -83,14 +83,7 @@ export default class RoleTime implements RoleTimeValue {
     this.timeString = this.formatToTimeString();
   }
 
-  /**
-   * Test if a variable is a roletime variable
-   *
-   * @param time  string | RoleTime
-   */
-  isRoleTime(time: string | RoleTime):time is RoleTime {
-    return (time as RoleTime).timeDefinitions !== undefined;
-  }
+  // ******************** FORMATING METHODS *********************
 
   /**
    * Return date in format YYYY/MM/DD
@@ -127,6 +120,17 @@ export default class RoleTime implements RoleTimeValue {
   }
 
   /**
+   * Return timestamp that represents the number of seconds away from year 0
+   */
+  formatToNumber() {
+    const secondsSinceYear0 = (this.getDaysSinceYear0()) *
+      (this.hourMax + 1) * (this.minuteMax + 1) * (this.secondMax + 1);
+    const secondsToday = this.getSecondsInDaySoFar();
+
+    return secondsSinceYear0 + secondsToday;
+  }
+
+  /**
    * Calculate how many 0 before a number we should display for readability
    * based on the maximum that can be displayed for this number.
    *
@@ -148,31 +152,91 @@ export default class RoleTime implements RoleTimeValue {
    * Calculate weekday name by counting days starting from year 0 
    */
   displayWeekDayName(){
-    const {monthDaysCount, weekDaysCount, weekDaysNames} = this.timeDefinitions;
+    const {weekDaysCount, weekDaysNames} = this.timeDefinitions;
     const year = this.year || 0;
-    const month = this.month || this.monthMin;
-    const day = this.day || this.dayMin;
-    const daysPerYear = monthDaysCount.reduce((pre, cur) => pre + cur);
-    const daysInYearSoFar = [0].concat(monthDaysCount).reduce((pre, cur, i) => {
-      return i < month ? pre + cur : pre;
-    }) + day - 1;
 
     let dayIndex;
+    let daysSinceYear0 = this.getDaysSinceYear0();
     if (year >= 0) {
-      const daysSinceYear0 = (daysPerYear * year) + daysInYearSoFar;
       dayIndex = daysSinceYear0 % weekDaysCount; 
     } else if (year < 0) {
-      const daysFromYear0 = (daysPerYear * (year + 1)) - (daysPerYear - daysInYearSoFar);
-      dayIndex = weekDaysCount + ((daysFromYear0 % weekDaysCount) || -weekDaysCount); 
+      dayIndex = weekDaysCount + ((daysSinceYear0 % weekDaysCount) || -weekDaysCount); 
     } else {
       return "";
     }
 
-
     return weekDaysNames[dayIndex];
   }
 
-// *********** MANIPULATION **********
+// ********************* UTILITY METHODS *****************
+
+  /**
+   * Test if a variable is a roletime variable
+   *
+   * @param time  string | RoleTime
+   */
+  isRoleTime(time: string | RoleTime):time is RoleTime {
+    return (time as RoleTime).timeDefinitions !== undefined;
+  }
+
+  /**
+   * Return number of days in a year
+   */
+  getDaysPerYear(): number {
+    const {monthDaysCount} = this.timeDefinitions;
+    return monthDaysCount.reduce((pre, cur) => pre + cur);
+  }
+
+  /**
+   * Return how many days has passed in the year so far, including today
+   */
+  getDaysInYearSoFar(): number {
+    const {monthDaysCount} = this.timeDefinitions;
+    const day = this.day || this.dayMin;
+    const month = this.month || this.monthMin;
+
+    return [0].concat(monthDaysCount).reduce((pre, cur, i) => {
+      return i < month ? pre + cur : pre;
+    }) + day - 1;
+  }
+
+  /**
+   * Return number of days since or from year 0, including today
+   */
+  getDaysSinceYear0(): number {
+    const year = this.year || 0;
+    const daysPerYear = this.getDaysPerYear();
+    const daysInYearSoFar = this.getDaysInYearSoFar();
+
+    if (year >= 0) {
+      return (daysPerYear * year) + daysInYearSoFar;
+    } else if (year < 0) {
+      return (daysPerYear * (year + 1)) - (daysPerYear - daysInYearSoFar);
+    } else return NaN;
+  }
+
+  /**
+   * Return total number of seconds in a day
+   */
+  getSecondsInADay(): number {
+    return (this.hourMax + 1) * (this.minuteMax + 1) * (this.secondMax + 1);
+  }
+
+  /**
+   * Return number of minutes that has passed today
+   */
+  getMinutesInDaySoFar(): number {
+    return (this.hour || this.hourMin) * (this.minuteMax + 1) + (this.minute || this.minuteMin);
+  }
+
+  /**
+   * Return number of seconds that has passed today
+   */
+  getSecondsInDaySoFar(): number {
+    return this.getMinutesInDaySoFar() * (this.secondMax + 1) + (this.second || this.secondMin);
+  }
+
+// ********************* MANIPULATION ********************
 
   /**
    * Add a time value expressed in RoleTime to this RoleTime
