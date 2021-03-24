@@ -73,6 +73,7 @@ export class Dashboard extends React.Component<
             clockOn={this.state.clockOn}
             roleTime={roleTime}
             onTimerStart={() => this.setState({clockOn: true})}
+            onTimerStop={(disableClock) => this.setState({clockOn: !disableClock})}
           />
         </Box>
       </Box>

@@ -13,6 +13,7 @@ import RoleTime from '../../models/RoleTime';
 
 export interface RoleTimeAdvancedInputProps {
   changeType: 'absolute' | 'relative';
+  changeTypeTooltip: string;
   defaultValue: RoleTime;
   onChange: (roleTime: RoleTime) => void;
   timeInputFormat: 'full' | 'date' |'time';
@@ -30,6 +31,8 @@ export class RoleTimeAdvancedInput extends React.Component<
 > {
 
   public static defaultProps: Partial<RoleTimeAdvancedInputProps> = {
+    changeTypeTooltip: 'Absolute let you set the exact date and time you want. ' +
+      'Relative will add or remove an amount from the current time.',
     timeInputFormat: 'full',
   };
 
@@ -67,9 +70,7 @@ export class RoleTimeAdvancedInput extends React.Component<
           <Grid item>Relative</Grid>
           <Grid item>
             <Tooltip
-              title={"Absolute let you set the exact date and time you want. " +
-                "Relative will add or remove an amount from the current time."
-              }
+              title={this.props.changeTypeTooltip}
             >
               <HelpOutlineIcon
                 fontSize="small"
