@@ -45,6 +45,7 @@ export class TimerButton extends React.Component<
 
   public render() {
     const {timeLimit, showEditModal} = this.state;
+    const {roleTime} = this.props;
 
     return <>
       <Tooltip
@@ -64,11 +65,13 @@ export class TimerButton extends React.Component<
         open={this.state.showEditModal}
         onClose={() => this.setState({showEditModal: false})}
       ><>
-        {this.state.timeLimit && <Typography align="center">
+        {timeLimit && <Typography align="center">
           Time left:
           {" "}
-          {/* TODO: Create RoleTime with timestamp and display full time */}
-          {this.state.timeLimit.formatToNumber() - this.props.roleTime.formatToNumber()}
+          {new RoleTime(
+            timeLimit.formatToNumber() - roleTime.formatToNumber(),
+            roleTime.timeDefinitions
+          ).timeString}
         </Typography>}
 
         <Typography variant="h6" component="h6" align="center">
