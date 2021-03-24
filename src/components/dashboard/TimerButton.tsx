@@ -51,7 +51,7 @@ export class TimerButton extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {newTimeLimit, activeTimeLimit, disableClock, showEditModal} = this.state;
+    const {activeTimeLimit, disableClock, showEditModal} = this.state;
     const {roleTime} = this.props;
 
     return <>

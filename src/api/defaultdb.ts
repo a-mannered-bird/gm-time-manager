@@ -26,9 +26,9 @@ export default {
         settings: {
           changeTimeType: 'relative',
           timeDefinitions: {
-            yearNames: {
-              2000: "L'année du test",
-            },
+            // yearNames: {
+            //   2000: "L'année du test",
+            // },
             yearMonthsCount: 12,
             monthDaysCount: [
               31,

@@ -8,12 +8,14 @@ import Typography from '@material-ui/core/Typography';
 import { RoleTimeAdvancedInput } from './RoleTimeAdvancedInput';
 import Modal from '../utilities/Modal';
 
+import Project from '../../models/Project';
 import RoleTime from '../../models/RoleTime';
 
 export interface RoleTimeCounterProps {
   roleTime: RoleTime;
   onChange: (roleTime: RoleTime, clockOn?: boolean) => void;
-  defaultTimeType: 'relative' | 'absolute';
+  project: Project;
+  updateProject: (project: Project) => void;
 }
 
 export interface RoleTimeCounterState {
@@ -35,6 +37,8 @@ export class RoleTimeCounter extends React.Component<
       newRoleTime: new RoleTime(props.roleTime),
       showEditModal: false,
     };
+
+    this.onNewRoleTimeChange = this.onNewRoleTimeChange.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -64,9 +68,9 @@ export class RoleTimeCounter extends React.Component<
         </Typography>
 
         <RoleTimeAdvancedInput
-          onChange={(newRoleTime) => this.setState({newRoleTime})}
+          onChange={this.onNewRoleTimeChange}
           defaultValue={this.props.roleTime}
-          changeType={this.props.defaultTimeType}
+          changeType={this.props.project.settings.changeTimeType}
         />
 
         {/* VALIDATE BUTTON */}
@@ -85,7 +89,20 @@ export class RoleTimeCounter extends React.Component<
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
-  private onGo() {
+  onNewRoleTimeChange(newRoleTime: RoleTime, changeTimeType?: 'absolute' | 'relative') {
+    this.setState({newRoleTime}, () => {
+
+      // Update settings for changeTimeType if it's a new value
+      const project = this.props.project;
+      console.log(changeTimeType, project.settings.changeTimeType);
+      if (changeTimeType && changeTimeType !== project.settings.changeTimeType) {
+        project.settings.changeTimeType = changeTimeType;
+        this.props.updateProject(project);
+      }
+    });
+  }
+
+  onGo() {
     this.setState({showEditModal: false}, () => this.props.onChange(this.state.newRoleTime, false));
   }
 }

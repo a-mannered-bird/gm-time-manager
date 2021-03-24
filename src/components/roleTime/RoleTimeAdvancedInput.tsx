@@ -15,7 +15,7 @@ export interface RoleTimeAdvancedInputProps {
   changeType: 'absolute' | 'relative';
   changeTypeTooltip: string;
   defaultValue: RoleTime;
-  onChange: (roleTime: RoleTime) => void;
+  onChange: (roleTime: RoleTime, changeType?: 'absolute' | 'relative') => void;
   timeInputFormat: 'full' | 'date' |'time';
 }
 
@@ -107,7 +107,7 @@ export class RoleTimeAdvancedInput extends React.Component<
       const newRoleTime = changeType === 'relative' ?
         this.props.defaultValue.addRoleTime(this.state.relativeTime) :
         this.state.absoluteTime;
-      this.props.onChange(newRoleTime);
+      this.props.onChange(newRoleTime, changeType);
     });
   }
 }

@@ -17,6 +17,7 @@ import RoleTime from '../../models/RoleTime';
 
 export interface DashboardProps {
   project: Project;
+  updateProject: (project: Project) => void;
 }
 
 export interface DashboardState {
@@ -40,7 +41,7 @@ export class Dashboard extends React.Component<
       presentTimes: [],
     };
 
-    this.onRoleTimeChange = this.onRoleTimeChange.bind(this);
+    this.setPresentTime = this.setPresentTime.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -57,9 +58,10 @@ export class Dashboard extends React.Component<
       <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
         {/* COUNTER */}
         <RoleTimeCounter
-          onChange={this.onRoleTimeChange}
-          defaultTimeType={this.props.project.settings.changeTimeType}
+          onChange={this.setPresentTime}
+          project={this.props.project}
           roleTime={roleTime}
+          updateProject={this.props.updateProject}
         />
 
         <Box>
@@ -67,7 +69,7 @@ export class Dashboard extends React.Component<
             clockOn={this.state.clockOn}
             roleTime={roleTime}
             onClick={() => this.setState({clockOn: !this.state.clockOn})}
-            onClockTick={this.onRoleTimeChange}
+            onClockTick={this.setPresentTime}
           />
           <TimerButton
             clockOn={this.state.clockOn}
@@ -82,7 +84,7 @@ export class Dashboard extends React.Component<
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
-  public componentDidMount () {
+  componentDidMount () {
     this.loadDatas();
   }
 
@@ -91,13 +93,19 @@ export class Dashboard extends React.Component<
   /**
    * Gather all the datas we need
    */
-  public loadDatas() {
+  loadDatas() {
     getAllFromProject('presentTimes', this.props.project.id, (presentTimes: PresentTime[]) => {
       this.setState({presentTimes});
     });
   }
 
-  onRoleTimeChange(roleTime: RoleTime) {
+  /**
+   * Update the value of the present time in the app and inside the DB
+   * TODO: Replace full string format with timestamp format to save space in the DB
+   *
+   * @param roleTime  RoleTime
+   */
+  setPresentTime(roleTime: RoleTime) {
     const timeString = roleTime.formatToFullString();
     const presentTimes = this.state.presentTimes;
     presentTimes[0].value = timeString;

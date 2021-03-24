@@ -11,7 +11,6 @@ import SaveIcon from '@material-ui/icons/Save';
 import Typography from '@material-ui/core/Typography';
 
 import { SettingsTimeDefinitions } from './SettingsTimeDefinitions'
-import { putItem } from '../../api/localdb';
 
 import Project from '../../models/Project';
 
@@ -126,10 +125,8 @@ export class Settings extends React.Component<
   private saveSettings() {
     const project = this.state.project;
 
-    putItem('projects', project, (data) => {
-      this.setState({
-        pristine: true,
-      }, () => this.props.updateProject(project));
-    });
+    this.setState({
+      pristine: true,
+    }, () => this.props.updateProject(project));
   }
 }

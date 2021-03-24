@@ -16,7 +16,7 @@ import { TopBar } from './TopBar';
 
 import Project from '../../models/Project';
 
-import { getAll } from '../../api/localdb';
+import { getAll, putItem } from '../../api/localdb';
 
 export interface LayoutProps {
   match: any;
@@ -96,6 +96,7 @@ class Layout extends React.Component<
             <Route path="/:projectId/dashboard">
               <Dashboard
                 project={this.state.selectedProject}
+                updateProject={this.updateProject}
               />
             </Route>
             <Route path="/:projectId/settings">
@@ -177,13 +178,14 @@ class Layout extends React.Component<
    * @param project  Project
    */
   public updateProject(project: Project) {
-    const {projects} = this.state;
-    const index = this.state.projects.findIndex((p) => project.id === p.id);
-    projects[index] = project;
-
-    this.setState({
-      projects,
-      selectedProject: project,
+    putItem('projects', project, (data) => {
+      const {projects} = this.state;
+      const index = this.state.projects.findIndex((p) => project.id === p.id);
+      projects[index] = project;
+      this.setState({
+        projects,
+        selectedProject: project,
+      });
     });
   }
 
