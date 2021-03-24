@@ -39,6 +39,7 @@ export class RoleTimeCounter extends React.Component<
     };
 
     this.onNewRoleTimeChange = this.onNewRoleTimeChange.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -87,6 +88,14 @@ export class RoleTimeCounter extends React.Component<
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
+  componentDidMount() {
+    window.addEventListener('keydown', this.onKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKeyDown);
+  }
+
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
   onNewRoleTimeChange(newRoleTime: RoleTime, changeTimeType?: 'absolute' | 'relative') {
@@ -104,5 +113,13 @@ export class RoleTimeCounter extends React.Component<
 
   onGo() {
     this.setState({showEditModal: false}, () => this.props.onChange(this.state.newRoleTime, false));
+  }
+
+  onKeyDown(e: KeyboardEvent) {
+    // Enter key trigger form 
+    if (e.keyCode === 13 && this.state.showEditModal) {
+      e.preventDefault();
+      this.onGo();
+    }
   }
 }

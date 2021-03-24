@@ -46,6 +46,8 @@ export class TimerButton extends React.Component<
       showEditModal: false,
       newTimeLimit: new RoleTime(props.roleTime),
     };
+
+    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -137,6 +139,14 @@ export class TimerButton extends React.Component<
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
+  componentDidMount() {
+    window.addEventListener('keydown', this.onKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKeyDown);
+  }
+
   componentDidUpdate(prevProps: TimerButtonProps) {
 
     // If the timer has been reached
@@ -149,6 +159,14 @@ export class TimerButton extends React.Component<
   }
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
+
+  onKeyDown(e: KeyboardEvent) {
+    // Enter key trigger form 
+    if (e.keyCode === 13 && this.state.showEditModal && this.validateTimer()) {
+      e.preventDefault();
+      this.startTimer();
+    }
+  }
 
   /**
    * Activate the timer
