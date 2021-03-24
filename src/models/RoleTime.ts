@@ -46,18 +46,14 @@ export default class RoleTime implements RoleTimeValue {
 
   constructor(roleTime: RoleTime);
   constructor(time: string, timeDefinitions: TimeDefinitions);
-  constructor(time: string | RoleTime, timeDefinitions?: TimeDefinitions){
+  constructor(time: number, timeDefinitions: TimeDefinitions);
+  constructor(time: string | RoleTime | number, timeDefinitions?: TimeDefinitions){
     this.valueNames = ['year', 'month', 'day', 'hour', 'minute', 'second'];
 
-    // From RoleTime
+    // Set time definitions
     if (this.isRoleTime(time)) {
-      this.valueNames.forEach((name) => this[name] = time[name]);
       this.timeDefinitions = time.timeDefinitions;
-
-    // From string
     } else {
-      const timeSplit = time.split('/');
-      this.valueNames.forEach((name, i) => this[name] = parseInt(timeSplit[i]));
       this.timeDefinitions = timeDefinitions as TimeDefinitions;
     }
 
@@ -65,7 +61,6 @@ export default class RoleTime implements RoleTimeValue {
     const {monthDaysCount, yearMonthsCount} = this.timeDefinitions;
     this.monthMax = yearMonthsCount;
     this.monthMin = 1;
-    this.dayMax = monthDaysCount[(this.month || this.monthMin) - 1];
     this.dayMin = 1;
     this.hourMax = 23;
     this.hourMin = 0;
@@ -74,6 +69,51 @@ export default class RoleTime implements RoleTimeValue {
     this.secondMax = 59;
     this.secondMin = 0;
 
+    // Set values from RoleTime
+    if (this.isRoleTime(time)) {
+      this.valueNames.forEach((name) => this[name] = time[name]);
+
+    // From string
+    } else if (typeof time === 'string') {
+      const timeSplit = time.split('/');
+      this.valueNames.forEach((name, i) => this[name] = parseInt(timeSplit[i]));
+
+    // from number
+    } else {
+
+      // Define time
+      let timeLeft = time;
+      ['second', 'minute', 'hour'].forEach((name) => {
+        const max = this[name + 'Max'] + 1;
+        const value = timeLeft % max;
+        this[name] = value < 0 ? max + value : value;
+        timeLeft = Math.floor(timeLeft / max);
+      });
+
+      // Set year
+      const daysPerYear = this.getDaysPerYear();
+      this.year = Math.floor(timeLeft / daysPerYear);
+      const daysLeft = timeLeft % daysPerYear;
+
+      // Set month
+      let daysCount = 0;
+      const daysSoFarInYear = daysLeft < 0 ? daysPerYear + daysLeft : daysLeft;
+      // console.log('daysSoFarInYear ', daysSoFarInYear);
+      this.month = monthDaysCount.findIndex((count, i) => {
+        // console.log('month ' + i + ' - ' + count + ' days - ' + ' daysCount ' + daysCount);
+        if (daysCount + count > daysSoFarInYear) {
+          return true;
+        } else {
+          daysCount += count;
+          return false;
+        }
+      }) + 1;
+
+      // Set day
+      this.day = Math.abs(daysSoFarInYear - daysCount + 1);
+    }
+
+    this.dayMax = monthDaysCount[(this.month || this.monthMin) - 1];
     this.weekDayName = this.displayWeekDayName();
     this.monthName = this.timeDefinitions.monthNames[(this.month || this.monthMin) - 1];
 
@@ -88,7 +128,7 @@ export default class RoleTime implements RoleTimeValue {
    *
    * @param time  string | RoleTime
    */
-  isRoleTime(time: string | RoleTime):time is RoleTime {
+  isRoleTime(time: string | RoleTime | number):time is RoleTime {
     return (time as RoleTime).timeDefinitions !== undefined;
   }
 

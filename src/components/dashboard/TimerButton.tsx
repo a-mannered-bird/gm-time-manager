@@ -108,7 +108,7 @@ export class TimerButton extends React.Component<
     this.setState({
       showEditModal: false,
       timeLimit: isPastOrPresent ? undefined : roleTime,
-    }, !isPastOrPresent ? () => this.props.onTimerSet() : undefined);
+    }, () => !isPastOrPresent ? this.props.onTimerSet() : null);
   }
 
   stopTimer() {
@@ -117,6 +117,6 @@ export class TimerButton extends React.Component<
 
     this.setState({
       timeLimit: undefined,
-    }, this.props.onTimerStop ? () => this.props.onTimerStop() : undefined);
+    }, () => this.props.onTimerStop ? this.props.onTimerStop() : null);
   }
 }
