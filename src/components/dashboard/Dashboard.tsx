@@ -72,7 +72,7 @@ export class Dashboard extends React.Component<
           <TimerButton
             clockOn={this.state.clockOn}
             roleTime={roleTime}
-            onTimerSet={() => this.setState({clockOn: true})}
+            onTimerStart={() => this.setState({clockOn: true})}
           />
         </Box>
       </Box>
@@ -100,8 +100,8 @@ export class Dashboard extends React.Component<
     const timeString = roleTime.formatToFullString();
     const presentTimes = this.state.presentTimes;
     presentTimes[0].value = timeString;
-    console.log(timeString, roleTime.formatToNumber());
-    console.log(new RoleTime(roleTime.formatToNumber(), roleTime.timeDefinitions).formatToFullString());
+    console.log(timeString, roleTime.formatToNumber(), 'New RoleTime!');
+    console.log(new RoleTime(roleTime.formatToNumber(), roleTime.timeDefinitions).formatToFullString(), 'timestamp to string check');
 
     putItem('presentTimes', presentTimes, (data) => {
       this.setState({presentTimes});

@@ -1,12 +1,14 @@
 
 import * as React from 'react';
 
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
-import { RoleTimeCounterEdit } from '../roleTime/RoleTimeCounterEdit';
+import { RoleTimeAdvancedInput } from '../roleTime/RoleTimeAdvancedInput';
 import Modal from '../utilities/Modal';
 
 import RoleTime from '../../models/RoleTime';
@@ -14,13 +16,14 @@ import RoleTime from '../../models/RoleTime';
 export interface TimerButtonProps {
   clockOn: boolean;
   roleTime: RoleTime;
-  onTimerSet: () => void;
+  onTimerStart: () => void;
   onTimerStop?: () => void;
 }
 
 export interface TimerButtonState {
   showEditModal: boolean;
   timeLimit?: RoleTime;
+  timerOn: boolean;
 }
 
 export class TimerButton extends React.Component<
@@ -36,6 +39,7 @@ export class TimerButton extends React.Component<
 
     this.state = {
       showEditModal: false,
+      timerOn: false,
     };
 
     this.setTimer = this.setTimer.bind(this);
@@ -44,16 +48,16 @@ export class TimerButton extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {timeLimit, showEditModal} = this.state;
+    const {timeLimit, timerOn, showEditModal} = this.state;
     const {roleTime} = this.props;
 
     return <>
       <Tooltip
-        title={!timeLimit ? "Start a timer" : "Edit Timer"}
+        title={!timerOn ? "Start a timer" : "Edit Timer"}
       >
         <IconButton
-          color={timeLimit ? "secondary" : "default"}
-          aria-label={!timeLimit ? "Start a timer" : "Edit Timer"}
+          color={timerOn ? "secondary" : "default"}
+          aria-label={!timerOn ? "Start a timer" : "Edit Timer"}
           onClick={() => this.setState({showEditModal: !showEditModal})}
         >
           <HourglassEmptyIcon />
@@ -65,7 +69,7 @@ export class TimerButton extends React.Component<
         open={this.state.showEditModal}
         onClose={() => this.setState({showEditModal: false})}
       ><>
-        {timeLimit && <Typography align="center">
+        {timeLimit && timerOn && <Typography align="center">
           Time left:
           {" "}
           {new RoleTime(
@@ -78,12 +82,21 @@ export class TimerButton extends React.Component<
           Set the timer to
         </Typography>
 
-        <RoleTimeCounterEdit
+        <RoleTimeAdvancedInput
           changeType={'relative'}
-          onConfirm={this.setTimer}
-          roleTime={this.props.roleTime}
+          defaultValue={this.props.roleTime}
+          onChange={this.setTimer}
           timeInputFormat={'time'}
         />
+
+        {/* VALIDATE BUTTON */}
+        <Box display="flex" flexDirection="row-reverse">
+          <Button variant="contained" color="primary" disabled={!timeLimit}
+            onClick={() => this.startTimer()}
+          >
+            Confirm
+          </Button>
+        </Box>
 
         {/* TODO: Add option to stop clock when timer stops */}
       </></Modal>
@@ -96,7 +109,7 @@ export class TimerButton extends React.Component<
 
     // If the timer has been reached
     if (
-      this.state.timeLimit &&
+      this.state.timeLimit && this.state.timerOn && 
       this.props.roleTime.formatToNumber() >= this.state.timeLimit.formatToNumber()
     ) {
       this.stopTimer()
@@ -105,21 +118,43 @@ export class TimerButton extends React.Component<
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
+  /**
+   * Set value of the timer through the edit modal
+   *
+   * @param roleTime  RoleTime
+   */
   setTimer(roleTime: RoleTime) {
     const isPastOrPresent = roleTime.formatToNumber() <= this.props.roleTime.formatToNumber();
 
     this.setState({
-      showEditModal: false,
       timeLimit: isPastOrPresent ? undefined : roleTime,
-    }, () => !isPastOrPresent ? this.props.onTimerSet() : null);
+    });
   }
 
+  /**
+   * Activate the timer
+   */
+  startTimer() {
+    if (!this.state.timeLimit) {
+      return;
+    }
+
+    this.setState({
+      showEditModal: false,
+      timerOn: true,
+    }, () => this.props.onTimerStart())
+  }
+
+  /**
+   * Play a sound and stop the timer
+   */
   stopTimer() {
     const audio = new Audio('/bell.mp3');
     audio.play();
 
     this.setState({
       timeLimit: undefined,
+      timerOn: false,
     }, () => this.props.onTimerStop ? this.props.onTimerStop() : null);
   }
 }

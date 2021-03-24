@@ -1,8 +1,6 @@
 
 import * as React from 'react';
 
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import Switch from '@material-ui/core/Switch';
@@ -13,33 +11,33 @@ import {RoleTimeInput} from './RoleTimeInput';
 
 import RoleTime from '../../models/RoleTime';
 
-export interface RoleTimeCounterEditProps {
+export interface RoleTimeAdvancedInputProps {
   changeType: 'absolute' | 'relative';
-  roleTime: RoleTime;
-  onConfirm: (roleTime: RoleTime) => void;
+  defaultValue: RoleTime;
+  onChange: (roleTime: RoleTime) => void;
   timeInputFormat: 'full' | 'date' |'time';
 }
 
-export interface RoleTimeCounterEditState {
+export interface RoleTimeAdvancedInputState {
   absoluteTime: RoleTime;
   changeType: 'absolute' | 'relative';
   relativeTime: RoleTime;
 }
 
-export class RoleTimeCounterEdit extends React.Component<
-  RoleTimeCounterEditProps,
-  RoleTimeCounterEditState
+export class RoleTimeAdvancedInput extends React.Component<
+  RoleTimeAdvancedInputProps,
+  RoleTimeAdvancedInputState
 > {
 
-  public static defaultProps: Partial<RoleTimeCounterEditProps> = {
+  public static defaultProps: Partial<RoleTimeAdvancedInputProps> = {
     timeInputFormat: 'full',
   };
 
-  constructor(props: RoleTimeCounterEditProps) {
+  constructor(props: RoleTimeAdvancedInputProps) {
     super(props);
     this.state = {
-      absoluteTime: props.roleTime,
-      relativeTime: new RoleTime('0/0/0/0/0/0', props.roleTime.timeDefinitions),
+      absoluteTime: props.defaultValue,
+      relativeTime: new RoleTime('0/0/0/0/0/0', props.defaultValue.timeDefinitions),
       changeType: props.changeType || 'relative',
     };
 
@@ -60,9 +58,10 @@ export class RoleTimeCounterEdit extends React.Component<
           <Grid item>
             <Switch
               checked={changeType === 'relative'}
-              onChange={() => this.setState({
-                changeType: changeType === 'relative' ? 'absolute' : 'relative',
-              })}
+              onChange={() => this.onChangeRoleTime(
+                undefined, 
+                changeType === 'relative' ? 'absolute' : 'relative'
+              )}
             />
           </Grid>
           <Grid item>Relative</Grid>
@@ -88,15 +87,6 @@ export class RoleTimeCounterEdit extends React.Component<
         useTimeDefinitionsForMaxMin={changeType === 'absolute'}
         value={roleTime}
       />
-
-      {/* VALIDATE BUTTON */}
-      <Box display="flex" flexDirection="row-reverse">
-        <Button variant="contained" color="primary"
-          onClick={() => this.onGo()}
-        >
-          Go
-        </Button>
-      </Box>
     </>;
   }
 
@@ -104,19 +94,19 @@ export class RoleTimeCounterEdit extends React.Component<
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
-  private onChangeRoleTime(roleTime: RoleTime) {
-    if (this.state.changeType === 'absolute'){
-      this.setState({absoluteTime: roleTime});
-    } else {
-      this.setState({relativeTime: roleTime});
-    }
-  }
-
-  private onGo() {
-    const roleTime = this.state.changeType === 'relative' ?
-      this.props.roleTime.addRoleTime(this.state.relativeTime) :
-      this.state.absoluteTime;
-
-    this.props.onConfirm(roleTime);
+  private onChangeRoleTime(roleTime?: RoleTime, changeType?: 'absolute' | 'relative') {
+    changeType = changeType || this.state.changeType;
+    const isAbsolute = changeType === 'absolute';
+    roleTime = roleTime || (isAbsolute ? this.state.absoluteTime : this.state.relativeTime);
+    this.setState({
+      absoluteTime: isAbsolute ? roleTime : this.state.absoluteTime,
+      changeType,
+      relativeTime: !isAbsolute ? roleTime : this.state.relativeTime,
+    }, () => {
+      const newRoleTime = changeType === 'relative' ?
+        this.props.defaultValue.addRoleTime(this.state.relativeTime) :
+        this.state.absoluteTime;
+      this.props.onChange(newRoleTime);
+    });
   }
 }

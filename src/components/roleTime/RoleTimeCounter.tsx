@@ -1,11 +1,11 @@
 
 import * as React from 'react';
 
-// import Box from '@material-ui/core/Box';
+import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
-import { RoleTimeCounterEdit } from './RoleTimeCounterEdit';
+import { RoleTimeAdvancedInput } from './RoleTimeAdvancedInput';
 import Modal from '../utilities/Modal';
 
 import RoleTime from '../../models/RoleTime';
@@ -17,6 +17,7 @@ export interface RoleTimeCounterProps {
 }
 
 export interface RoleTimeCounterState {
+  newRoleTime: RoleTime;
   showEditModal: boolean;
 }
 
@@ -31,10 +32,9 @@ export class RoleTimeCounter extends React.Component<
   constructor(props: RoleTimeCounterProps) {
     super(props);
     this.state = {
+      newRoleTime: new RoleTime(props.roleTime),
       showEditModal: false,
     };
-
-    this.onRoleTimeChange = this.onRoleTimeChange.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -63,11 +63,20 @@ export class RoleTimeCounter extends React.Component<
           When to?
         </Typography>
 
-        <RoleTimeCounterEdit
-          onConfirm={this.onRoleTimeChange}
-          roleTime={this.props.roleTime}
+        <RoleTimeAdvancedInput
+          onChange={(newRoleTime) => this.setState({newRoleTime})}
+          defaultValue={this.props.roleTime}
           changeType={this.props.defaultTimeType}
         />
+
+        {/* VALIDATE BUTTON */}
+        <Box display="flex" flexDirection="row-reverse">
+          <Button variant="contained" color="primary"
+            onClick={() => this.onGo()}
+          >
+            Go
+          </Button>
+        </Box>
       </></Modal>
     </>;
   }
@@ -76,7 +85,7 @@ export class RoleTimeCounter extends React.Component<
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
-  onRoleTimeChange(roleTime: RoleTime) {
-    this.setState({showEditModal: false}, () => this.props.onChange(roleTime, false));
+  private onGo() {
+    this.setState({showEditModal: false}, () => this.props.onChange(this.state.newRoleTime, false));
   }
 }
