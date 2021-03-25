@@ -285,6 +285,7 @@ export default class RoleTime implements RoleTimeValue {
    */
   addRoleTime(toAdd: RoleTime): RoleTime {
     const newRoleTime = new RoleTime(this);
+    // console.log('New roletime addition');
     
     // Seconds
     const secondResults = this.addToCappedValue(this.second, toAdd.second, this.secondMin, this.secondMax + 1);
@@ -301,9 +302,8 @@ export default class RoleTime implements RoleTimeValue {
     newRoleTime.hour = hourResults.newValue;
     const daysToAdd = (toAdd.day || 0) + hourResults.parentValueAdd;
 
-    // Days
-    // TODO: Exception because this day per month can vary :'(
-    const dayResults = this.addToCappedValue(this.day, daysToAdd, this.dayMin, this.dayMax);
+    // Days - Exception on this one because maxDay can vary depending on month
+    const dayResults = this.addDaysToCappedValue(this.day, daysToAdd, this.dayMin);
     newRoleTime.day = dayResults.newValue;
     const monthsToAdd = (toAdd.month || 0) + dayResults.parentValueAdd;
 
@@ -320,12 +320,48 @@ export default class RoleTime implements RoleTimeValue {
 
   addToCappedValue(initialValue: number | undefined, addValue: number | undefined, valueMin: number, valueMax: number): {newValue: number, parentValueAdd: number}{
     let newValue = (initialValue || 0) + (addValue || 0);
-    let parentValueAdd = Math.floor(Math.abs(newValue / valueMax));
+    const isNegative = newValue < 0;
+    let parentValueAdd = newValue / valueMax;
+    parentValueAdd = !isNegative ? Math.floor(parentValueAdd) : Math.ceil(parentValueAdd);
+    // console.log('1 *** ', newValue, addValue, parentValueAdd);
     newValue %= valueMax;
+    // console.log('2 *** ', newValue);
     if (newValue < valueMin) {
       newValue = valueMax + newValue;
       parentValueAdd--;
     }
+    // console.log('3 ***', newValue, parentValueAdd);
+    return {newValue, parentValueAdd};
+  }
+
+  addDaysToCappedValue(initialValue: number | undefined, addValue: number | undefined, valueMin: number): {newValue: number, parentValueAdd: number}{
+    const {monthDaysCount} = this.timeDefinitions;
+    let newValue = (initialValue || 0) + (addValue || 0);
+    const isNegative = newValue < valueMin;
+    // console.log('newValue: ' + newValue, 'addValue: ' + addValue, isNegative);
+
+    let daysCount = 0;
+    const thisMonthIndex = (this.month || this.monthMin) - 1;
+    let i = thisMonthIndex;
+    let parentValueAdd = 0;
+    while (!isNegative ? daysCount < newValue : daysCount > newValue) {
+      let count = isNegative ? -monthDaysCount[i] : monthDaysCount[i];
+      // console.log('month ' + i, count + ' count');
+      if (!isNegative && daysCount + count > newValue - 1) { break; }
+      if (isNegative && daysCount + count < newValue) { break; }
+      daysCount += count;
+      parentValueAdd = isNegative ? parentValueAdd - 1 : parentValueAdd + 1;
+      i = !isNegative ? (i >= monthDaysCount.length - 1 ? 0 : i + 1) :
+        (i <= 0 ? monthDaysCount.length - 1 : i - 1);
+      // console.log('adding those days =>', daysCount, 'parentValueAdd : ', parentValueAdd, ' newMonth:', i);
+    }
+
+    newValue = newValue - daysCount;
+    if (newValue < valueMin) { // What about if it's 0?
+      newValue = monthDaysCount[i] + newValue;
+      parentValueAdd--;
+    }
+    // console.log(newValue, parentValueAdd);
     return {newValue, parentValueAdd};
   }
 

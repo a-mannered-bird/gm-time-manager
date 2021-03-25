@@ -103,7 +103,6 @@ export class RoleTimeCounter extends React.Component<
 
       // Update settings for changeTimeType if it's a new value
       const project = this.props.project;
-      console.log(changeTimeType, project.settings.changeTimeType);
       if (changeTimeType && changeTimeType !== project.settings.changeTimeType) {
         project.settings.changeTimeType = changeTimeType;
         this.props.updateProject(project);
