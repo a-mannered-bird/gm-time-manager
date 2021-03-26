@@ -4,8 +4,9 @@ import * as React from 'react';
 import Box from '@material-ui/core/Box';
 // import Typography from '@material-ui/core/Typography';
 
-import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
 import { ClockButton } from './ClockButton';
+import { DashboardEvents } from './DashboardEvents';
+import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
 import { TimerButton } from './TimerButton';
 
 import { getAllFromProject, putItem } from '../../api/localdb';
@@ -64,6 +65,7 @@ export class Dashboard extends React.Component<
           updateProject={this.props.updateProject}
         />
 
+        {/* Counter actions */}
         <Box>
           <ClockButton
             clockOn={this.state.clockOn}
@@ -78,6 +80,10 @@ export class Dashboard extends React.Component<
             onTimerStop={(disableClock) => this.setState({clockOn: !disableClock})}
           />
         </Box>
+
+        <br/>
+
+        <DashboardEvents/>
       </Box>
     </>;
   }
