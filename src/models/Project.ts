@@ -1,6 +1,7 @@
 
-import PresentTime from './PresentTime';
+// TODO: add externalId to projects
 
+import PresentTime from './PresentTime';
 
 export default interface Project {
   id: number;

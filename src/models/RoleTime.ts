@@ -1,9 +1,4 @@
 
-/**
-  TODO: Constructor that takes a number to create the RoleTime
-  (number of seconds relative to year 0)
-*/
-
 import {TimeDefinitions} from '../models/Project';
 
 export interface RoleTimeValue {
