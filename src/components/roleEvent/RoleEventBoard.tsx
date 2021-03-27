@@ -45,7 +45,7 @@ export class RoleEventBoard extends React.Component<
     const {name, roleEvents} = this.props;
 
     return <Paper style={{
-      marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 5,
+      marginTop: 10, marginBottom: -10, marginLeft: 5, marginRight: 5,
       flexGrow: 1,
     }}>
       <List dense
@@ -61,7 +61,7 @@ export class RoleEventBoard extends React.Component<
       >
         {roleEvents.map(this.displayEventRow)}
         {!roleEvents.length && <ListItem>
-          <ListItemText primary="No events found" />
+          <ListItemText secondary="No events found" />
         </ListItem>}
       </List>
 
@@ -71,14 +71,28 @@ export class RoleEventBoard extends React.Component<
     </Paper>;
   }
 
+  /**
+   * Display a row containing basic informations about an RoleEvent
+   *
+   * @param e  RoleEvent
+   * @param i  number
+   */
   displayEventRow(e: RoleEvent, i: number) {
     return <ListItem button 
       key={this.props.name + '-event-' + e.id}
     >
-      <ListItemText primary={e.name} />
+      <ListItemText
+        primaryTypographyProps={{
+          variant: 'caption',
+        }}
+        primary={e.name}
+      />
     </ListItem>;
   }
 
+  /**
+   * Display button to expand more results
+   */
   displayMoreButton() {
     if (!this.props.showMoreActive) {
       return null;

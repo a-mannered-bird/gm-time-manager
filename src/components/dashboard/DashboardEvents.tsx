@@ -98,16 +98,25 @@ export class DashboardEvents extends React.Component<
     </>;
   }
 
+  /**
+   * Display an event board that corresponds to one period of time (past, present or future)
+   *
+   * @param name  string
+   * @param i  number
+   */
   displayBoard(name: 'past' | 'present' | 'future', i: number) {
     const state = this.state as any;
 
-    return <RoleEventBoard
-      key={'RoleEventBoard-' + name}
-      name={name}
-      onClickMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
-      roleEvents={state[name + 'Events']}
-      showMoreActive={state[name + 'EventsMore']}
-    />
+    // @ts-ignore
+    return <Grid item xs={12} sm={12 / this.state.activeBoards.length}>
+      <RoleEventBoard
+        key={'RoleEventBoard-' + name}
+        name={name}
+        onClickMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
+        roleEvents={state[name + 'Events']}
+        showMoreActive={state[name + 'EventsMore']}
+      />
+    </Grid>;
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
