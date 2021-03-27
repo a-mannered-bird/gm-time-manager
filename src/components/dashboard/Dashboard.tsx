@@ -2,7 +2,6 @@
 import * as React from 'react';
 
 import Box from '@material-ui/core/Box';
-// import Typography from '@material-ui/core/Typography';
 
 import { ClockButton } from './ClockButton';
 import { DashboardEvents } from './DashboardEvents';
@@ -83,7 +82,10 @@ export class Dashboard extends React.Component<
 
         <br/>
 
-        <DashboardEvents/>
+        <DashboardEvents
+          project={this.props.project}
+          roleTime={roleTime}
+        />
       </Box>
     </>;
   }
@@ -107,18 +109,18 @@ export class Dashboard extends React.Component<
 
   /**
    * Update the value of the present time in the app and inside the DB
-   * TODO: Replace full string format with timestamp format to save space in the DB
    *
    * @param roleTime  RoleTime
    */
   setPresentTime(roleTime: RoleTime) {
-    const timeString = roleTime.formatToFullString();
-    const presentTimes = this.state.presentTimes;
-    presentTimes[0].value = timeString;
-    console.log(timeString, roleTime.formatToNumber(), 'New RoleTime!');
+    const presentTimes = [...this.state.presentTimes];
+    presentTimes[0].value = roleTime.formatToNumber();
+    console.log(roleTime.formatToFullString(), roleTime.formatToNumber(), 'New RoleTime!');
     console.log(new RoleTime(roleTime.formatToNumber(), roleTime.timeDefinitions).formatToFullString(), 'timestamp to string check');
 
+    console.log(presentTimes);
     putItem('presentTimes', presentTimes, (data) => {
+      console.log(presentTimes);
       this.setState({presentTimes});
     });
   }

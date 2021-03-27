@@ -40,7 +40,7 @@ export default {
       {
         id: 1,
         projectId: 1,
-        value: '0/1/1/12/0/0',
+        value: 0,
       },
     ],
   },
