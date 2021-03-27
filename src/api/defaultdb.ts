@@ -10,6 +10,7 @@ export default {
       {
         id: 1,
         externalId: 'c5106266-2d88-4ebd-b002-0dccf3b05531',
+        projectId: 1,
         name: 'Test event',
         notes: 'Notes for test event',
         start: 3600,
@@ -25,6 +26,7 @@ export default {
       {
         id: 1,
         externalId: 'f7849984-4ae8-4a29-9c38-293996fcb259',
+        projectId: 1,
         name: 'Category 1',
         color: 'red',
         description: 'Description for category 1',
