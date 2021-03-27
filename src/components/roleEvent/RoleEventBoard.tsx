@@ -13,6 +13,7 @@ import { withTheme } from '@material-ui/core/styles';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 
 import RoleEvent from '../../models/RoleEvent';
+import RoleEventType from '../../models/RoleEventType';
 import RoleTime from '../../models/RoleTime';
 
 export interface RoleEventBoardProps {
@@ -23,6 +24,7 @@ export interface RoleEventBoardProps {
   showMoreTooltip?: string;
   showMoreActive?: boolean;
   theme: any;
+  types: RoleEventType[];
 }
 
 export interface RoleEventBoardState {}
@@ -85,7 +87,8 @@ export class RoleEventBoardPure extends React.Component<
     return <ListItem button 
       key={this.props.name + '-event-' + e.id}
       style={{
-        background: this.getEventBgGradient(e),
+        background: this.getEventBg(e),
+        border: '1px solid ' + this.getEventColor(e),
         marginBottom: 3,
       }}
     >
@@ -124,25 +127,30 @@ export class RoleEventBoardPure extends React.Component<
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
+  getEventColor(e: RoleEvent): string {
+    const type = this.props.types.find((t) => e.typeIds.indexOf(t.id) !== -1);
+    const color = (type || {}).color || this.props.theme.palette.secondary.main;
+    return fade(color, 0.3);
+  }
+
   /**
    * My function
    *
-   * @param My param
+   * @param e  RoleEvent
    */
-  getEventBgGradient(e: RoleEvent): string {
+  getEventBg(e: RoleEvent): string {
     const {name, roleTime} = this.props;
-    const secondaryColor = fade(this.props.theme.palette.secondary.main, 0.3);
+    const color = fade(this.getEventColor(e), 0.3);
     
     switch (name) {
       case 'past':
-        return secondaryColor;
+        return color;
       case 'present':
         const progression = Math.round(
           (roleTime.formatToNumber() - e.start) / (e.end - e.start) * 100
         );
-        console.log(progression);
-        return `linear-gradient(90deg, ${secondaryColor} 0%, 
-          ${secondaryColor} ${progression}%, transparent ${progression}%)`;
+        return `linear-gradient(90deg, ${color} 0%, 
+          ${color} ${progression}%, transparent ${progression}%)`;
     }
     return '';
   }

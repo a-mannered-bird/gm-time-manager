@@ -1,8 +1,11 @@
 
 import * as React from 'react';
-import Grid from '@material-ui/core/Grid';
+import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
 import {RoleEventBoard} from '../roleEvent/RoleEventBoard';
@@ -11,6 +14,7 @@ import { getAllFromProject } from '../../api/localdb';
 
 import Project from '../../models/Project';
 import RoleEvent from '../../models/RoleEvent';
+import RoleEventType from '../../models/RoleEventType';
 import RoleTime from '../../models/RoleTime';
 
 const boardNames = ['past', 'present', 'future'] as ('past'|'present'|'future')[];
@@ -23,6 +27,7 @@ export interface DashboardEventsProps {
 
 export interface DashboardEventsState {
   activeBoards: string[];
+  activeTypes: number[];
   allEvents: RoleEvent[];
   pastEvents: RoleEvent[];
   pastEventsLimit: number;
@@ -33,6 +38,7 @@ export interface DashboardEventsState {
   futureEvents: RoleEvent[];
   futureEventsLimit: number;
   futureEventsMore: boolean;
+  types: RoleEventType[];
 }
 
 export class DashboardEvents extends React.Component<
@@ -48,6 +54,7 @@ export class DashboardEvents extends React.Component<
 
     this.state = {
       activeBoards: [...boardNames],
+      activeTypes: [],
       allEvents: [],
       pastEvents: [],
       pastEventsLimit: eventIncrement,
@@ -58,15 +65,17 @@ export class DashboardEvents extends React.Component<
       futureEvents: [],
       futureEventsLimit: eventIncrement,
       futureEventsMore: false,
+      types: [],
     };
 
     this.displayBoard = this.displayBoard.bind(this);
+    this.displayFilterCheckbox = this.displayFilterCheckbox.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {activeBoards} = this.state;
+    const {activeBoards, types} = this.state;
 
     return <>
       <Typography variant="h6" component="h6" align="center" gutterBottom>
@@ -95,8 +104,16 @@ export class DashboardEvents extends React.Component<
           .map(this.displayBoard)
         }
       </Grid>
-
       <br/>
+
+      <Box display="flex" justifyContent="center" alignItems="center" mb={1}>
+        <Box mr={1}>
+          <Typography variant="subtitle1">
+            Filter events by type :
+          </Typography>
+        </Box>
+        {types.map(this.displayFilterCheckbox)}
+      </Box>
     </>;
   }
 
@@ -119,41 +136,72 @@ export class DashboardEvents extends React.Component<
         name={name}
         onClickMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
         roleEvents={state[name + 'Events']}
+        types={this.state.types.filter((type) => this.state.activeTypes.indexOf(type.id) !== -1)}
         roleTime={this.props.roleTime}
         showMoreActive={state[name + 'EventsMore']}
       />
     </Grid>;
   }
 
+  /**
+   * Display a checkbox that allow to show or hide some types of events
+   *
+   * @param name  string
+   * @param i  number
+   */
+  displayFilterCheckbox(type: RoleEventType, i: number) {
+    return <FormControlLabel
+      key={'RoleEventType-checkbox-' +  type.id}
+      control={<Checkbox
+        checked={this.state.activeTypes.indexOf(type.id) !== -1}
+        onChange={() => this.toggleTypeFilter(type.id)}
+        style={{color: type.color}}
+      />}
+      label={type.name}
+    />
+  }
+
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
   componentDidMount() {
-    this.loadEvents();
+    this.loadData();
   }
 
   componentDidUpdate(prevProps: DashboardEventsProps) {
     if (prevProps.roleTime.formatToNumber() !== this.props.roleTime.formatToNumber()) {
-      this.setState(this.getEventsState(this.state.allEvents));
+      this.setState(this.getEventsState(this.state.allEvents, this.state.activeTypes));
     }
   }
 
-  loadEvents () {
-    getAllFromProject('roleEvents', this.props.project.id, (data: RoleEvent[]) => {
-      this.setState({
-        allEvents: data,
-        ...this.getEventsState(data),
+  /**
+   * Load events and events types from database
+   */
+  loadData () {
+    getAllFromProject('roleEvents', this.props.project.id, (events: RoleEvent[]) => {
+      getAllFromProject('roleEventTypes', this.props.project.id, (types: RoleEventType[]) => {
+        const activeTypes = types.map((type) => type.id);
+        this.setState({
+          activeTypes,
+          allEvents: events,
+          ...this.getEventsState(events, activeTypes),
+          types,
+        });
       });
     });
   }
 
-  getEventsState(roleEvents: RoleEvent[]) {
+  getEventsState(roleEvents: RoleEvent[], activeTypes: number[]) {
     // TODO: TO enhance performances, get rid of the events that were found in each time
     // Before filtering the next one
     const newState = {} as any;
 
     boardNames.forEach((name) => {
       const eventsData = this.filterByTime(roleEvents, name);
-      newState[name + 'Events'] = eventsData.events;
+      // Filter by active type
+      const events = eventsData.events.filter((e) => {
+        return !!e.typeIds.find((typeId) => activeTypes.indexOf(typeId) !== -1);
+      });
+      newState[name + 'Events'] = events;
       newState[name + 'EventsMore'] = eventsData.showMore;
     });
 
@@ -162,6 +210,13 @@ export class DashboardEvents extends React.Component<
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
+  /**
+   * Filter, sort and then trim events from a list. Depending on the type of time
+   * the events belong to (past, present or future), they will be sorted differently
+   *
+   * @param roleEvents  RoleEvent[]
+   * @param time  string
+   */
   filterByTime(roleEvents: RoleEvent[], time: 'past' | 'present' | 'future') {
     const now = this.props.roleTime.formatToNumber();
     let events: RoleEvent[] = [];
@@ -187,10 +242,18 @@ export class DashboardEvents extends React.Component<
     return {showMore, events: events.slice(0, max)};
   }
 
+  /**
+   * Change the max number of events that can be shown on one board
+   *
+   * @param time  string
+   * @param newLimit  number
+   */
   setEventsLimit(time: 'past' | 'present' | 'future', newLimit: number) {
     const newState = {} as any;
     newState[time + 'EventsLimit'] = newLimit;
-    this.setState(newState, () => this.setState(this.getEventsState(this.state.allEvents)));
+    this.setState(newState, () => 
+      this.setState(this.getEventsState(this.state.allEvents, this.state.activeTypes))
+    );
   }
 
   /**
@@ -208,5 +271,25 @@ export class DashboardEvents extends React.Component<
     }
     
     this.setState({activeBoards});
+  }
+
+  /**
+   * Toggle type filter to show and hide categories of events
+   *
+   * @param id  number
+   */
+  toggleTypeFilter(id: number) {
+    const activeTypes = [...this.state.activeTypes];
+    const index = activeTypes.indexOf(id);
+    if (index === -1){
+      activeTypes.push(id);
+    } else {
+      activeTypes.splice(index, 1);
+    }
+
+    this.setState({
+      activeTypes,
+      ...this.getEventsState(this.state.allEvents, activeTypes),
+    });
   }
 }
