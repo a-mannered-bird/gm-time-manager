@@ -70,6 +70,7 @@ export class DashboardEvents extends React.Component<
   displayBoard(name: string, i: number) {
     return <RoleEventBoard
       key={'RoleEventBoard-' + name}
+      name={name}
     />
   }
 
