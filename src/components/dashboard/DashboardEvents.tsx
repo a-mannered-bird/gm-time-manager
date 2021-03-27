@@ -154,15 +154,15 @@ export class DashboardEvents extends React.Component<
     switch (time) {
       case 'past':
         events = roleEvents.filter((e) => e.end < now)
-          .sort((a, b) => b.end - a.end);
+          .sort((a, b) => b.end - a.end || b.start - a.start);
         break;
       case 'present':
         events = roleEvents.filter((e) => e.start <= now && e.end >= now)
-          .sort((a, b) => a.end - b.end);
+          .sort((a, b) => a.end - b.end || a.start - b.start);
         break;
       case 'future':
         events = roleEvents.filter((e) => e.start > now)
-          .sort((a, b) => a.start - b.start);
+          .sort((a, b) => a.start - b.start || a.end - b.end);
         break;
     }
 
