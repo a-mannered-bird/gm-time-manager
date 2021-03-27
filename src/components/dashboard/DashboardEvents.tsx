@@ -13,7 +13,8 @@ import Project from '../../models/Project';
 import RoleEvent from '../../models/RoleEvent';
 import RoleTime from '../../models/RoleTime';
 
-const boardNames = ['past', 'present', 'future'];
+const boardNames = ['past', 'present', 'future'] as ('past'|'present'|'future')[];
+const eventIncrement = 10;
 
 export interface DashboardEventsProps {
   project: Project;
@@ -24,8 +25,14 @@ export interface DashboardEventsState {
   activeBoards: string[];
   allEvents: RoleEvent[];
   pastEvents: RoleEvent[];
+  pastEventsLimit: number;
+  pastEventsMore: boolean;
   presentEvents: RoleEvent[];
+  presentEventsLimit: number;
+  presentEventsMore: boolean;
   futureEvents: RoleEvent[];
+  futureEventsLimit: number;
+  futureEventsMore: boolean;
 }
 
 export class DashboardEvents extends React.Component<
@@ -43,8 +50,14 @@ export class DashboardEvents extends React.Component<
       activeBoards: [...boardNames],
       allEvents: [],
       pastEvents: [],
+      pastEventsLimit: eventIncrement,
+      pastEventsMore: false,
       presentEvents: [],
+      presentEventsLimit: Infinity,
+      presentEventsMore: false,
       futureEvents: [],
+      futureEventsLimit: eventIncrement,
+      futureEventsMore: false,
     };
 
     this.displayBoard = this.displayBoard.bind(this);
@@ -85,12 +98,15 @@ export class DashboardEvents extends React.Component<
     </>;
   }
 
-  displayBoard(name: string, i: number) {
+  displayBoard(name: 'past' | 'present' | 'future', i: number) {
+    const state = this.state as any;
+
     return <RoleEventBoard
       key={'RoleEventBoard-' + name}
-      // @ts-ignore
-      roleEvents={this.state[name + 'Events']}
       name={name}
+      onClickMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
+      roleEvents={state[name + 'Events']}
+      showMoreActive={state[name + 'EventsMore']}
     />
   }
 
@@ -116,27 +132,57 @@ export class DashboardEvents extends React.Component<
   }
 
   getEventsState(roleEvents: RoleEvent[]) {
-    return {
-      pastEvents: this.filterByTime(roleEvents, 'past'),
-      presentEvents: this.filterByTime(roleEvents, 'present'),
-      futureEvents: this.filterByTime(roleEvents, 'future'),
-    }
+    // TODO: TO enhance performances, get rid of the events that were found in each time
+    // Before filtering the next one
+    const newState = {} as any;
+
+    boardNames.forEach((name) => {
+      const eventsData = this.filterByTime(roleEvents, name);
+      newState[name + 'Events'] = eventsData.events;
+      newState[name + 'EventsMore'] = eventsData.showMore;
+    });
+
+    return newState;
   }
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
-  filterByTime(roleEvents: RoleEvent[], time: 'past' | 'present' | 'future'): RoleEvent[] {
+  filterByTime(roleEvents: RoleEvent[], time: 'past' | 'present' | 'future') {
     const now = this.props.roleTime.formatToNumber();
+    let events: RoleEvent[] = [];
+
     switch (time) {
       case 'past':
-        return roleEvents.filter((e) => e.end < now);
+        events = roleEvents.filter((e) => e.end < now)
+          .sort((a, b) => b.end - a.end);
+        break;
       case 'present':
-        return roleEvents.filter((e) => e.start <= now && e.end >= now);
+        events = roleEvents.filter((e) => e.start <= now && e.end >= now)
+          .sort((a, b) => a.end - b.end);
+        break;
       case 'future':
-        return roleEvents.filter((e) => e.start > now);
+        events = roleEvents.filter((e) => e.start > now)
+          .sort((a, b) => a.start - b.start);
+        break;
     }
+
+    // @ts-ignore
+    const max = this.state[time + 'EventsLimit'];
+    const showMore = events.length > max;
+    return {showMore, events: events.slice(0, max)};
   }
 
+  setEventsLimit(time: 'past' | 'present' | 'future', newLimit: number) {
+    const newState = {} as any;
+    newState[time + 'EventsLimit'] = newLimit;
+    this.setState(newState, () => this.setState(this.getEventsState(this.state.allEvents)));
+  }
+
+  /**
+   * Disable or enable the display of one of the board
+   *
+   * @param name  string
+   */
   toggleBoard(name: string) {
     const activeBoards = [...this.state.activeBoards];
     const nameIndex = activeBoards.indexOf(name);

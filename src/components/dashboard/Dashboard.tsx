@@ -118,9 +118,7 @@ export class Dashboard extends React.Component<
     console.log(roleTime.formatToFullString(), roleTime.formatToNumber(), 'New RoleTime!');
     console.log(new RoleTime(roleTime.formatToNumber(), roleTime.timeDefinitions).formatToFullString(), 'timestamp to string check');
 
-    console.log(presentTimes);
     putItem('presentTimes', presentTimes, (data) => {
-      console.log(presentTimes);
       this.setState({presentTimes});
     });
   }
