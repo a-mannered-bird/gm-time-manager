@@ -95,6 +95,8 @@ export class DashboardEvents extends React.Component<
           .map(this.displayBoard)
         }
       </Grid>
+
+      <br/>
     </>;
   }
 
@@ -107,13 +109,17 @@ export class DashboardEvents extends React.Component<
   displayBoard(name: 'past' | 'present' | 'future', i: number) {
     const state = this.state as any;
 
-    // @ts-ignore
-    return <Grid item xs={12} sm={12 / this.state.activeBoards.length}>
+    return <Grid item
+      xs={12}
+      // @ts-ignore
+      sm={12 / this.state.activeBoards.length}
+      key={'RoleEventBoard-' + name}
+    >
       <RoleEventBoard
-        key={'RoleEventBoard-' + name}
         name={name}
         onClickMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
         roleEvents={state[name + 'Events']}
+        roleTime={this.props.roleTime}
         showMoreActive={state[name + 'EventsMore']}
       />
     </Grid>;

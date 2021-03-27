@@ -9,21 +9,25 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
-
+import { withTheme } from '@material-ui/core/styles';
+import { fade } from '@material-ui/core/styles/colorManipulator';
 
 import RoleEvent from '../../models/RoleEvent';
+import RoleTime from '../../models/RoleTime';
 
 export interface RoleEventBoardProps {
   name?: string;
-  roleEvents: RoleEvent[]
+  roleEvents: RoleEvent[];
+  roleTime: RoleTime;
   onClickMore?: () => void;
   showMoreTooltip?: string;
   showMoreActive?: boolean;
+  theme: any;
 }
 
 export interface RoleEventBoardState {}
 
-export class RoleEventBoard extends React.Component<
+export class RoleEventBoardPure extends React.Component<
   RoleEventBoardProps,
   RoleEventBoardState
 > {
@@ -80,6 +84,10 @@ export class RoleEventBoard extends React.Component<
   displayEventRow(e: RoleEvent, i: number) {
     return <ListItem button 
       key={this.props.name + '-event-' + e.id}
+      style={{
+        background: this.getEventBgGradient(e),
+        marginBottom: 3,
+      }}
     >
       <ListItemText
         primaryTypographyProps={{
@@ -116,4 +124,28 @@ export class RoleEventBoard extends React.Component<
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
+  /**
+   * My function
+   *
+   * @param My param
+   */
+  getEventBgGradient(e: RoleEvent): string {
+    const {name, roleTime} = this.props;
+    const secondaryColor = fade(this.props.theme.palette.secondary.main, 0.3);
+    
+    switch (name) {
+      case 'past':
+        return secondaryColor;
+      case 'present':
+        const progression = Math.round(
+          (roleTime.formatToNumber() - e.start) / (e.end - e.start) * 100
+        );
+        console.log(progression);
+        return `linear-gradient(90deg, ${secondaryColor} 0%, 
+          ${secondaryColor} ${progression}%, transparent ${progression}%)`;
+    }
+    return '';
+  }
 }
+
+export const RoleEventBoard = withTheme(RoleEventBoardPure);
