@@ -1,11 +1,17 @@
 
 import * as React from 'react';
 
+import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+// import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import Box from '@material-ui/core/Box';
+import IconButton from '@material-ui/core/IconButton';
+import Modal from '../utilities/Modal';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { ClockButton } from './ClockButton';
 import { DashboardEvents } from './DashboardEvents';
 import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
+import { RoleEventEditForm } from '../roleEvent/RoleEventEditForm';
 import { TimerButton } from './TimerButton';
 
 import { getAllFromProject, putItem } from '../../api/localdb';
@@ -23,6 +29,7 @@ export interface DashboardProps {
 export interface DashboardState {
   clockOn: boolean;
   presentTimes: PresentTime[];
+  showCreateEventModal: boolean;
 }
 
 export class Dashboard extends React.Component<
@@ -39,6 +46,7 @@ export class Dashboard extends React.Component<
     this.state = {
       clockOn: false,
       presentTimes: [],
+      showCreateEventModal: false,
     };
 
     this.setPresentTime = this.setPresentTime.bind(this);
@@ -64,21 +72,8 @@ export class Dashboard extends React.Component<
           updateProject={this.props.updateProject}
         />
 
-        {/* Counter actions */}
-        <Box>
-          <ClockButton
-            clockOn={this.state.clockOn}
-            roleTime={roleTime}
-            onClick={() => this.setState({clockOn: !this.state.clockOn})}
-            onClockTick={this.setPresentTime}
-          />
-          <TimerButton
-            clockOn={this.state.clockOn}
-            roleTime={roleTime}
-            onTimerStart={() => this.setState({clockOn: true})}
-            onTimerStop={(disableClock) => this.setState({clockOn: !disableClock})}
-          />
-        </Box>
+        {/* ACTIONS */}
+        {this.displayActions(roleTime)}
 
         <br/>
 
@@ -86,8 +81,60 @@ export class Dashboard extends React.Component<
           project={this.props.project}
           roleTime={roleTime}
         />
+
+        {this.displayCreateEventModal(roleTime)}
       </Box>
     </>;
+  }
+
+  /**
+   * Display various buttons for the user to interact with the dashboard
+   *
+   * @param roleTime: RoleTimeCounter
+   */
+  displayActions(roleTime: RoleTime) {
+    return <Box>
+      <ClockButton
+        clockOn={this.state.clockOn}
+        roleTime={roleTime}
+        onClick={() => this.setState({clockOn: !this.state.clockOn})}
+        onClockTick={this.setPresentTime}
+      />
+      <TimerButton
+        clockOn={this.state.clockOn}
+        roleTime={roleTime}
+        onTimerStart={() => this.setState({clockOn: true})}
+        onTimerStop={(disableClock) => this.setState({clockOn: !disableClock})}
+      />
+      <Tooltip
+        title="Create event on the fly"
+      >
+        <IconButton
+          // color={clockOn ? "secondary" : "default"}
+          aria-label="Create event on the fly"
+          onClick={() => this.setState({showCreateEventModal: true})}
+        >
+          <LibraryAddIcon />
+        </IconButton>
+      </Tooltip>
+    </Box>;
+  }
+
+  /**
+   * Display a modal containing the form to create a new event
+   *
+   * @param roleTime: RoleTime
+   */
+  displayCreateEventModal(roleTime: RoleTime) {
+    return <Modal
+      open={this.state.showCreateEventModal}
+      onClose={() => this.setState({showCreateEventModal: false})}
+    ><>
+      <RoleEventEditForm
+        project={this.props.project}
+        roleTime={roleTime}
+      />
+    </></Modal>;
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------

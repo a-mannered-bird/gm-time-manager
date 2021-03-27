@@ -140,7 +140,7 @@ export class RoleEventBoardPure extends React.Component<
    */
   getEventBg(e: RoleEvent): string {
     const {name, roleTime} = this.props;
-    const color = fade(this.getEventColor(e), 0.3);
+    const color = this.getEventColor(e);
     
     switch (name) {
       case 'past':
