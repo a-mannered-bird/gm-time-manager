@@ -5,6 +5,8 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Typography from '@material-ui/core/Typography';
 
+import {RoleEventBoard} from '../roleEvent/RoleEventBoard';
+
 const boardNames = ['past', 'present', 'future'];
 
 export interface DashboardEventsProps {}
@@ -27,6 +29,8 @@ export class DashboardEvents extends React.Component<
     this.state = {
       activeBoards: [...boardNames],
     };
+
+    this.displayBoard = this.displayBoard.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -47,13 +51,26 @@ export class DashboardEvents extends React.Component<
           {boardNames.map((name, i) => 
             <Button
               key={"eventBoard-" + i}
-              variant={this.state.activeBoards.indexOf(name) !== -1 ? 'contained' : 'outlined'}
+              variant={activeBoards.indexOf(name) !== -1 ? 'contained' : 'outlined'}
               onClick={(e) => this.toggleBoard(name)}
             >{name}</Button>
           )}
         </ButtonGroup>
       </Grid>
+
+      <Grid container justify="space-around" alignItems="center">
+        {boardNames
+          .filter((name) => activeBoards.indexOf(name) !== -1)
+          .map(this.displayBoard)
+        }
+      </Grid>
     </>;
+  }
+
+  displayBoard(name: string, i: number) {
+    return <RoleEventBoard
+      key={'RoleEventBoard-' + name}
+    />
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
