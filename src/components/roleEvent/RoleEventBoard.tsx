@@ -42,18 +42,25 @@ export class RoleEventBoard extends React.Component<
     }}>
       <List dense
         subheader={name ?
-          <ListSubheader component="div" color="primary" style={{textAlign: "center"}}>
+          <ListSubheader
+            component="div"
+            color="primary"
+            style={{textAlign: "center", lineHeight: '36px'}}
+          >
             {name.toUpperCase()}
           </ListSubheader>
         : undefined}
       >
         {roleEvents.map(this.displayEventRow)}
+        {!roleEvents.length && <ListItem>
+          <ListItemText primary="No events found" />
+        </ListItem>}
       </List>
     </Paper>;
   }
 
   displayEventRow(e: RoleEvent, i: number) {
-    return <ListItem button
+    return <ListItem button 
       key={this.props.name + '-event-' + e.id}
     >
       <ListItemText primary={e.name} />

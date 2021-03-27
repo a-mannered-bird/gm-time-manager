@@ -130,13 +130,10 @@ export class DashboardEvents extends React.Component<
     switch (time) {
       case 'past':
         return roleEvents.filter((e) => e.end < now);
-        break;
       case 'present':
         return roleEvents.filter((e) => e.start <= now && e.end >= now);
-        break;
       case 'future':
         return roleEvents.filter((e) => e.start > now);
-        break;
     }
   }
 
