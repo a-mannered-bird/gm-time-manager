@@ -15,6 +15,7 @@ export interface RoleTimeAdvancedInputProps {
   changeType: 'absolute' | 'relative';
   changeTypeTooltip: string;
   defaultValue: RoleTime;
+  relativeTimeReference?: RoleTime;
   onChange: (roleTime: RoleTime, changeType?: 'absolute' | 'relative') => void;
   timeInputFormat: 'full' | 'date' |'time';
 }
@@ -40,6 +41,7 @@ export class RoleTimeAdvancedInput extends React.Component<
     super(props);
     this.state = {
       absoluteTime: props.defaultValue,
+      // TODO: apply relativeTimeReference to the value below?
       relativeTime: new RoleTime('0/0/0/0/0/0', props.defaultValue.timeDefinitions),
       changeType: props.changeType || 'relative',
     };
@@ -93,6 +95,19 @@ export class RoleTimeAdvancedInput extends React.Component<
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
+  componentDidUpdate(prevProps: RoleTimeAdvancedInputProps) {
+
+    // If the time reference has changed, we want to adjust the roleTime's value
+    // only if the changeType is relative though
+    const oldRel = prevProps.relativeTimeReference;
+    const newRel = this.props.relativeTimeReference;
+    if (this.state.changeType === 'relative' && (
+      (oldRel && newRel && oldRel.formatToNumber() !== newRel.formatToNumber())
+    )) {
+      this.onChangeRoleTime();
+    }
+  }
+
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
   private onChangeRoleTime(roleTime?: RoleTime, changeType?: 'absolute' | 'relative') {
@@ -104,8 +119,11 @@ export class RoleTimeAdvancedInput extends React.Component<
       changeType,
       relativeTime: !isAbsolute ? roleTime : this.state.relativeTime,
     }, () => {
-      const newRoleTime = changeType === 'relative' ?
-        this.props.defaultValue.addRoleTime(this.state.relativeTime) :
+      const newRoleTime = changeType === 'relative' ? (
+          this.props.relativeTimeReference ?
+            this.props.relativeTimeReference.addRoleTime(this.state.relativeTime) :
+            this.props.defaultValue.addRoleTime(this.state.relativeTime)
+        ) :
         this.state.absoluteTime;
       this.props.onChange(newRoleTime, changeType);
     });

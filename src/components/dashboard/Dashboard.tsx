@@ -75,7 +75,6 @@ export class Dashboard extends React.Component<
         {/* ACTIONS */}
         {this.displayActions(roleTime)}
 
-        <br/>
 
         <DashboardEvents
           project={this.props.project}

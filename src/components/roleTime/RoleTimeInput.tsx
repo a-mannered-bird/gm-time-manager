@@ -86,7 +86,7 @@ export class RoleTimeInput extends React.Component<
       onChange={this.onChangeInput}
       onFocus={(e) => (e.currentTarget as HTMLInputElement).select()}
       style={{
-        margin: '20px 10px',
+        margin: '0 10px 20px',
         width,
       }}
       type="number"
