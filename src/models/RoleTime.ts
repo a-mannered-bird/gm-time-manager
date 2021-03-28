@@ -360,6 +360,9 @@ export default class RoleTime implements RoleTimeValue {
     return {newValue, parentValueAdd};
   }
 
+  /**
+   * Adjust this RoleTime's values so no time unity exceeds its maximum and minimum limits
+   */
   applyMaxMinToAll(){
     this.valueNames.forEach((name) => {
       if (name === 'year'){
@@ -382,5 +385,23 @@ export default class RoleTime implements RoleTimeValue {
         this.dayMax = this.timeDefinitions.monthDaysCount[value - 1];
       }
     });
+  }
+
+  /**
+   * Adjust this RoleTime's values so it is at the beginning of the day.
+   */
+  beginningOfDay() {
+    this.hour = this.hourMin;
+    this.minute = this.minuteMin;
+    this.second = this.secondMin;
+  }
+
+  /**
+   * Adjust this RoleTime's values so it is at the end of the day.
+   */
+  endOfDay() {
+    this.hour = this.hourMax;
+    this.minute = this.minuteMax;
+    this.second = this.secondMax;
   }
 }

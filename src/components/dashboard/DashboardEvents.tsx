@@ -56,7 +56,7 @@ export class DashboardEvents extends React.Component<
 
     this.state = {
       activeBoards: [...boardNames],
-      activeTypes: [],
+      activeTypes: [0].concat(props.roleEventTypes.map((type) => type.id)),
       allEvents: [],
       pastEvents: [],
       pastEventsLimit: eventIncrement,
@@ -83,6 +83,7 @@ export class DashboardEvents extends React.Component<
         Event boards
       </Typography>
 
+      {/* BOARD DISPLAY BUTTONS */}
       <Grid container direction="column" alignItems="center">
         <ButtonGroup
           color="primary"
@@ -99,6 +100,7 @@ export class DashboardEvents extends React.Component<
         </ButtonGroup>
       </Grid>
 
+      {/* BOARDS */}
       <Grid container justify="space-around" alignItems="flex-start">
         {boardNames
           .filter((name) => activeBoards.indexOf(name) !== -1)
@@ -107,13 +109,24 @@ export class DashboardEvents extends React.Component<
       </Grid>
       <br/>
 
+      {/* EVENT FILTERS */}
       <Box display="flex" justifyContent="center" alignItems="center" mb={1}>
         <Box mr={1}>
           <Typography variant="subtitle1">
             Filter events by type :
           </Typography>
         </Box>
+
         {this.props.roleEventTypes.map(this.displayFilterCheckbox)}
+
+        {/* Filter for events with no categories */}
+        <FormControlLabel
+          control={<Checkbox
+            checked={this.state.activeTypes.indexOf(0) !== -1}
+            onChange={() => this.toggleTypeFilter(0)}
+          />}
+          label="Untyped events"
+        />
       </Box>
     </>;
   }
@@ -179,11 +192,9 @@ export class DashboardEvents extends React.Component<
    */
   loadData () {
     getAllFromProject('roleEvents', this.props.project.id, (events: RoleEvent[]) => {
-      const activeTypes = this.props.roleEventTypes.map((type) => type.id);
       this.setState({
-        activeTypes,
         allEvents: events,
-        ...this.getEventsState(events, activeTypes),
+        ...this.getEventsState(events, this.state.activeTypes),
       });
     });
   }
@@ -193,14 +204,15 @@ export class DashboardEvents extends React.Component<
     // Before filtering the next one
     const newState = {} as any;
 
-    boardNames.forEach((name) => {
-      const eventsData = this.filterByTime(roleEvents, name);
+    boardNames.forEach((time) => {
+      const eventsData = this.filterByTime(roleEvents, time);
       // Filter by active type
       const events = eventsData.events.filter((e) => {
-        return !!e.typeIds.find((typeId) => activeTypes.indexOf(typeId) !== -1);
+        const typeIds = !e.typeIds.length ? [0] : e.typeIds;
+        return typeIds.find((typeId) => activeTypes.indexOf(typeId) !== -1) !== undefined;
       });
-      newState[name + 'Events'] = events;
-      newState[name + 'EventsMore'] = eventsData.showMore;
+      newState[time + 'Events'] = events;
+      newState[time + 'EventsMore'] = eventsData.showMore;
     });
 
     return newState;

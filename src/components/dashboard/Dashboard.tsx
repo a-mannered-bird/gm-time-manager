@@ -14,12 +14,13 @@ import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
 import { RoleEventEditForm } from '../roleEvent/RoleEventEditForm';
 import { TimerButton } from './TimerButton';
 
-import { getAllFromProject, putItem } from '../../api/localdb';
-
 import PresentTime from '../../models/PresentTime';
 import Project from '../../models/Project';
 import RoleTime from '../../models/RoleTime';
+import RoleEvent from '../../models/RoleEvent';
 import RoleEventType from '../../models/RoleEventType';
+
+import { getAllFromProject, putItem, postItem } from '../../api/localdb';
 
 export interface DashboardProps {
   project: Project;
@@ -77,7 +78,6 @@ export class Dashboard extends React.Component<
         {/* ACTIONS */}
         {this.displayActions(roleTime)}
 
-
         <DashboardEvents
           project={this.props.project}
           roleTime={roleTime}
@@ -133,6 +133,7 @@ export class Dashboard extends React.Component<
       onClose={() => this.setState({showCreateEventModal: false})}
     ><>
       <RoleEventEditForm
+        onConfirmForm={(roleEvent) => this.createRoleEvent(roleEvent)}
         project={this.props.project}
         roleTime={roleTime}
         roleEventTypes={this.state.roleEventTypes}
@@ -145,8 +146,6 @@ export class Dashboard extends React.Component<
   componentDidMount () {
     this.loadDatas();
   }
-
-  // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
   /**
    * Gather all the datas we need
@@ -162,6 +161,8 @@ export class Dashboard extends React.Component<
     });
   }
 
+  // --------------------------------- CUSTOM FUNCTIONS -------------------------------
+
   /**
    * Update the value of the present time in the app and inside the DB
    *
@@ -175,6 +176,20 @@ export class Dashboard extends React.Component<
 
     putItem('presentTimes', presentTimes, (data) => {
       this.setState({presentTimes});
+    });
+  }
+
+  /**
+   * Create new event in DB
+   *
+   * @param My param
+   */
+  createRoleEvent(roleEvent: RoleEvent) {
+    postItem('roleEvents', roleEvent, (data) => {
+      console.log(data);
+      this.setState({
+        showCreateEventModal: false,
+      });
     });
   }
 }

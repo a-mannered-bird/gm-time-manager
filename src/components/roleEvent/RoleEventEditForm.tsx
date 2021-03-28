@@ -5,6 +5,7 @@
 import * as React from 'react';
 
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -30,10 +31,12 @@ export interface RoleEventEditFormProps {
   roleTime: RoleTime;
   roleEvent?: RoleEvent;
   roleEventTypes: RoleEventType[];
+  onConfirmForm: (roleEvent: RoleEvent) => void;
 }
 
 export interface RoleEventEditFormState {
   roleEvent: RoleEvent;
+  showErrors?: boolean;
 }
 
 export class RoleEventEditForm extends React.Component<
@@ -64,7 +67,7 @@ export class RoleEventEditForm extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {roleEvent} = this.state;
+    const {roleEvent, showErrors} = this.state;
     const {roleTime} = this.props;
 
     return <>
@@ -73,10 +76,12 @@ export class RoleEventEditForm extends React.Component<
       </Typography>
 
       {/* NAME */}
-      <TextField 
+      <TextField
+        error={showErrors ? !roleEvent.name.trim() : false}
         fullWidth
         label="Name"
         onChange={(e) => this.onChange('name', e.currentTarget.value)}
+        required
         value={roleEvent.name}
       />
 
@@ -117,7 +122,7 @@ export class RoleEventEditForm extends React.Component<
         onChange={(e) => this.onChange('notes', e.currentTarget.value)}
       />
 
-      <br/><br/>
+      <br/>
 
       {/* IS ALL DAY CHECKBOX */}
       <FormControlLabel
@@ -140,7 +145,6 @@ export class RoleEventEditForm extends React.Component<
         timeInputFormat={roleEvent.isAllDay ? 'date' : 'full'}
       />
 
-
       {/* END TIME */}
       {!roleEvent.isAllDay && <>
         <Typography variant="h6" align="center">
@@ -156,6 +160,15 @@ export class RoleEventEditForm extends React.Component<
           onChange={(roleTime) => this.onChange('end', roleTime.formatToNumber())}
         />
       </>}
+
+      {/* VALIDATE BUTTON */}
+      <Box display="flex" flexDirection="row-reverse">
+        <Button variant="contained" color="primary"
+          onClick={() => this.confirmForm()}
+        >
+          Submit
+        </Button>
+      </Box>
     </>;
   }
 
@@ -173,5 +186,30 @@ export class RoleEventEditForm extends React.Component<
     const roleEvent = {...this.state.roleEvent} as any;
     roleEvent[prop] = value;
     this.setState({roleEvent});
+  }
+
+  /**
+   * Submit the form
+   */
+  confirmForm() {
+    const roleEvent = {...this.state.roleEvent};
+
+    // Validate event name
+    if (!roleEvent.name.trim()) {
+      this.setState({showErrors: true});
+      return;
+    }
+
+    // Adjust start and end of event if it's supposed to be for the whole
+    if (roleEvent.isAllDay) {
+      const start = new RoleTime(roleEvent.start, this.props.roleTime.timeDefinitions);
+      start.beginningOfDay();
+      const end = new RoleTime(roleEvent.start, this.props.roleTime.timeDefinitions);
+      end.endOfDay();
+      roleEvent.start = start.formatToNumber();
+      roleEvent.end = end.formatToNumber();
+    }
+
+    this.props.onConfirmForm(roleEvent);
   }
 }

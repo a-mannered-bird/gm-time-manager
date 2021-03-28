@@ -5,7 +5,7 @@ export default {
   },
 
   roleEvents: {
-    count: 1,
+    count: 4,
     items: [
       {
         id: 2,
