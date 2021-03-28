@@ -6,7 +6,13 @@ import * as React from 'react';
 
 import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
+import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import ListItemText from '@material-ui/core/ListItemText';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
@@ -14,7 +20,7 @@ import { RoleTimeAdvancedInput } from '../roleTime/RoleTimeAdvancedInput';
 
 import Project from '../../models/Project';
 import RoleEvent from '../../models/RoleEvent';
-// import RoleEventType from '../../models/RoleEventType';
+import RoleEventType from '../../models/RoleEventType';
 import RoleTime from '../../models/RoleTime';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -23,6 +29,7 @@ export interface RoleEventEditFormProps {
   project: Project;
   roleTime: RoleTime;
   roleEvent?: RoleEvent;
+  roleEventTypes: RoleEventType[];
 }
 
 export interface RoleEventEditFormState {
@@ -72,25 +79,56 @@ export class RoleEventEditForm extends React.Component<
         onChange={(e) => this.onChange('name', e.currentTarget.value)}
         value={roleEvent.name}
       />
+
+      {/* CATEGORIES */}
+      <FormControl fullWidth>
+        <InputLabel id="categories">Event type</InputLabel>
+        <Select
+          labelId="categories"
+          multiple
+          value={roleEvent.typeIds}
+          onChange={(e) => this.onChange('typeIds', e.target.value)}
+          input={<Input />}
+          renderValue={(typeIds) => (typeIds as number[])
+            .map((typeId) => (this.props.roleEventTypes.find((t) => t.id === typeId) || {}).name)
+            .join(', ')
+          }
+        >
+          {this.props.roleEventTypes.map((type) => <MenuItem
+            key={'roleEventType-' + type.id}
+            value={type.id}
+          >
+            <Checkbox checked={roleEvent.typeIds.indexOf(type.id) > -1} />
+            <ListItemText primary={type.name} />
+          </MenuItem>)}
+        </Select>
+      </FormControl>
+
+      {/* NOTES */}
+      <TextField
+        label="Notes"
+        fullWidth
+        multiline
+        rowsMax={4}
+        value={roleEvent.notes}
+        onChange={(e) => this.onChange('notes', e.currentTarget.value)}
+      />
+
       <br/><br/>
 
+      {/* IS ALL DAY CHECKBOX */}
+      <FormControlLabel
+        control={<Checkbox
+          checked={!!roleEvent.isAllDay}
+          onChange={() => this.onChange('isAllDay', !roleEvent.isAllDay)}
+        />}
+        label="Lasts all day"
+      />
 
       {/* START TIME */}
-      <Box display="flex" alignItems="center">
-        <Box mr={2}>
-          <Typography variant="h6">
-            Start time
-          </Typography>
-        </Box>
-        {/* IS ALL DAY CHECKBOX */}
-        <FormControlLabel
-          control={<Checkbox
-            checked={!!roleEvent.isAllDay}
-            onChange={() => this.onChange('isAllDay', !roleEvent.isAllDay)}
-          />}
-          label="All day"
-        />
-      </Box>
+      <Typography variant="h6" align="center">
+        Start time
+      </Typography>
 
       <RoleTimeAdvancedInput
         changeType='relative'
@@ -102,7 +140,7 @@ export class RoleEventEditForm extends React.Component<
 
       {/* END TIME */}
       {!roleEvent.isAllDay && <>
-        <Typography variant="h6">
+        <Typography variant="h6" align="center">
           {/* TODO: if end time is relative, replace 'End time' by 'duration' */}
           End time
         </Typography>
@@ -115,16 +153,6 @@ export class RoleEventEditForm extends React.Component<
           onChange={(roleTime) => this.onChange('end', roleTime.formatToNumber())}
         />
       </>}
-
-      {/* NOTES */}
-      <TextField
-        label="Notes"
-        fullWidth
-        multiline
-        rowsMax={4}
-        value={roleEvent.notes}
-        onChange={(e) => this.onChange('notes', e.currentTarget.value)}
-      />
     </>;
   }
 

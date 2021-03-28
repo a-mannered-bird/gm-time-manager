@@ -1,4 +1,6 @@
 
+// TODO: Display events with no categories
+
 import * as React from 'react';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -23,6 +25,7 @@ const eventIncrement = 10;
 export interface DashboardEventsProps {
   project: Project;
   roleTime: RoleTime;
+  roleEventTypes: RoleEventType[];
 }
 
 export interface DashboardEventsState {
@@ -38,7 +41,6 @@ export interface DashboardEventsState {
   futureEvents: RoleEvent[];
   futureEventsLimit: number;
   futureEventsMore: boolean;
-  types: RoleEventType[];
 }
 
 export class DashboardEvents extends React.Component<
@@ -65,7 +67,6 @@ export class DashboardEvents extends React.Component<
       futureEvents: [],
       futureEventsLimit: eventIncrement,
       futureEventsMore: false,
-      types: [],
     };
 
     this.displayBoard = this.displayBoard.bind(this);
@@ -75,7 +76,7 @@ export class DashboardEvents extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {activeBoards, types} = this.state;
+    const {activeBoards} = this.state;
 
     return <>
       <Typography variant="h6" component="h6" align="center" gutterBottom>
@@ -112,7 +113,7 @@ export class DashboardEvents extends React.Component<
             Filter events by type :
           </Typography>
         </Box>
-        {types.map(this.displayFilterCheckbox)}
+        {this.props.roleEventTypes.map(this.displayFilterCheckbox)}
       </Box>
     </>;
   }
@@ -136,7 +137,7 @@ export class DashboardEvents extends React.Component<
         name={name}
         onClickMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
         roleEvents={state[name + 'Events']}
-        types={this.state.types.filter((type) => this.state.activeTypes.indexOf(type.id) !== -1)}
+        types={this.props.roleEventTypes.filter((type) => this.state.activeTypes.indexOf(type.id) !== -1)}
         roleTime={this.props.roleTime}
         showMoreActive={state[name + 'EventsMore']}
       />
@@ -178,14 +179,11 @@ export class DashboardEvents extends React.Component<
    */
   loadData () {
     getAllFromProject('roleEvents', this.props.project.id, (events: RoleEvent[]) => {
-      getAllFromProject('roleEventTypes', this.props.project.id, (types: RoleEventType[]) => {
-        const activeTypes = types.map((type) => type.id);
-        this.setState({
-          activeTypes,
-          allEvents: events,
-          ...this.getEventsState(events, activeTypes),
-          types,
-        });
+      const activeTypes = this.props.roleEventTypes.map((type) => type.id);
+      this.setState({
+        activeTypes,
+        allEvents: events,
+        ...this.getEventsState(events, activeTypes),
       });
     });
   }

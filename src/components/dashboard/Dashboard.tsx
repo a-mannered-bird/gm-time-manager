@@ -19,7 +19,7 @@ import { getAllFromProject, putItem } from '../../api/localdb';
 import PresentTime from '../../models/PresentTime';
 import Project from '../../models/Project';
 import RoleTime from '../../models/RoleTime';
-
+import RoleEventType from '../../models/RoleEventType';
 
 export interface DashboardProps {
   project: Project;
@@ -29,6 +29,7 @@ export interface DashboardProps {
 export interface DashboardState {
   clockOn: boolean;
   presentTimes: PresentTime[];
+  roleEventTypes: RoleEventType[];
   showCreateEventModal: boolean;
 }
 
@@ -46,6 +47,7 @@ export class Dashboard extends React.Component<
     this.state = {
       clockOn: false,
       presentTimes: [],
+      roleEventTypes: [],
       showCreateEventModal: false,
     };
 
@@ -79,6 +81,7 @@ export class Dashboard extends React.Component<
         <DashboardEvents
           project={this.props.project}
           roleTime={roleTime}
+          roleEventTypes={this.state.roleEventTypes}
         />
 
         {this.displayCreateEventModal(roleTime)}
@@ -132,6 +135,7 @@ export class Dashboard extends React.Component<
       <RoleEventEditForm
         project={this.props.project}
         roleTime={roleTime}
+        roleEventTypes={this.state.roleEventTypes}
       />
     </></Modal>;
   }
@@ -149,7 +153,12 @@ export class Dashboard extends React.Component<
    */
   loadDatas() {
     getAllFromProject('presentTimes', this.props.project.id, (presentTimes: PresentTime[]) => {
-      this.setState({presentTimes});
+      getAllFromProject('roleEventTypes', this.props.project.id, (roleEventTypes: RoleEventType[]) => {
+        this.setState({
+          presentTimes,
+          roleEventTypes,
+        });
+      });
     });
   }
 

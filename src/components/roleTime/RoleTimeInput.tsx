@@ -70,12 +70,12 @@ export class RoleTimeInput extends React.Component<
       <Box>
         {/*
         // @ts-ignore */}
-        {inputs.map((i) => this.displayInput(i[0], i[1], i[2], i[3], i[4], i[5]))}
+        {inputs.map((i, index) => this.displayInput(i[0], i[1], i[2], i[3], i[4], i[5], index === inputs.length - 1))}
       </Box>
     </>;
   }
 
-  public displayInput(label: string, name: keyof RoleTimeValue, value: number | undefined, width: number, min?: number, max?: number) {
+  public displayInput(label: string, name: keyof RoleTimeValue, value: number | undefined, width: number, min: number | undefined, max: number | undefined, isLast: boolean) {
     const inputProps = this.props.useTimeDefinitionsForMaxMin ? {min, max} : {};
 
     return <TextField
@@ -86,7 +86,8 @@ export class RoleTimeInput extends React.Component<
       onChange={this.onChangeInput}
       onFocus={(e) => (e.currentTarget as HTMLInputElement).select()}
       style={{
-        margin: '0 10px 20px',
+        marginBottom: 20,
+        marginRight: isLast ? 0 : 10,
         width,
       }}
       type="number"

@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 
+import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import Switch from '@material-ui/core/Switch';
@@ -54,7 +55,7 @@ export class RoleTimeAdvancedInput extends React.Component<
   public render() {
     const {changeType, absoluteTime, relativeTime} = this.state;
     const roleTime = changeType === 'relative' ? relativeTime : absoluteTime;
-    return <>
+    return <Box display="flex" flexDirection="column" alignItems="center">
 
       {/* SWITCH ABSOLUTE / RELATIVE */}
       <Typography component="div">
@@ -90,7 +91,7 @@ export class RoleTimeAdvancedInput extends React.Component<
         useTimeDefinitionsForMaxMin={changeType === 'absolute'}
         value={roleTime}
       />
-    </>;
+    </Box>;
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
