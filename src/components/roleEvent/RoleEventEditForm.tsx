@@ -98,7 +98,10 @@ export class RoleEventEditForm extends React.Component<
             key={'roleEventType-' + type.id}
             value={type.id}
           >
-            <Checkbox checked={roleEvent.typeIds.indexOf(type.id) > -1} />
+            <Checkbox
+              checked={roleEvent.typeIds.indexOf(type.id) > -1}
+              style={{color: type.color}}
+            />
             <ListItemText primary={type.name} />
           </MenuItem>)}
         </Select>
