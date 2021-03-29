@@ -201,7 +201,7 @@ export class Dashboard extends React.Component<
   createRoleEvent(roleEvent: RoleEvent) {
     postItem('roleEvents', roleEvent, (data) => {
       const roleEvents = this.state.roleEvents;
-      roleEvents.push(roleEvent);
+      roleEvents.push(data.items.find((e: RoleEvent) => e.id === data.count));
 
       this.setState({
         roleEvents,
