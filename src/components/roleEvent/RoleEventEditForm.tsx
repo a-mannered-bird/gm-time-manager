@@ -60,6 +60,8 @@ export class RoleEventEditForm extends React.Component<
         typeIds: [],
       },
     };
+
+    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -199,7 +201,28 @@ export class RoleEventEditForm extends React.Component<
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
+  componentDidMount() {
+    window.addEventListener('keydown', this.onKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKeyDown);
+  }
+
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
+
+  /**
+   * Handle a press of keyboard
+   *
+   * @param e  KeyboardEvent
+   */
+  onKeyDown(e: KeyboardEvent) {
+    // Enter key trigger form 
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      this.confirmForm();
+    }
+  }
 
   /**
    * Change any value in the RoleEvent

@@ -218,7 +218,6 @@ export class Dashboard extends React.Component<
    */
   editRoleEvent(roleEvent: RoleEvent) {
     putItem('roleEvents', roleEvent, (data) => {
-      console.log(data);
       const roleEvents = this.state.roleEvents;
       const i = roleEvents.findIndex((e) => e.id === roleEvent.id);
       roleEvents[i] = roleEvent;
