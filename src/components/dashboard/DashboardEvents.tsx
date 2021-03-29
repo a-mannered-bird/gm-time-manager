@@ -1,6 +1,4 @@
 
-// TODO: Display events with no categories
-
 import * as React from 'react';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -8,9 +6,11 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
+import Modal from '../utilities/Modal';
 import Typography from '@material-ui/core/Typography';
 
-import {RoleEventBoard} from '../roleEvent/RoleEventBoard';
+import { RoleEventBoard } from '../roleEvent/RoleEventBoard';
+import { RoleEventEditForm } from '../roleEvent/RoleEventEditForm';
 
 import { getAllFromProject } from '../../api/localdb';
 
@@ -23,15 +23,20 @@ const boardNames = ['past', 'present', 'future'] as ('past'|'present'|'future')[
 const eventIncrement = 10;
 
 export interface DashboardEventsProps {
+  onEventEdit: (e: RoleEvent) => void;
+  onEventDelete: (e: RoleEvent) => void;
   project: Project;
-  roleTime: RoleTime;
+  roleEvents: RoleEvent[];
+  roleEventsResetCount: number;
   roleEventTypes: RoleEventType[];
+  roleTime: RoleTime;
 }
 
 export interface DashboardEventsState {
   activeBoards: string[];
   activeTypes: number[];
-  allEvents: RoleEvent[];
+  eventToEdit?: RoleEvent;
+
   pastEvents: RoleEvent[];
   pastEventsLimit: number;
   pastEventsMore: boolean;
@@ -57,7 +62,6 @@ export class DashboardEvents extends React.Component<
     this.state = {
       activeBoards: [...boardNames],
       activeTypes: [0].concat(props.roleEventTypes.map((type) => type.id)),
-      allEvents: [],
       pastEvents: [],
       pastEventsLimit: eventIncrement,
       pastEventsMore: false,
@@ -128,6 +132,8 @@ export class DashboardEvents extends React.Component<
           label="Untyped events"
         />
       </Box>
+
+      {this.displayEventEditModal()}
     </>;
   }
 
@@ -149,6 +155,7 @@ export class DashboardEvents extends React.Component<
       <RoleEventBoard
         name={name}
         onClickMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
+        onRoleEventClick={(roleEvent) => this.setState({eventToEdit: roleEvent})}
         roleEvents={state[name + 'Events']}
         types={this.props.roleEventTypes.filter((type) => this.state.activeTypes.indexOf(type.id) !== -1)}
         roleTime={this.props.roleTime}
@@ -175,6 +182,30 @@ export class DashboardEvents extends React.Component<
     />
   }
 
+  /**
+   * Display modal to edit an existing event
+   */
+  displayEventEditModal() {
+    const roleEvent = this.state.eventToEdit;
+    if (!roleEvent) {
+      return null;
+    }
+
+    return <Modal
+      open={!!roleEvent}
+      onClose={() => this.setState({eventToEdit: undefined})}
+    ><>
+      <RoleEventEditForm
+        onConfirmForm={this.props.onEventEdit}
+        onDelete={this.props.onEventDelete}
+        project={this.props.project}
+        roleEvent={roleEvent}
+        roleTime={this.props.roleTime}
+        roleEventTypes={this.props.roleEventTypes}
+      />
+    </></Modal>
+  }
+
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
   componentDidMount() {
@@ -182,8 +213,11 @@ export class DashboardEvents extends React.Component<
   }
 
   componentDidUpdate(prevProps: DashboardEventsProps) {
-    if (prevProps.roleTime.formatToNumber() !== this.props.roleTime.formatToNumber()) {
-      this.setState(this.getEventsState(this.state.allEvents, this.state.activeTypes));
+    if (
+      (prevProps.roleTime.formatToNumber() !== this.props.roleTime.formatToNumber()) ||
+      (prevProps.roleEventsResetCount !== this.props.roleEventsResetCount)
+    ) {
+      this.setState(this.getEventsState(this.state.activeTypes));
     }
   }
 
@@ -193,19 +227,18 @@ export class DashboardEvents extends React.Component<
   loadData () {
     getAllFromProject('roleEvents', this.props.project.id, (events: RoleEvent[]) => {
       this.setState({
-        allEvents: events,
-        ...this.getEventsState(events, this.state.activeTypes),
+        ...this.getEventsState(this.state.activeTypes),
       });
     });
   }
 
-  getEventsState(roleEvents: RoleEvent[], activeTypes: number[]) {
+  getEventsState(activeTypes: number[]) {
     // TODO: TO enhance performances, get rid of the events that were found in each time
     // Before filtering the next one
     const newState = {} as any;
 
     boardNames.forEach((time) => {
-      const eventsData = this.filterByTime(roleEvents, time);
+      const eventsData = this.filterByTime(this.props.roleEvents, time);
       // Filter by active type
       const events = eventsData.events.filter((e) => {
         const typeIds = !e.typeIds.length ? [0] : e.typeIds;
@@ -213,6 +246,7 @@ export class DashboardEvents extends React.Component<
       });
       newState[time + 'Events'] = events;
       newState[time + 'EventsMore'] = eventsData.showMore;
+      newState.eventToEdit = false;
     });
 
     return newState;
@@ -234,15 +268,15 @@ export class DashboardEvents extends React.Component<
     switch (time) {
       case 'past':
         events = roleEvents.filter((e) => e.end < now)
-          .sort((a, b) => b.end - a.end || b.start - a.start);
+          .sort((a, b) => b.end - a.end || b.start - a.start || b.id - a.id);
         break;
       case 'present':
         events = roleEvents.filter((e) => e.start <= now && e.end >= now)
-          .sort((a, b) => a.end - b.end || a.start - b.start);
+          .sort((a, b) => a.end - b.end || a.start - b.start || b.id - a.id);
         break;
       case 'future':
         events = roleEvents.filter((e) => e.start > now)
-          .sort((a, b) => a.start - b.start || a.end - b.end);
+          .sort((a, b) => a.start - b.start || a.end - b.end || b.id - a.id);
         break;
     }
 
@@ -262,7 +296,7 @@ export class DashboardEvents extends React.Component<
     const newState = {} as any;
     newState[time + 'EventsLimit'] = newLimit;
     this.setState(newState, () => 
-      this.setState(this.getEventsState(this.state.allEvents, this.state.activeTypes))
+      this.setState(this.getEventsState(this.state.activeTypes))
     );
   }
 
@@ -299,7 +333,7 @@ export class DashboardEvents extends React.Component<
 
     this.setState({
       activeTypes,
-      ...this.getEventsState(this.state.allEvents, activeTypes),
+      ...this.getEventsState(activeTypes),
     });
   }
 }

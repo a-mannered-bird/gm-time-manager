@@ -20,7 +20,7 @@ import RoleTime from '../../models/RoleTime';
 import RoleEvent from '../../models/RoleEvent';
 import RoleEventType from '../../models/RoleEventType';
 
-import { getAllFromProject, putItem, postItem } from '../../api/localdb';
+import { getAllFromProject, putItem, postItem, deleteItem } from '../../api/localdb';
 
 export interface DashboardProps {
   project: Project;
@@ -30,6 +30,8 @@ export interface DashboardProps {
 export interface DashboardState {
   clockOn: boolean;
   presentTimes: PresentTime[];
+  roleEvents: RoleEvent[];
+  roleEventsResetCount: number;
   roleEventTypes: RoleEventType[];
   showCreateEventModal: boolean;
 }
@@ -48,11 +50,15 @@ export class Dashboard extends React.Component<
     this.state = {
       clockOn: false,
       presentTimes: [],
+      roleEvents: [],
+      roleEventsResetCount: 0,
       roleEventTypes: [],
       showCreateEventModal: false,
     };
 
     this.setPresentTime = this.setPresentTime.bind(this);
+    this.deleteRoleEvent = this.deleteRoleEvent.bind(this);
+    this.editRoleEvent = this.editRoleEvent.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -79,9 +85,13 @@ export class Dashboard extends React.Component<
         {this.displayActions(roleTime)}
 
         <DashboardEvents
+          onEventEdit={this.editRoleEvent}
+          onEventDelete={this.deleteRoleEvent}
           project={this.props.project}
-          roleTime={roleTime}
+          roleEvents={this.state.roleEvents}
+          roleEventsResetCount={this.state.roleEventsResetCount}
           roleEventTypes={this.state.roleEventTypes}
+          roleTime={roleTime}
         />
 
         {this.displayCreateEventModal(roleTime)}
@@ -149,13 +159,17 @@ export class Dashboard extends React.Component<
 
   /**
    * Gather all the datas we need
+   * TODO: Add loaders?
    */
   loadDatas() {
     getAllFromProject('presentTimes', this.props.project.id, (presentTimes: PresentTime[]) => {
       getAllFromProject('roleEventTypes', this.props.project.id, (roleEventTypes: RoleEventType[]) => {
-        this.setState({
-          presentTimes,
-          roleEventTypes,
+        getAllFromProject('roleEvents', this.props.project.id, (roleEvents: RoleEvent[]) => {
+          this.setState({
+            presentTimes,
+            roleEvents,
+            roleEventTypes,
+          });
         });
       });
     });
@@ -182,13 +196,52 @@ export class Dashboard extends React.Component<
   /**
    * Create new event in DB
    *
-   * @param My param
+   * @param roleEvent  RoleEvent
    */
   createRoleEvent(roleEvent: RoleEvent) {
     postItem('roleEvents', roleEvent, (data) => {
-      console.log(data);
+      const roleEvents = this.state.roleEvents;
+      roleEvents.push(roleEvent);
+
       this.setState({
+        roleEvents,
+        roleEventsResetCount: this.state.roleEventsResetCount + 1,
         showCreateEventModal: false,
+      });
+    });
+  }
+
+  /**
+   * Edit one event in DB
+   *
+   * @param roleEvent  RoleEvent
+   */
+  editRoleEvent(roleEvent: RoleEvent) {
+    putItem('roleEvents', roleEvent, (data) => {
+      console.log(data);
+      const roleEvents = this.state.roleEvents;
+      const i = roleEvents.findIndex((e) => e.id === roleEvent.id);
+      roleEvents[i] = roleEvent;
+
+      this.setState({
+        roleEvents,
+        roleEventsResetCount: this.state.roleEventsResetCount + 1,
+      });
+    });
+  }
+
+  /**
+   * Delete one event in DB
+   *
+   * @param roleEvent  RoleEvent
+   */
+  deleteRoleEvent(roleEvent: RoleEvent) {
+    deleteItem('roleEvents', roleEvent.id, (data) => {
+      const roleEvents = this.state.roleEvents.filter((e) => e.id !== roleEvent.id);
+
+      this.setState({
+        roleEvents,
+        roleEventsResetCount: this.state.roleEventsResetCount + 1,
       });
     });
   }

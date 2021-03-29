@@ -1,7 +1,4 @@
 
-// TODO: validate that the start date is not before the end date
-// TODO: On submit, isAllDay will modify the resulting dates
-
 import * as React from 'react';
 
 import Box from '@material-ui/core/Box';
@@ -32,6 +29,7 @@ export interface RoleEventEditFormProps {
   roleEvent?: RoleEvent;
   roleEventTypes: RoleEventType[];
   onConfirmForm: (roleEvent: RoleEvent) => void;
+  onDelete?: (roleEvent: RoleEvent) => void;
 }
 
 export interface RoleEventEditFormState {
@@ -68,7 +66,7 @@ export class RoleEventEditForm extends React.Component<
 
   public render() {
     const {roleEvent, showErrors} = this.state;
-    const {roleTime} = this.props;
+    const {roleTime, onDelete} = this.props;
 
     return <>
       <Typography variant="h6" component="h6" align="center" gutterBottom>
@@ -139,8 +137,12 @@ export class RoleEventEditForm extends React.Component<
       </Typography>
 
       <RoleTimeAdvancedInput
-        changeType='relative'
-        defaultValue={roleTime}
+        changeType={this.props.roleEvent ? 'absolute' : 'relative'}
+        defaultValue={this.props.roleEvent ?
+          new RoleTime(roleEvent.start, roleTime.timeDefinitions) :
+          roleTime
+        }
+        relativeTimeReference={roleTime}
         onChange={(roleTime) => this.onChange('start', roleTime.formatToNumber())}
         timeInputFormat={roleEvent.isAllDay ? 'date' : 'full'}
       />
@@ -155,19 +157,42 @@ export class RoleEventEditForm extends React.Component<
           changeType='relative'
           changeTypeTooltip={'Absolute let you set the exact date and time you want the event to end. ' +
             'Relative let\'s you simply define the event\'s duration.'}
-          defaultValue={roleTime}
+          defaultValue={this.props.roleEvent ?
+            new RoleTime(roleEvent.end, roleTime.timeDefinitions) :
+            roleTime
+          }
           relativeTimeReference={new RoleTime(roleEvent.start, roleTime.timeDefinitions)}
           onChange={(roleTime) => this.onChange('end', roleTime.formatToNumber())}
         />
+        {this.endDateIsValid() && <Typography
+          color="error"
+          variant="caption"
+          align="center"
+        >
+            End time cannot be set before start time
+        </Typography>}
       </>}
 
-      {/* VALIDATE BUTTON */}
       <Box display="flex" flexDirection="row-reverse">
-        <Button variant="contained" color="primary"
+        {/* VALIDATE BUTTON */}
+        <Button
+          variant="contained"
+          color="primary"
           onClick={() => this.confirmForm()}
         >
           Submit
         </Button>
+
+        {/* DELETE BUTTON */}
+        {onDelete && <Box mr={1}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => onDelete ? onDelete(roleEvent) : null}
+            >
+            Delete
+          </Button>
+        </Box>}
       </Box>
     </>;
   }
@@ -194,8 +219,12 @@ export class RoleEventEditForm extends React.Component<
   confirmForm() {
     const roleEvent = {...this.state.roleEvent};
 
-    // Validate event name
-    if (!roleEvent.name.trim()) {
+    if (
+      // Validate event name
+      !roleEvent.name.trim() ||
+      // Validate end date
+      this.endDateIsValid()
+    ) {
       this.setState({showErrors: true});
       return;
     }
@@ -211,5 +240,13 @@ export class RoleEventEditForm extends React.Component<
     }
 
     this.props.onConfirmForm(roleEvent);
+  }
+
+  /**
+   * Validate if the end date of the roleEvent is before the start date
+   */
+  endDateIsValid() {
+    const {roleEvent} = this.state;
+    return !roleEvent.isAllDay && roleEvent.end < roleEvent.start
   }
 }

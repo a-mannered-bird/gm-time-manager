@@ -21,6 +21,7 @@ export interface RoleEventBoardProps {
   roleEvents: RoleEvent[];
   roleTime: RoleTime;
   onClickMore?: () => void;
+  onRoleEventClick?: (e: RoleEvent) => void;
   showMoreTooltip?: string;
   showMoreActive?: boolean;
   theme: any;
@@ -91,6 +92,7 @@ export class RoleEventBoardPure extends React.Component<
         border: '1px solid ' + this.getEventColor(e),
         marginBottom: 3,
       }}
+      onClick={() => this.props.onRoleEventClick ? this.props.onRoleEventClick(e) : null}
     >
       <ListItemText
         primaryTypographyProps={{
@@ -127,6 +129,11 @@ export class RoleEventBoardPure extends React.Component<
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
+  /**
+   * Return a rgba color for a RoleEvent
+   *
+   * @param e  RoleEvent
+   */
   getEventColor(e: RoleEvent): string {
     const type = this.props.types.find((t) => e.typeIds.indexOf(t.id) !== -1);
     const color = (type || {}).color || this.props.theme.palette.secondary.main;

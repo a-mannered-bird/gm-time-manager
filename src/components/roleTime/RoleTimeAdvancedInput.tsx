@@ -40,10 +40,19 @@ export class RoleTimeAdvancedInput extends React.Component<
 
   constructor(props: RoleTimeAdvancedInputProps) {
     super(props);
+    const timeDefs = props.defaultValue.timeDefinitions;
+
+    // Build relativeTime in accordance to the relativeTimeReference passed as prop
+    // TODO: Find better relative time for past events
+    const relativeTimeValue = props.relativeTimeReference ? 
+      props.defaultValue.formatToNumber() - props.relativeTimeReference.formatToNumber() : 0;
+    const relativeTime = new RoleTime(relativeTimeValue, timeDefs);
+    relativeTime.month = (relativeTime.month || relativeTime.monthMin) - 1;
+    relativeTime.day = (relativeTime.day || relativeTime.dayMin) - 1;
+
     this.state = {
       absoluteTime: props.defaultValue,
-      // TODO: apply relativeTimeReference to the value below?
-      relativeTime: new RoleTime('0/0/0/0/0/0', props.defaultValue.timeDefinitions),
+      relativeTime, 
       changeType: props.changeType || 'relative',
     };
 
