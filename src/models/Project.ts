@@ -21,5 +21,4 @@ export interface TimeDefinitions {
   weekDaysNames: string[];
   weekDaysCount: number;
   yearMonthsCount: number;
-  yearNames: { [key: number]: string };
 }
