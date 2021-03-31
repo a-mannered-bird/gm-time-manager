@@ -59,7 +59,7 @@ export class RoleEventBoardPure extends React.Component<
         subheader={name ?
           <ListSubheader
             component="div"
-            color="primary"
+            disableSticky
             style={{textAlign: "center", lineHeight: '36px'}}
           >
             {name.toUpperCase()}
@@ -85,22 +85,34 @@ export class RoleEventBoardPure extends React.Component<
    * @param i  number
    */
   displayEventRow(e: RoleEvent, i: number) {
-    return <ListItem button 
-      key={this.props.name + '-event-' + e.id}
-      style={{
-        background: this.getEventBg(e),
-        border: '1px solid ' + this.getEventColor(e),
-        marginBottom: 3,
-      }}
-      onClick={() => this.props.onRoleEventClick ? this.props.onRoleEventClick(e) : null}
+    return <Tooltip
+      title={e.notes}
     >
-      <ListItemText
-        primaryTypographyProps={{
-          variant: 'caption',
+      <ListItem button 
+        key={this.props.name + '-event-' + e.id}
+        style={{
+          background: this.getEventBg(e),
+          border: '1px solid ' + this.getEventColor(e),
+          marginBottom: 3,
         }}
-        primary={e.name}
-      />
-    </ListItem>;
+        onClick={() => this.props.onRoleEventClick ? this.props.onRoleEventClick(e) : null}
+      >
+        <span style={{
+          position: 'absolute',
+          top: 0,
+          fontSize: 9,
+          right: 5,
+        }}>
+          {this.displayEventTimeLabel(e)}
+        </span>
+        <ListItemText
+          primaryTypographyProps={{
+            variant: 'caption',
+          }}
+          primary={e.name}
+        />
+      </ListItem>
+    </Tooltip>;
   }
 
   /**
@@ -123,6 +135,19 @@ export class RoleEventBoardPure extends React.Component<
         <AddIcon />
       </IconButton>
     </Tooltip>;
+  }
+
+  /**
+   * Return the correct event label
+   *
+   * TODO: Display stuff like "in a year", "in 2 minutes", etc... instead of exact date and time
+   *
+   * @param e  RoleEvent
+   */
+  displayEventTimeLabel(e: RoleEvent){
+    const useStart = this.props.name === 'future'
+    const roleTime = new RoleTime(useStart ? e.start : e.end, this.props.roleTime.timeDefinitions)
+    return `${roleTime.formatToDateString()} ${roleTime.formatToTimeString()}`;
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
