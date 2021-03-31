@@ -5,7 +5,7 @@ import MaterialTable from 'material-table';
 import tableIcons from '../../helpers/materialTableIcons';
 
 export interface EditableTableProps {
-  categories: any[];
+  // categories: any[];
   itemType: {
     itemName: string;
     singular: string;
@@ -16,7 +16,7 @@ export interface EditableTableProps {
   onClick?: any;
   onEdit: any;
   onRemove: any;
-  onCategorize?: any;
+  // onCategorize?: any;
   searchable?: boolean;
   sortingCategories?: any[];
 }
@@ -43,7 +43,7 @@ export class EditableTable extends React.Component<
   public render() {
     const columns = this.getColumns();
     // @ts-ignore
-    return (<div> <MaterialTable icons={tableIcons}
+    return <MaterialTable icons={tableIcons}
       title={this.props.itemType.plural}
       columns={columns}
       data={this.props.items}
@@ -68,15 +68,13 @@ export class EditableTable extends React.Component<
       }}
       localization={{
         body: {
-          addTooltip: 'Create new project',
-          deleteTooltip: 'Delete project',
-          editTooltip: 'Rename project',
+          addTooltip: `Create new ${this.props.itemType.singular}`,
+          deleteTooltip: `Delete ${this.props.itemType.singular}`,
+          editTooltip: `Rename ${this.props.itemType.singular}`,
         },
       }}
       onRowClick={this.props.onClick}
-      />
-
-    </div>);
+    />;
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
@@ -97,19 +95,20 @@ export class EditableTable extends React.Component<
    */
   public getColumns() {
     const columns = [{title: 'Name', field: 'name', filterPlaceholder: 'Search by name...' }] as any[];
+    columns.push({title: 'Color', field: 'color', filterPlaceholder: 'Search by color...' });
 
-    if (this.props.categories){
-      const categoriesLookup = {} as any;
-      this.props.categories.forEach((c) => categoriesLookup[c.id] = c.name);
+  //   if (this.props.categories){
+  //     const categoriesLookup = {} as any;
+  //     this.props.categories.forEach((c) => categoriesLookup[c.id] = c.name);
 
-      columns.push({
-        title: 'Categories',
-        field: 'categoryId',
-        type: 'numeric',
-        lookup: categoriesLookup,
-        filterPlaceholder: 'Search by category...'
-      });
-    }
+  //     columns.push({
+  //       title: 'Categories',
+  //       field: 'categoryId',
+  //       type: 'numeric',
+  //       lookup: categoriesLookup,
+  //       filterPlaceholder: 'Search by category...'
+  //     });
+  //   }
 
     return columns;
   }

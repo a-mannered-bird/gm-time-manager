@@ -83,6 +83,26 @@ export const postItem = (itemName: string, item: any, callback: (data: any) => v
   );
 }
 
+export const postItems = (itemName: string, newItems: any[], callback: (data: any) => void) => {
+  getValue(`${itemName}.count`, (count: number) => {
+    let id = count;
+    newItems = newItems.map((item) => {
+      id++;
+      item.id = id;
+      return item;
+    });
+
+    callback(
+      db.get(itemName)
+        .update('count', (n) => id)
+        .update('items', (items: any[]) => {
+          return items.concat(newItems);
+        })
+        .write()
+    );
+  });
+}
+
 export const putItem = (itemName: string, item: any, callback: (data: any) => void) => {
   callback(
     db.get(itemName)
@@ -98,9 +118,14 @@ export const putItem = (itemName: string, item: any, callback: (data: any) => vo
 
 export const putItems = (itemName: string, params: any, callback: (data: any) => void) => {
   callback(
-    db.get(itemName +'.items')
-      // @ts-ignore
-      .map(params)
+    db.get(itemName)
+      .update('items', (items: any[]) => {
+        if (isArray(params)) {
+          return items.map((item) => params.find((n: any) => n.id === item.id) || item);
+        } else {
+          return items.map(params);
+        }
+      })
       .write()
   );
 }
