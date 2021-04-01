@@ -7,6 +7,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withTheme } from '@material-ui/core/styles';
@@ -28,7 +30,9 @@ export interface RoleEventBoardProps {
   types: RoleEventType[];
 }
 
-export interface RoleEventBoardState {}
+export interface RoleEventBoardState {
+  eventMenu?: {event: RoleEvent, anchor: HTMLElement};
+}
 
 export class RoleEventBoardPure extends React.Component<
   RoleEventBoardProps,
@@ -75,6 +79,22 @@ export class RoleEventBoardPure extends React.Component<
       <Box display="flex" justifyContent="center" mb={1}>
         {this.displayMoreButton()}
       </Box>
+
+      <Menu
+        anchorEl={(this.state.eventMenu || {}).anchor}
+        keepMounted
+        open={!!this.state.eventMenu}
+        onClose={() => this.setState({eventMenu: undefined})}
+        style={{
+          // width: this.state.eventMenu ? this.state.eventMenu.anchor.offsetWidth : 'auto',
+        }}
+      >
+        <MenuItem onClick={() => this.onRoleEventClick((this.state.eventMenu || {}).event as RoleEvent)}>
+          Edit
+        </MenuItem>
+        <MenuItem onClick={() => {}}>Go to event start</MenuItem>
+        <MenuItem onClick={() => {}}>Go to event end</MenuItem>
+      </Menu>
     </Paper>;
   }
 
@@ -95,7 +115,11 @@ export class RoleEventBoardPure extends React.Component<
           border: '1px solid ' + this.getEventColor(e),
           marginBottom: 3,
         }}
-        onClick={() => this.props.onRoleEventClick ? this.props.onRoleEventClick(e) : null}
+        onClick={() => this.onRoleEventClick(e)}
+        onContextMenu={(ev) => {
+          ev.preventDefault();
+          this.setState({eventMenu: {event: e, anchor: ev.currentTarget}})
+        }}
       >
         <span style={{
           position: 'absolute',
@@ -166,7 +190,7 @@ export class RoleEventBoardPure extends React.Component<
   }
 
   /**
-   * My function
+   * Return the background of the roleEvent that indicates the progression of the event.
    *
    * @param e  RoleEvent
    */
@@ -186,6 +210,17 @@ export class RoleEventBoardPure extends React.Component<
     }
     return '';
   }
+
+  onRoleEventClick(e: RoleEvent) {
+    if (this.state.eventMenu) {
+      this.setState(
+        {eventMenu: undefined},
+        () => this.props.onRoleEventClick ? this.props.onRoleEventClick(e) : null
+      );
+    } else if (this.props.onRoleEventClick) {
+      this.props.onRoleEventClick(e);
+    }
+  } 
 }
 
 export const RoleEventBoard = withTheme(RoleEventBoardPure);
