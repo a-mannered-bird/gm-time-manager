@@ -92,6 +92,7 @@ export class Dashboard extends React.Component<
           roleEventsResetCount={this.state.roleEventsResetCount}
           roleEventTypes={this.state.roleEventTypes}
           roleTime={roleTime}
+          onChangeTime={this.setPresentTime}
         />
 
         {this.displayCreateEventModal(roleTime)}

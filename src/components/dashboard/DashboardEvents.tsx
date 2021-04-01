@@ -23,6 +23,7 @@ const boardNames = ['past', 'present', 'future'] as ('past'|'present'|'future')[
 const eventIncrement = 10;
 
 export interface DashboardEventsProps {
+  onChangeTime: (roleTime: RoleTime) => void;
   onEventEdit: (e: RoleEvent) => void;
   onEventDelete: (e: RoleEvent) => void;
   project: Project;
@@ -154,6 +155,7 @@ export class DashboardEvents extends React.Component<
     >
       <RoleEventBoard
         name={name}
+        onChangeTime={this.props.onChangeTime}
         onClickMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
         onRoleEventClick={(roleEvent) => this.setState({eventToEdit: roleEvent})}
         roleEvents={state[name + 'Events']}

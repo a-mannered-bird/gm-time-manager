@@ -24,6 +24,7 @@ export interface RoleEventBoardProps {
   roleTime: RoleTime;
   onClickMore?: () => void;
   onRoleEventClick?: (e: RoleEvent) => void;
+  onChangeTime?: (roleTime: RoleTime) => void;
   showMoreTooltip?: string;
   showMoreActive?: boolean;
   theme: any;
@@ -54,6 +55,7 @@ export class RoleEventBoardPure extends React.Component<
 
   public render() {
     const {name, roleEvents} = this.props;
+    const {eventMenu} = this.state;
 
     return <Paper style={{
       marginTop: 10, marginBottom: -10, marginLeft: 5, marginRight: 5,
@@ -81,19 +83,27 @@ export class RoleEventBoardPure extends React.Component<
       </Box>
 
       <Menu
-        anchorEl={(this.state.eventMenu || {}).anchor}
+        anchorEl={(eventMenu || {}).anchor}
         keepMounted
-        open={!!this.state.eventMenu}
+        open={!!eventMenu}
         onClose={() => this.setState({eventMenu: undefined})}
         style={{
-          // width: this.state.eventMenu ? this.state.eventMenu.anchor.offsetWidth : 'auto',
+          // width: eventMenu ? eventMenu.anchor.offsetWidth : 'auto',
         }}
       >
-        <MenuItem onClick={() => this.onRoleEventClick((this.state.eventMenu || {}).event as RoleEvent)}>
+        <MenuItem onClick={() => this.onRoleEventClick((eventMenu || {}).event as RoleEvent)}>
           Edit
         </MenuItem>
-        <MenuItem onClick={() => {}}>Go to event start</MenuItem>
-        <MenuItem onClick={() => {}}>Go to event end</MenuItem>
+        {this.props.onChangeTime && <MenuItem
+          onClick={() => this.goToEventTime(((eventMenu || {}).event as RoleEvent).start)}
+        >
+          Go to event start
+        </MenuItem>}
+        {this.props.onChangeTime && <MenuItem
+          onClick={() => this.goToEventTime(((eventMenu || {}).event as RoleEvent).end)}
+        >
+          Go to event end
+        </MenuItem>}
       </Menu>
     </Paper>;
   }
@@ -220,7 +230,15 @@ export class RoleEventBoardPure extends React.Component<
     } else if (this.props.onRoleEventClick) {
       this.props.onRoleEventClick(e);
     }
-  } 
+  }
+
+  goToEventTime(time: number) {
+    this.setState({
+      eventMenu: undefined,
+    }, () => this.props.onChangeTime ?
+      this.props.onChangeTime(new RoleTime(time, this.props.roleTime.timeDefinitions))
+    : null)
+  }
 }
 
 export const RoleEventBoard = withTheme(RoleEventBoardPure);
