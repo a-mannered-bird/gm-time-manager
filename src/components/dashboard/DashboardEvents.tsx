@@ -76,6 +76,7 @@ export class DashboardEvents extends React.Component<
 
     this.displayBoard = this.displayBoard.bind(this);
     this.displayFilterCheckbox = this.displayFilterCheckbox.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
   // --------------------------------- RENDER -------------------------------
@@ -148,10 +149,10 @@ export class DashboardEvents extends React.Component<
     const state = this.state as any;
 
     return <Grid item
+      key={'RoleEventBoard-' + name}
       xs={12}
       // @ts-ignore
       sm={12 / this.state.activeBoards.length}
-      key={'RoleEventBoard-' + name}
     >
       <RoleEventBoard
         name={name}
@@ -212,6 +213,16 @@ export class DashboardEvents extends React.Component<
 
   componentDidMount() {
     this.loadData();
+
+    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('goToPreviousEvent', () => this.goToClosestEvent(false));
+    window.addEventListener('goToNextEvent', () => this.goToClosestEvent(true));
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('goToPreviousEvent', () => this.goToClosestEvent(false));
+    window.removeEventListener('goToNextEvent', () => this.goToClosestEvent(true));
   }
 
   componentDidUpdate(prevProps: DashboardEventsProps) {
@@ -337,5 +348,36 @@ export class DashboardEvents extends React.Component<
       activeTypes,
       ...this.getEventsState(activeTypes),
     });
+  }
+
+  onKeyDown(e: KeyboardEvent){
+    if (e.keyCode === 37 && e.metaKey) {
+      e.preventDefault();
+      console.log('left');
+      this.goToClosestEvent(false);
+    } else if (e.keyCode === 39 && e.metaKey) {
+      e.preventDefault();
+      console.log('right');
+      this.goToClosestEvent(true);
+    }
+  }
+
+  goToClosestEvent(next: boolean) {
+    const {pastEvents, presentEvents, futureEvents} = this.state;
+    const timeDefs = this.props.roleTime.timeDefinitions;
+    // Compare
+    if (next) {
+      if (presentEvents.length) {
+        this.props.onChangeTime(new RoleTime(presentEvents[0].end + 1, timeDefs))
+      } else if (futureEvents.length) {
+        this.props.onChangeTime(new RoleTime(futureEvents[0].start, timeDefs))
+      }
+    } else {
+      if (presentEvents.length) {
+        this.props.onChangeTime(new RoleTime(presentEvents[presentEvents.length - 1].start - 1, timeDefs))
+      } else if (pastEvents.length) {
+        this.props.onChangeTime(new RoleTime(pastEvents[0].end, timeDefs))
+      }
+    }
   }
 }

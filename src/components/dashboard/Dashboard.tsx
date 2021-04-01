@@ -3,6 +3,8 @@ import * as React from 'react';
 
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 // import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
+import HistoryIcon from '@material-ui/icons/History';
+import UpdateIcon from '@material-ui/icons/Update';
 import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import Modal from '../utilities/Modal';
@@ -128,6 +130,26 @@ export class Dashboard extends React.Component<
           onClick={() => this.setState({showCreateEventModal: true})}
         >
           <LibraryAddIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip
+        title="Go to previous event (Cmd/Ctrl + ←)"
+      >
+        <IconButton
+          aria-label="Go to previous event (Cmd/Ctrl + ←)"
+          onClick={() => window.dispatchEvent(new Event('goToPreviousEvent'))}
+        >
+          <HistoryIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip
+        title="Go to next event (Cmd/Ctrl + →)"
+      >
+        <IconButton
+          aria-label="Go to next event (Cmd/Ctrl + →)"
+          onClick={() => window.dispatchEvent(new Event('goToNextEvent'))}
+        >
+          <UpdateIcon />
         </IconButton>
       </Tooltip>
     </Box>;

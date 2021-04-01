@@ -100,7 +100,7 @@ export class RoleEventBoardPure extends React.Component<
           Go to event start
         </MenuItem>}
         {this.props.onChangeTime && <MenuItem
-          onClick={() => this.goToEventTime(((eventMenu || {}).event as RoleEvent).end)}
+          onClick={() => this.goToEventTime(((eventMenu || {}).event as RoleEvent).end + 1)}
         >
           Go to event end
         </MenuItem>}
@@ -117,9 +117,9 @@ export class RoleEventBoardPure extends React.Component<
   displayEventRow(e: RoleEvent, i: number) {
     return <Tooltip
       title={e.notes}
+      key={this.props.name + '-event-' + e.id}
     >
       <ListItem button 
-        key={this.props.name + '-event-' + e.id}
         style={{
           background: this.getEventBg(e),
           border: '1px solid ' + this.getEventColor(e),
