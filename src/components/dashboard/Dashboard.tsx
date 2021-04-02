@@ -208,10 +208,11 @@ export class Dashboard extends React.Component<
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
   onKeyDown(e: KeyboardEvent){
-    // CTRL E
+    // CMD/CTRL E
     if (e.keyCode === 69 && e.metaKey) {
       e.preventDefault();
       this.setState({showCreateEventModal: true});
+    // CMD/CTRL K
     } else if (e.keyCode === 75 && e.metaKey) {
       e.preventDefault();
       this.setState({clockOn: !this.state.clockOn});

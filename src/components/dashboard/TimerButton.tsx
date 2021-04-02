@@ -58,7 +58,7 @@ export class TimerButton extends React.Component<
 
     return <>
       <Tooltip
-        title={!activeTimeLimit ? "Start a timer" : "Edit Timer"}
+        title={!activeTimeLimit ? "Start a timer (Cmd/Ctrl + I)" : "Edit Timer (Cmd/Ctrl + I)"}
       >
         <IconButton
           color={activeTimeLimit ? "secondary" : "default"}
@@ -165,6 +165,10 @@ export class TimerButton extends React.Component<
     if (e.keyCode === 13 && this.state.showEditModal && this.validateTimer()) {
       e.preventDefault();
       this.startTimer();
+    // Cmd/Ctrl + I
+    } else if (e.keyCode === 73 && e.metaKey) {
+      e.preventDefault();
+      this.setState({showEditModal: true});
     }
   }
 
