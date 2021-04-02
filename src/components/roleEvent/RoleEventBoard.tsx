@@ -169,7 +169,7 @@ export class RoleEventBoardPure extends React.Component<
     if (roundWord === 'now') { return 'ends now'; }
     switch (this.props.name) {
       case 'past':
-        return roundWord + ' ago';
+        return 'ended ' + roundWord + ' ago';
       case 'present':
         return 'ends in ' + roundWord;
       case 'future':

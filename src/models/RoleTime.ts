@@ -167,7 +167,7 @@ export default class RoleTime implements RoleTimeValue {
     let biggestUnity = this.valueNames.find((name) => this[name] > 0 || this[name] < 0);
     if (!biggestUnity) return 'now';
     const value = Math.abs(this[biggestUnity]);
-    if (this[biggestUnity] > 1) {
+    if (value > 1) {
       biggestUnity += 's';
     }
 
