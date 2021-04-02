@@ -157,7 +157,7 @@ export class DashboardEvents extends React.Component<
       <RoleEventBoard
         name={name}
         onChangeTime={this.props.onChangeTime}
-        onClickMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
+        onLoadMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
         onRoleEventClick={(roleEvent) => this.setState({eventToEdit: roleEvent})}
         roleEvents={state[name + 'Events']}
         types={this.props.roleEventTypes.filter((type) => this.state.activeTypes.indexOf(type.id) !== -1)}

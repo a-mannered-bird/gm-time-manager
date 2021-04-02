@@ -1,8 +1,5 @@
 
 import * as React from 'react';
-import AddIcon from '@material-ui/icons/Add';
-import Box from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -22,7 +19,7 @@ export interface RoleEventBoardProps {
   name?: string;
   roleEvents: RoleEvent[];
   roleTime: RoleTime;
-  onClickMore?: () => void;
+  onLoadMore?: () => void;
   onRoleEventClick?: (e: RoleEvent) => void;
   onChangeTime?: (roleTime: RoleTime) => void;
   showMoreTooltip?: string;
@@ -45,7 +42,6 @@ export class RoleEventBoardPure extends React.Component<
 
   constructor(props: RoleEventBoardProps) {
     super(props);
-
     this.state = {};
 
     this.displayEventRow = this.displayEventRow.bind(this);
@@ -61,12 +57,21 @@ export class RoleEventBoardPure extends React.Component<
       marginTop: 10, marginBottom: -10, marginLeft: 5, marginRight: 5,
       flexGrow: 1,
     }}>
-      <List dense
+      <List
+        dense
+        onScroll={(event) =>this.onScroll(event)}
+        style={{
+          maxHeight: 300,
+          overflowY: 'scroll',
+        }}
         subheader={name ?
           <ListSubheader
             component="div"
-            disableSticky
-            style={{textAlign: "center", lineHeight: '36px'}}
+            style={{
+              background: this.props.theme.palette.background.paper,
+              lineHeight: '36px',
+              textAlign: 'center',
+            }}
           >
             {name.toUpperCase()}
           </ListSubheader>
@@ -77,10 +82,6 @@ export class RoleEventBoardPure extends React.Component<
           <ListItemText secondary="No events found" />
         </ListItem>}
       </List>
-
-      <Box display="flex" justifyContent="center" mb={1}>
-        {this.displayMoreButton()}
-      </Box>
 
       <Menu
         anchorEl={(eventMenu || {}).anchor}
@@ -151,28 +152,6 @@ export class RoleEventBoardPure extends React.Component<
   }
 
   /**
-   * Display button to expand more results
-   */
-  displayMoreButton() {
-    if (!this.props.showMoreActive) {
-      return null;
-    }
-
-    return <Tooltip
-      title={this.props.showMoreTooltip || 'Show more'}
-    >
-      <IconButton
-        color="default"
-        size="small"
-        aria-label={this.props.showMoreTooltip || 'Show more'}
-        onClick={() => this.props.onClickMore ? this.props.onClickMore() : null}
-      >
-        <AddIcon />
-      </IconButton>
-    </Tooltip>;
-  }
-
-  /**
    * Return the correct event label
    *
    * @param e  RoleEvent
@@ -201,6 +180,16 @@ export class RoleEventBoardPure extends React.Component<
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
+
+  /**
+   * Load more on scroll to bottom
+   */
+  onScroll(e: any) {
+    const {scrollTop, scrollHeight, offsetHeight} = e.currentTarget as HTMLElement;    
+    if (this.props.onLoadMore && scrollTop + offsetHeight >= scrollHeight) {
+      this.props.onLoadMore();
+    }
+  }
 
   /**
    * Return a rgba color for a RoleEvent

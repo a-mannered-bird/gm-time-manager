@@ -212,6 +212,9 @@ export class Dashboard extends React.Component<
     if (e.keyCode === 69 && e.metaKey) {
       e.preventDefault();
       this.setState({showCreateEventModal: true});
+    } else if (e.keyCode === 75 && e.metaKey) {
+      e.preventDefault();
+      this.setState({clockOn: !this.state.clockOn});
     }
   }
 

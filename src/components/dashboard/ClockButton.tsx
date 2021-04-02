@@ -37,7 +37,7 @@ export class ClockButton extends React.Component<
     const {clockOn} = this.props;
 
     return <Tooltip
-      title={!clockOn ? "Start clock" : "Stop clock"}
+      title={!clockOn ? "Start clock (Cmd/Ctrl + K)" : "Stop clock (Cmd/Ctrl + K)"}
     >
       <IconButton
         color={clockOn ? "secondary" : "default"}
