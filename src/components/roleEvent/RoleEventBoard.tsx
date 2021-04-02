@@ -61,7 +61,7 @@ export class RoleEventBoardPure extends React.Component<
         dense
         onScroll={(event) =>this.onScroll(event)}
         style={{
-          maxHeight: 300,
+          height: 300,
           overflowY: 'scroll',
         }}
         subheader={name ?

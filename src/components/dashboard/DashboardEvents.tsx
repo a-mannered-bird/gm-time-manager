@@ -336,12 +336,23 @@ export class DashboardEvents extends React.Component<
    * @param id  number
    */
   toggleTypeFilter(id: number) {
-    const activeTypes = [...this.state.activeTypes];
+    const metaKeyPressed = (window.event as MouseEvent || {}).metaKey;
+    let activeTypes = [...this.state.activeTypes];
     const index = activeTypes.indexOf(id);
     if (index === -1){
-      activeTypes.push(id);
+      if (metaKeyPressed) {
+        activeTypes = [id];
+      } else {
+        activeTypes.push(id);
+      }
     } else {
-      activeTypes.splice(index, 1);
+      if (metaKeyPressed && activeTypes.length > 1) {
+        activeTypes = [id];
+      } else if (metaKeyPressed) {
+        activeTypes = [0, ...this.props.roleEventTypes.map((t) => t.id)];
+      } else {
+        activeTypes.splice(index, 1);
+      }
     }
 
     this.setState({
