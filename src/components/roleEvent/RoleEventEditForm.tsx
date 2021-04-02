@@ -77,6 +77,7 @@ export class RoleEventEditForm extends React.Component<
 
       {/* NAME */}
       <TextField
+        autoFocus
         error={showErrors ? !roleEvent.name.trim() : false}
         fullWidth
         label="Name"
