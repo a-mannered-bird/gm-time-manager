@@ -166,7 +166,7 @@ export class TimerButton extends React.Component<
       e.preventDefault();
       this.startTimer();
     // Cmd/Ctrl + I
-    } else if (e.keyCode === 73 && e.metaKey) {
+    } else if (e.keyCode === 73 && e.metaKey && !e.altKey) {
       e.preventDefault();
       this.setState({showEditModal: true});
     }
