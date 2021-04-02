@@ -163,6 +163,17 @@ export default class RoleTime implements RoleTimeValue {
     return this.valueNames.map((name) => this[name]).join('/');
   }
 
+  formatRoundWord() {
+    let biggestUnity = this.valueNames.find((name) => this[name] > 0 || this[name] < 0);
+    if (!biggestUnity) return 'now';
+    const value = Math.abs(this[biggestUnity]);
+    if (this[biggestUnity] > 1) {
+      biggestUnity += 's';
+    }
+
+    return `${value} ${biggestUnity}`;
+  }
+
   /**
    * Return timestamp that represents the number of seconds away from year 0
    */
@@ -405,6 +416,12 @@ export default class RoleTime implements RoleTimeValue {
     this.second = this.secondMax;
   }
 
+  /**
+   * Will return a roleTime indicating the relative time compared to this
+   * roleTime
+   *
+   * @param timestamp  number
+   */
   calculateRelativeTime(timestamp: number) {
     return new RoleTime(timestamp - this.formatToNumber(), this.timeDefinitions)
       .convertToRelative();

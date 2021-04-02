@@ -115,11 +115,14 @@ export class RoleEventBoardPure extends React.Component<
    * @param i  number
    */
   displayEventRow(e: RoleEvent, i: number) {
+    const timeStyle = {position: 'absolute', top: 0, fontSize: 9, right: 5} as React.CSSProperties;
+
     return <Tooltip
       title={e.notes}
       key={this.props.name + '-event-' + e.id}
     >
       <ListItem button 
+        className="Role-event-item"
         style={{
           background: this.getEventBg(e),
           border: '1px solid ' + this.getEventColor(e),
@@ -131,13 +134,11 @@ export class RoleEventBoardPure extends React.Component<
           this.setState({eventMenu: {event: e, anchor: ev.currentTarget}})
         }}
       >
-        <span style={{
-          position: 'absolute',
-          top: 0,
-          fontSize: 9,
-          right: 5,
-        }}>
+        <span className="Role-event-item__absolute-time" style={timeStyle}>
           {this.displayEventTimeLabel(e)}
+        </span>
+        <span className="Role-event-item__relative-time" style={timeStyle}>
+          {this.displayEventTimeLabel(e, true)}
         </span>
         <ListItemText
           primaryTypographyProps={{
@@ -174,21 +175,27 @@ export class RoleEventBoardPure extends React.Component<
   /**
    * Return the correct event label
    *
-   * TODO: Display stuff like "in a year", "in 2 minutes", etc... instead of exact date and time
-   *
    * @param e  RoleEvent
    */
   displayEventTimeLabel(e: RoleEvent, isRelative?: boolean){
     const {roleTime} = this.props;
     const useStart = this.props.name === 'future'
-    const eRoleTime = new RoleTime(useStart ? e.start : e.end, roleTime.timeDefinitions)
+    const timestamp = useStart ? e.start : e.end;
     if (!isRelative) {
+      const eRoleTime = new RoleTime(timestamp, roleTime.timeDefinitions)
       return `${eRoleTime.formatToDateString()} ${eRoleTime.formatToTimeString()}`;
     }
 
-    // const relativeTimestamp = eRoleTime.formatToNumber() - roleTime.formatToNumber();
-    // const relativeTime = new RoleTime(relativeTimestamp, roleTime.timeDefinitions);
-    // relativeTime.convertToRelative();
+    const roundWord = roleTime.calculateRelativeTime(timestamp).formatRoundWord();
+    if (roundWord === 'now') { return roundWord; }
+    switch (this.props.name) {
+      case 'past':
+        return roundWord + ' ago';
+      case 'present':
+        return 'ends in ' + roundWord;
+      case 'future':
+        return 'starts in ' + roundWord;
+    }
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
