@@ -405,6 +405,11 @@ export default class RoleTime implements RoleTimeValue {
     this.second = this.secondMax;
   }
 
+  calculateRelativeTime(timestamp: number) {
+    return new RoleTime(timestamp - this.formatToNumber(), this.timeDefinitions)
+      .convertToRelative();
+  }
+
   /**
    * If the value of the RoleTime is negative, will format
    */
