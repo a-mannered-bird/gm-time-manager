@@ -178,10 +178,17 @@ export class RoleEventBoardPure extends React.Component<
    *
    * @param e  RoleEvent
    */
-  displayEventTimeLabel(e: RoleEvent){
+  displayEventTimeLabel(e: RoleEvent, isRelative?: boolean){
+    const {roleTime} = this.props;
     const useStart = this.props.name === 'future'
-    const roleTime = new RoleTime(useStart ? e.start : e.end, this.props.roleTime.timeDefinitions)
-    return `${roleTime.formatToDateString()} ${roleTime.formatToTimeString()}`;
+    const eRoleTime = new RoleTime(useStart ? e.start : e.end, roleTime.timeDefinitions)
+    if (!isRelative) {
+      return `${eRoleTime.formatToDateString()} ${eRoleTime.formatToTimeString()}`;
+    }
+
+    // const relativeTimestamp = eRoleTime.formatToNumber() - roleTime.formatToNumber();
+    // const relativeTime = new RoleTime(relativeTimestamp, roleTime.timeDefinitions);
+    // relativeTime.convertToRelative();
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------

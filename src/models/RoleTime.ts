@@ -404,4 +404,28 @@ export default class RoleTime implements RoleTimeValue {
     this.minute = this.minuteMax;
     this.second = this.secondMax;
   }
+
+  /**
+   * If the value of the RoleTime is negative, will format
+   */
+  convertToRelative() {
+    const timestamp = this.formatToNumber();
+
+    if (timestamp >= 0) {
+      this.month = (this.month || this.monthMin) - 1;
+      this.day = (this.day || this.dayMin) - 1;
+    } else if (timestamp < 0) {
+      this.valueNames.forEach((name) => {
+        if (name === 'year') {
+          this.year = (this.year || -1) + 1;
+        } else if (name === 'second'){
+          this.second = (this.second || this.secondMin) - (this[name + 'Max'] + 1);
+        } else {
+          this[name] = this[name] - (this[name + 'Max']);
+        }
+      })
+    }
+
+    return this;
+  }
 }
