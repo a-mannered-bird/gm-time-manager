@@ -353,11 +353,9 @@ export class DashboardEvents extends React.Component<
   onKeyDown(e: KeyboardEvent){
     if (e.keyCode === 37 && e.metaKey) {
       e.preventDefault();
-      console.log('left');
       this.goToClosestEvent(false);
     } else if (e.keyCode === 39 && e.metaKey) {
       e.preventDefault();
-      console.log('right');
       this.goToClosestEvent(true);
     }
   }

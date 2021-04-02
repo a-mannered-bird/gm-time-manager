@@ -58,6 +58,7 @@ export class Dashboard extends React.Component<
       showCreateEventModal: false,
     };
 
+    this.onKeyDown = this.onKeyDown.bind(this);
     this.setPresentTime = this.setPresentTime.bind(this);
     this.deleteRoleEvent = this.deleteRoleEvent.bind(this);
     this.editRoleEvent = this.editRoleEvent.bind(this);
@@ -122,7 +123,7 @@ export class Dashboard extends React.Component<
         onTimerStop={(disableClock) => this.setState({clockOn: !disableClock})}
       />
       <Tooltip
-        title="Create event on the fly"
+        title="Create event (Cmd/Ctrl + E)"
       >
         <IconButton
           // color={clockOn ? "secondary" : "default"}
@@ -176,8 +177,14 @@ export class Dashboard extends React.Component<
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
-  componentDidMount () {
+  componentDidMount() {
     this.loadDatas();
+
+    window.addEventListener('keydown', this.onKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKeyDown);
   }
 
   /**
@@ -199,6 +206,14 @@ export class Dashboard extends React.Component<
   }
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
+
+  onKeyDown(e: KeyboardEvent){
+    // CTRL E
+    if (e.keyCode === 69 && e.metaKey) {
+      e.preventDefault();
+      this.setState({showCreateEventModal: true});
+    }
+  }
 
   /**
    * Update the value of the present time in the app and inside the DB
