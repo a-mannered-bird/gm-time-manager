@@ -362,20 +362,32 @@ export class DashboardEvents extends React.Component<
 
   goToClosestEvent(next: boolean) {
     const {pastEvents, presentEvents, futureEvents} = this.state;
-    const timeDefs = this.props.roleTime.timeDefinitions;
-    // Compare
+
+    let event: number | undefined;
     if (next) {
       if (presentEvents.length) {
-        this.props.onChangeTime(new RoleTime(presentEvents[0].end + 1, timeDefs))
-      } else if (futureEvents.length) {
-        this.props.onChangeTime(new RoleTime(futureEvents[0].start, timeDefs))
+        event = presentEvents[0].end + 1;
+      }
+
+      if (futureEvents.length) {
+        const futureEvent = futureEvents[0].start;
+        event = event === undefined || futureEvent < event ? futureEvent : event;
       }
     } else {
       if (presentEvents.length) {
-        this.props.onChangeTime(new RoleTime(presentEvents[presentEvents.length - 1].start - 1, timeDefs))
-      } else if (pastEvents.length) {
-        this.props.onChangeTime(new RoleTime(pastEvents[0].end, timeDefs))
+        presentEvents.forEach((e, i) => {
+          event = !event || event < e.start - 1 ? e.start - 1 : event;
+        });
       }
+
+      if (pastEvents.length) {
+        const pastEvent = pastEvents[0].end
+        event = event === undefined || pastEvent > event ? pastEvent : event
+      }
+    }
+
+    if (event !== undefined) {
+      this.props.onChangeTime(new RoleTime(event, this.props.roleTime.timeDefinitions));
     }
   }
 }

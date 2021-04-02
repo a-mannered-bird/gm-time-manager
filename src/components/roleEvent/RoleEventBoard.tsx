@@ -187,7 +187,7 @@ export class RoleEventBoardPure extends React.Component<
     }
 
     const roundWord = roleTime.calculateRelativeTime(timestamp).formatRoundWord();
-    if (roundWord === 'now') { return roundWord; }
+    if (roundWord === 'now') { return 'ends now'; }
     switch (this.props.name) {
       case 'past':
         return roundWord + ' ago';
