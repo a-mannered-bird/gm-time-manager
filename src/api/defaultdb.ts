@@ -4,6 +4,42 @@ export default {
     lastBackupDate: new Date().valueOf(),
   },
 
+  roleActions: {
+    count: 1,
+    items: [
+      {
+        id: 1,
+        externalId: 'c5106266-2d88-4ebd-b002-0dgcf3b05531',
+        projectId: 1,
+        name: 'Action test 1',
+        description: 'Notes for test event 2',
+        typeIds: [1],
+        events: [
+          {
+            id: 0,
+            externalId: 'c5106255-2d88-4ebd-b002-0dccf3b05531',
+            projectId: 1,
+            name: 'Action event 1',
+            description: 'Notes for test event 2',
+            start: 0,
+            end: 0,
+            typeIds: [1],
+          },
+          {
+            id: 0,
+            externalId: 'c5106255-2d22-4ebd-b002-0dccf3b05531',
+            projectId: 1,
+            name: 'Action event 1',
+            description: 'Notes for test event 2',
+            start: 60,
+            end: 60,
+            typeIds: [2],
+          },
+        ],
+      },
+    ],
+  },
+
   roleEvents: {
     count: 4,
     items: [
