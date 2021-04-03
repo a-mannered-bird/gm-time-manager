@@ -5,6 +5,8 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import Modal from '../utilities/Modal';
 import Typography from '@material-ui/core/Typography';
@@ -116,8 +118,19 @@ export class DashboardEvents extends React.Component<
       <br/>
 
       {/* EVENT FILTERS */}
-      <Box display="flex" justifyContent="center" alignItems="center" mb={1}>
-        <Box mr={1}>
+      <Box display="flex" justifyContent="center" alignItems="center" flexWrap="wrap" mb={1}>
+        <Box display="flex" mr={1} alignItems="center">
+          <Tooltip
+            title={`Tick/untick a checkbox to display/hide events of this type.
+              Press Ctrl or Cmd and click a checkbox to display only events of this type.
+              Do it again to display all event types.
+            `}
+          >
+            <HelpOutlineIcon
+              fontSize="small"
+              style={{marginRight: 10}}
+            />
+          </Tooltip>
           <Typography variant="subtitle1">
             Filter events by type :
           </Typography>
