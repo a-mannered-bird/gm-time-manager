@@ -35,6 +35,7 @@ export interface DashboardState {
   roleEventsResetCount: number;
   roleEventTypes: RoleEventType[];
   showCreateEventModal: boolean;
+  timeHistory: number[];
 }
 
 export class Dashboard extends React.Component<
@@ -54,6 +55,7 @@ export class Dashboard extends React.Component<
       roleEventsResetCount: 0,
       roleEventTypes: [],
       showCreateEventModal: false,
+      timeHistory: [],
     };
 
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -204,14 +206,27 @@ export class Dashboard extends React.Component<
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
   onKeyDown(e: KeyboardEvent){
-    // CMD/CTRL E
+    // CMD/CTRL E -> Open modal to create event
     if (e.keyCode === 69 && e.metaKey) {
       e.preventDefault();
       this.setState({showCreateEventModal: true});
-    // CMD/CTRL K
+
+    // CMD/CTRL K -> toggle clock
     } else if (e.keyCode === 75 && e.metaKey) {
       e.preventDefault();
       this.setState({clockOn: !this.state.clockOn});
+
+    // TODO: Forbid when modal is on
+    // CMD/CTRL Z -> go back in roleTime history
+    } else if (e.keyCode === 90 && e.metaKey) {
+      let {timeHistory} = this.state;
+      const {length} = timeHistory;
+      if (!length) { return; }
+      e.preventDefault();
+
+      const roleTime = new RoleTime(timeHistory[length - 1], this.props.project.settings.timeDefinitions);
+      timeHistory.splice(length - 1);
+      this.setPresentTime(roleTime, true, timeHistory)
     }
   }
 
@@ -219,14 +234,28 @@ export class Dashboard extends React.Component<
    * Update the value of the present time in the app and inside the DB
    *
    * @param roleTime  RoleTime
+   * @param bypassHistory  RoleTime  If set to true, it won't store the last RoleTime in history
    */
-  setPresentTime(roleTime: RoleTime) {
+  setPresentTime(roleTime: RoleTime, bypassHistory?: boolean, history?: number[]) {
     const {project} = this.props;
-    project.dashboardTime = roleTime.formatToNumber();
+    const newValue = roleTime.formatToNumber();
+    if (newValue === project.dashboardTime) {
+      return;
+    }
+
+    const timeHistory = history || this.state.timeHistory;;
+    if (!bypassHistory) {
+      timeHistory.push(project.dashboardTime);
+    }
+
+    project.dashboardTime = newValue;
+
     // console.log(roleTime.formatToFullString(), roleTime.formatToNumber(), 'New RoleTime!');
     // console.log(new RoleTime(roleTime.formatToNumber(), roleTime.timeDefinitions).formatToFullString(), 'timestamp to string check');
 
-    this.props.updateProject(project);
+    this.setState({
+      timeHistory,
+    }, () => this.props.updateProject(project))
   }
 
   /**
