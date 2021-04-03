@@ -7,6 +7,7 @@ import {
   Route,
   withRouter
 } from "react-router-dom";
+import { ActionsDashboard } from '../actions/ActionsDashboard';
 import { Backups } from '../backups/Backups';
 import { Dashboard } from '../dashboard/Dashboard';
 import { Menu } from './Menu';
@@ -103,6 +104,11 @@ class Layout extends React.Component<
               <Settings
                 project={this.state.selectedProject}
                 updateProject={this.updateProject}
+              />
+            </Route>
+            <Route path="/:projectId/actions">
+              <ActionsDashboard
+                project={this.state.selectedProject}
               />
             </Route>
             <Route path="/:projectId/backups">

@@ -9,6 +9,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import SaveIcon from '@material-ui/icons/Save';
 import SettingsIcon from '@material-ui/icons/Settings';
+import TouchAppIcon from '@material-ui/icons/TouchApp';
 import { Link as RouterLink, LinkProps as RouterLinkProps } from "react-router-dom";
 import { Omit } from '@material-ui/types';
 
@@ -81,6 +82,7 @@ export function Menu(props: MenuProps) {
           <List>
             {displayItem('Dashboard', 'dashboard', <HomeIcon />)}
             {displayItem('Settings', 'settings', <SettingsIcon />)}
+            {displayItem('Actions', 'actions', <TouchAppIcon />)}
             {displayItem('Backups', 'backups', <SaveIcon />)}
           </List>
         </div>
