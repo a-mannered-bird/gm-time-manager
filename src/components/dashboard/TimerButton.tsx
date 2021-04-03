@@ -15,16 +15,22 @@ import { RoleTimeAdvancedInput } from '../roleTime/RoleTimeAdvancedInput';
 import Modal from '../utilities/Modal';
 
 import RoleTime from '../../models/RoleTime';
+import RoleEvent from '../../models/RoleEvent';
+import Project from '../../models/Project';
+
+import { v4 as uuidv4 } from 'uuid';
 
 export interface TimerButtonProps {
   clockOn: boolean;
   roleTime: RoleTime;
-  onTimerStart: () => void;
+  onTimerStart: (timerEvent?: RoleEvent) => void;
   onTimerStop?: (disableClock: boolean) => void;
+  project: Project;
 }
 
 export interface TimerButtonState {
   activeTimeLimit?: RoleTime;
+  createEvent: boolean;
   disableClock: boolean;
   showEditModal: boolean;
   newTimeLimit: RoleTime;
@@ -42,6 +48,7 @@ export class TimerButton extends React.Component<
     super(props);
 
     this.state = {
+      createEvent: true,
       disableClock: true,
       showEditModal: false,
       newTimeLimit: new RoleTime(props.roleTime),
@@ -53,7 +60,7 @@ export class TimerButton extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {activeTimeLimit, disableClock, showEditModal} = this.state;
+    const {activeTimeLimit, createEvent, disableClock, showEditModal} = this.state;
     const {roleTime} = this.props;
 
     return <>
@@ -115,10 +122,18 @@ export class TimerButton extends React.Component<
         <FormControlLabel control={<Checkbox
             checked={disableClock}
             onChange={() => this.setState({disableClock: !disableClock})}
-            name="disableClock"
             color="secondary"
           />}
           label="Disable clock on ending"
+        />
+        <br/>
+
+        <FormControlLabel control={<Checkbox
+            checked={createEvent}
+            onChange={() => this.setState({createEvent: !createEvent})}
+            color="secondary"
+          />}
+          label="Create event for timer"
         />
 
         <br/>
@@ -176,10 +191,21 @@ export class TimerButton extends React.Component<
    * Activate the timer
    */
   startTimer() {
+    const event = this.state.createEvent ? {
+      id: 0,
+      externalId: uuidv4(),
+      projectId: this.props.project.id,
+      name: 'Timer',
+      notes: '',
+      start: this.props.roleTime.formatToNumber(),
+      end: this.state.newTimeLimit.formatToNumber(),
+      typeIds: [],
+    } : undefined;
+
     this.setState({
       showEditModal: false,
       activeTimeLimit: this.state.newTimeLimit,
-    }, () => this.props.onTimerStart())
+    }, () => this.props.onTimerStart(event))
   }
 
   /**

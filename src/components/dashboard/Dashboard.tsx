@@ -119,15 +119,19 @@ export class Dashboard extends React.Component<
       <TimerButton
         clockOn={this.state.clockOn}
         roleTime={roleTime}
-        onTimerStart={() => this.setState({clockOn: true})}
+        onTimerStart={(roleEvent) => roleEvent ?
+          this.createRoleEvent(roleEvent, {clockOn: true}) :
+          this.setState({clockOn: true})
+        }
         onTimerStop={(disableClock) => this.setState({clockOn: !disableClock})}
+        project={this.props.project}
       />
       <Tooltip
         title="Create event (Cmd/Ctrl + E)"
       >
         <IconButton
-          // color={clockOn ? "secondary" : "default"}
           aria-label="Create event on the fly"
+          disabled={this.state.clockOn}
           onClick={() => this.setState({showCreateEventModal: true})}
         >
           <LibraryAddIcon />
@@ -207,7 +211,7 @@ export class Dashboard extends React.Component<
 
   onKeyDown(e: KeyboardEvent){
     // CMD/CTRL E -> Open modal to create event
-    if (e.keyCode === 69 && e.metaKey) {
+    if (e.keyCode === 69 && e.metaKey && !this.state.clockOn) {
       e.preventDefault();
       this.setState({showCreateEventModal: true});
 
@@ -263,7 +267,7 @@ export class Dashboard extends React.Component<
    *
    * @param roleEvent  RoleEvent
    */
-  createRoleEvent(roleEvent: RoleEvent) {
+  createRoleEvent(roleEvent: RoleEvent, state: any = {}) {
     postItem('roleEvents', roleEvent, (data) => {
       const roleEvents = this.state.roleEvents;
       roleEvents.push(data.items.find((e: RoleEvent) => e.id === data.count));
@@ -272,6 +276,7 @@ export class Dashboard extends React.Component<
         roleEvents,
         roleEventsResetCount: this.state.roleEventsResetCount + 1,
         showCreateEventModal: false,
+        ...state,
       });
     });
   }
