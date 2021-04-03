@@ -230,7 +230,9 @@ export class DashboardEvents extends React.Component<
       (prevProps.roleTime.formatToNumber() !== this.props.roleTime.formatToNumber()) ||
       (prevProps.roleEventsResetCount !== this.props.roleEventsResetCount)
     ) {
-      this.setState(this.getEventsState(this.state.activeTypes));
+      this.setState({
+        ...this.getEventsState(this.state.activeTypes)
+      });
     }
   }
 

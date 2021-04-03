@@ -16,7 +16,6 @@ import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
 import { RoleEventEditForm } from '../roleEvent/RoleEventEditForm';
 import { TimerButton } from './TimerButton';
 
-import PresentTime from '../../models/PresentTime';
 import Project from '../../models/Project';
 import RoleTime from '../../models/RoleTime';
 import RoleEvent from '../../models/RoleEvent';
@@ -31,7 +30,7 @@ export interface DashboardProps {
 
 export interface DashboardState {
   clockOn: boolean;
-  presentTimes: PresentTime[];
+  firstLoadDone?: boolean;
   roleEvents: RoleEvent[];
   roleEventsResetCount: number;
   roleEventTypes: RoleEventType[];
@@ -51,7 +50,6 @@ export class Dashboard extends React.Component<
 
     this.state = {
       clockOn: false,
-      presentTimes: [],
       roleEvents: [],
       roleEventsResetCount: 0,
       roleEventTypes: [],
@@ -67,12 +65,12 @@ export class Dashboard extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    if (!this.state.presentTimes.length) {
+    if (!this.state.firstLoadDone) {
       return null;
     }
 
     const timeDefs = this.props.project.settings.timeDefinitions;
-    const roleTime = new RoleTime(this.state.presentTimes[0].value, timeDefs);
+    const roleTime = new RoleTime(this.props.project.dashboardTime, timeDefs);
 
     return <>
       <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
@@ -192,14 +190,12 @@ export class Dashboard extends React.Component<
    * TODO: Add loaders?
    */
   loadDatas() {
-    getAllFromProject('presentTimes', this.props.project.id, (presentTimes: PresentTime[]) => {
-      getAllFromProject('roleEventTypes', this.props.project.id, (roleEventTypes: RoleEventType[]) => {
-        getAllFromProject('roleEvents', this.props.project.id, (roleEvents: RoleEvent[]) => {
-          this.setState({
-            presentTimes,
-            roleEvents,
-            roleEventTypes,
-          });
+    getAllFromProject('roleEventTypes', this.props.project.id, (roleEventTypes: RoleEventType[]) => {
+      getAllFromProject('roleEvents', this.props.project.id, (roleEvents: RoleEvent[]) => {
+        this.setState({
+          firstLoadDone: true,
+          roleEvents,
+          roleEventTypes,
         });
       });
     });
@@ -225,14 +221,12 @@ export class Dashboard extends React.Component<
    * @param roleTime  RoleTime
    */
   setPresentTime(roleTime: RoleTime) {
-    const presentTimes = [...this.state.presentTimes];
-    presentTimes[0].value = roleTime.formatToNumber();
+    const {project} = this.props;
+    project.dashboardTime = roleTime.formatToNumber();
     // console.log(roleTime.formatToFullString(), roleTime.formatToNumber(), 'New RoleTime!');
     // console.log(new RoleTime(roleTime.formatToNumber(), roleTime.timeDefinitions).formatToFullString(), 'timestamp to string check');
 
-    putItem('presentTimes', presentTimes, (data) => {
-      this.setState({presentTimes});
-    });
+    this.props.updateProject(project);
   }
 
   /**

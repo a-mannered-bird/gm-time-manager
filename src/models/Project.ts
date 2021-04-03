@@ -1,12 +1,10 @@
 
 // TODO: add externalId to projects
 
-import PresentTime from './PresentTime';
-
 export default interface Project {
   id: number;
   name: string;
-  presentRoleTime: PresentTime;
+  dashboardTime: number;
   settings: {
     [key: string]: any;
     changeTimeType: 'absolute' | 'relative';

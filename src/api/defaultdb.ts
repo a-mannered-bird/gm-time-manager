@@ -72,23 +72,13 @@ export default {
     ],
   },
 
-  presentTimes: {
-    count: 1,
-    items: [
-      {
-        id: 1,
-        projectId: 1,
-        value: 0,
-      },
-    ],
-  },
-
   projects: {
     count: 1,
     items: [
       {
         id: 1,
         name: "Demo",
+        dashboardTime: 0,
 
         // **** SETTINGS ****
         settings: {
