@@ -7,6 +7,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 import SaveIcon from '@material-ui/icons/Save';
 import SettingsIcon from '@material-ui/icons/Settings';
 import TouchAppIcon from '@material-ui/icons/TouchApp';
@@ -82,6 +83,7 @@ export function Menu(props: MenuProps) {
           <List>
             {displayItem('Dashboard', 'dashboard', <HomeIcon />)}
             {displayItem('Settings', 'settings', <SettingsIcon />)}
+            {displayItem('Types', 'types', <LocalOfferIcon />)}
             {displayItem('Actions', 'actions', <TouchAppIcon />)}
             {displayItem('Backups', 'backups', <SaveIcon />)}
           </List>

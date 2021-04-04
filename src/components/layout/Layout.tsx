@@ -13,6 +13,7 @@ import { Dashboard } from '../dashboard/Dashboard';
 import { Menu } from './Menu';
 import { Projects } from '../sortingDatas/Projects';
 import { Settings } from '../settings/Settings';
+import { SettingsEventTypes } from '../settings/SettingsEventTypes';
 import { TopBar } from './TopBar';
 
 import Project from '../../models/Project';
@@ -104,6 +105,11 @@ class Layout extends React.Component<
               <Settings
                 project={this.state.selectedProject}
                 updateProject={this.updateProject}
+              />
+            </Route>
+            <Route path="/:projectId/types">
+              <SettingsEventTypes
+                projectId={selectedProjectId}
               />
             </Route>
             <Route path="/:projectId/actions">

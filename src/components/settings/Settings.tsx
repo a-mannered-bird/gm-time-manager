@@ -11,10 +11,8 @@ import SaveIcon from '@material-ui/icons/Save';
 import Typography from '@material-ui/core/Typography';
 
 import { SettingsTimeDefinitions } from './SettingsTimeDefinitions';
-import { SettingsEventTypes } from './SettingsEventTypes';
 
 import Project from '../../models/Project';
-import RoleEventType from '../../models/RoleEventType';
 
 import { getAllFromProject, putItems, postItems, deleteItems, removeItemLinks } from '../../api/localdb';
 
@@ -27,10 +25,6 @@ export interface SettingsState {
   pristine: boolean;
   project: Project;
   projectCached: Project;
-  roleEventTypes: RoleEventType[];
-  roleEventTypesToCreate: RoleEventType[];
-  roleEventTypesToEdit: RoleEventType[];
-  roleEventTypesToDelete: RoleEventType[];
 }
 
 export class Settings extends React.Component<
@@ -48,10 +42,6 @@ export class Settings extends React.Component<
       pristine: true,
       project: props.project,
       projectCached: props.project,
-      roleEventTypes: [],
-      roleEventTypesToCreate: [],
-      roleEventTypesToEdit: [],
-      roleEventTypesToDelete: [],
     };
 
     this.onChangeSettings = this.onChangeSettings.bind(this);
@@ -100,18 +90,6 @@ export class Settings extends React.Component<
 
       <br/>
 
-      {/* EVENT TYPES */}
-      <Paper>
-        <Box p={2}>
-          <SettingsEventTypes
-            onCreate={(type) => this.onCreateEventType(type)}
-            onChange={(type) => this.onChangeEventType(type)}
-            onDelete={(type) => this.onDeleteEventType(type)}
-            project={this.props.project}
-            types={this.state.roleEventTypes}
-          />
-        </Box>
-      </Paper>
     </>;
   }
 
@@ -129,22 +107,6 @@ export class Settings extends React.Component<
       project,
       projectCached: props.project,
     };
-  }
-
-  componentDidMount() {
-    this.loadDatas();
-  }
-
-  /**
-   * Gather all the datas we need
-   * TODO: Add loaders?
-   */
-  loadDatas() {
-    getAllFromProject('roleEventTypes', this.props.project.id, (roleEventTypes: RoleEventType[]) => {
-      this.setState({
-        roleEventTypes,
-      });
-    });
   }
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
@@ -172,60 +134,6 @@ export class Settings extends React.Component<
     });
   }
 
-/**
-   * Handle role event type creation
-   *
-   * @param type  RoleEventType
-   */
-  onCreateEventType(type: RoleEventType) {
-    let {roleEventTypes, roleEventTypesToCreate, pristine} = this.state;
-    roleEventTypesToCreate.push(type);
-    roleEventTypes.push(type);
-    pristine = false;
-    this.setState({roleEventTypes, roleEventTypesToCreate, pristine});
-  }
-
-  /**
-   * Handle role event type change
-   *
-   * @param type  RoleEventType
-   */
-  onChangeEventType(type: RoleEventType) {
-    let {roleEventTypes, roleEventTypesToEdit, roleEventTypesToCreate, pristine} = this.state;
-    const i = roleEventTypes.findIndex((t) => t.externalId === type.externalId);
-    roleEventTypes[i] = type;
-
-    if (type.id) {
-      const iEdit = roleEventTypesToEdit.findIndex((t) => t.id === type.id);
-      if (iEdit === -1) {
-        roleEventTypesToEdit.push(type);
-      } else {
-        roleEventTypesToEdit[iEdit] = type;
-      }
-      pristine = false;
-    } else {
-      const iCreate = roleEventTypesToCreate.findIndex((t) => t.externalId === type.externalId);
-      roleEventTypesToCreate[iCreate] = type;
-    }
-    this.setState({roleEventTypes, roleEventTypesToEdit, pristine});
-  }
-
-  /**
-   * Handle role event type change
-   *
-   * @param type  RoleEventType
-   */
-  onDeleteEventType(type: RoleEventType) {
-    const roleEventTypesToDelete = this.state.roleEventTypesToDelete;
-    let pristine = this.state.pristine;
-    if (type.id) {
-      roleEventTypesToDelete.push(type);
-      pristine = false;
-    }
-    const roleEventTypes = this.state.roleEventTypes.filter((t) => t.externalId !== type.externalId);
-    this.setState({pristine, roleEventTypes, roleEventTypesToDelete});
-  }
-
   /**
    * Save settings
    */
@@ -233,34 +141,8 @@ export class Settings extends React.Component<
     const {project} = this.state;
 
     // TODO: add loader?
-    this.updateEventTypesInDB(() => {
-      this.setState({
-        pristine: true,
-        roleEventTypesToCreate: [],
-        roleEventTypesToEdit: [],
-        roleEventTypesToDelete: [],
-      }, () => this.props.updateProject(project));
-    });
-  }
-
-  updateEventTypesInDB(callback: () => void) {
-    let {roleEventTypesToCreate, roleEventTypesToEdit, roleEventTypesToDelete} = this.state;
-    if (!roleEventTypesToCreate.length && !roleEventTypesToDelete && !roleEventTypesToEdit.length){
-      callback();
-    }
-
-    const convertColors = (t: any) => t.color = t.color.hex ? '#' + t.color.hex : t.color;
-    roleEventTypesToCreate.forEach(convertColors);
-    roleEventTypesToEdit.forEach(convertColors);
-
-    deleteItems('roleEventTypes', roleEventTypesToDelete, () => {
-      removeItemLinks('roleEvents', 'typeIds', roleEventTypesToDelete, () => {
-        putItems('roleEventTypes', roleEventTypesToEdit, () => {
-          postItems('roleEventTypes', roleEventTypesToCreate, () => {
-            callback();
-          });
-        })
-      })
-    });
+    this.setState({
+      pristine: true,
+    }, () => this.props.updateProject(project));
   }
 }
