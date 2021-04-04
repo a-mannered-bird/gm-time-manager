@@ -1,4 +1,6 @@
 
+// TODO: Solve lag issues
+
 import * as React from 'react';
 import AddIcon from '@material-ui/icons/Add';
 import Box from '@material-ui/core/Box';
@@ -29,7 +31,10 @@ export interface SettingsEventTypesProps {
   types: RoleEventType[];
 }
 
-export interface SettingsEventTypesState {}
+export interface SettingsEventTypesState {
+  orderAsc: boolean;
+  // sortedTypes: RoleEventType[];
+}
 
 export class SettingsEventTypes extends React.Component<
   SettingsEventTypesProps,
@@ -42,7 +47,10 @@ export class SettingsEventTypes extends React.Component<
   constructor(props: SettingsEventTypesProps) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      orderAsc: true,
+      // sortedTypes: this.sortTypes(props.types, true),
+    };
 
     this.displayTypeItem = this.displayTypeItem.bind(this);
   }
@@ -50,6 +58,8 @@ export class SettingsEventTypes extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
+    const sortedTypes = this.sortTypes(this.props.types, this.state.orderAsc);
+
     return <>
       <Box display="flex" alignItems="center">
        <Box mr={1}>
@@ -69,13 +79,10 @@ export class SettingsEventTypes extends React.Component<
         <Table size='small'>
           <TableHead>
             <TableRow>
-              <TableCell
-                // sortDirection={orderBy === headCell.id ? order : false}
-              >
+              <TableCell>
                 <TableSortLabel
-                  // active={orderBy === headCell.id}
-                  // direction={orderBy === headCell.id ? order : 'asc'}
-                  // onClick={createSortHandler(headCell.id)}
+                  direction={this.state.orderAsc ? 'asc' : 'desc'}
+                  onClick={() => this.setState({orderAsc: !this.state.orderAsc})}
                 >
                   Name
                 </TableSortLabel>
@@ -89,7 +96,7 @@ export class SettingsEventTypes extends React.Component<
             </TableRow>
           </TableHead>
           <TableBody>
-            {this.props.types.map(this.displayTypeItem)}
+            {sortedTypes.map(this.displayTypeItem)}
           </TableBody>
         </Table>
       </TableContainer>
@@ -147,4 +154,13 @@ export class SettingsEventTypes extends React.Component<
     this.props.onCreate(newType);
   }
 
+  sortTypes(types: RoleEventType[], isAsc: boolean) {
+    const newTypes = [...types];
+    newTypes.sort((a, b) => {
+      if(a.name < b.name) { return isAsc ? -1 : 1; }
+      if(a.name > b.name) { return isAsc ? 1 : -1; }
+      return 0;
+    })
+    return newTypes;
+  }
 }
