@@ -118,6 +118,7 @@ export class SettingsEventTypes extends React.Component<
       </TableCell>
       <TableCell>
         <ColorPicker
+          disablePlainColor
           onChange={(color) => this.onChange(t, 'color', color)}
           value={t.color}
         />
