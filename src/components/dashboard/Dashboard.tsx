@@ -1,4 +1,6 @@
 
+// TODO: Sort event types alphabetically
+// TODO: Events are colored in the order of the categories they were attributed
 // TODO: Should create events and actions be floating action buttons?
 
 import * as React from 'react';

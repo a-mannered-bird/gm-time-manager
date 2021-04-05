@@ -15,8 +15,6 @@ import { SettingsTimeDefinitions } from './SettingsTimeDefinitions';
 
 import Project from '../../models/Project';
 
-import { getAllFromProject, putItems, postItems, deleteItems, removeItemLinks } from '../../api/localdb';
-
 export interface SettingsProps {
   project: Project;
   updateProject: (project: Project) => void;
