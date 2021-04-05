@@ -1,4 +1,6 @@
 
+// TODO: Should create events and actions be floating action buttons?
+
 import * as React from 'react';
 
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';

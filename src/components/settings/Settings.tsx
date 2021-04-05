@@ -1,6 +1,7 @@
 
 /**
   TODO: Add form validation
+  TODO: Reduce latency on time definitions edition
 */
 
 import * as React from 'react';

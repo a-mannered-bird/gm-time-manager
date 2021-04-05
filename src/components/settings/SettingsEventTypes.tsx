@@ -1,5 +1,7 @@
 
 // TODO: Make table into reusable component for actions
+// TODO: Add button should be a floating action button
+// TODO: Add form validation
 
 import * as React from 'react';
 
