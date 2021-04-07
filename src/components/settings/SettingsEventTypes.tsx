@@ -61,6 +61,7 @@ export class SettingsEventTypes extends React.Component<
               label: 'Name',
               prop: 'name',
               type: 'text',
+              required: true,
             },
             {
               label: 'Color',

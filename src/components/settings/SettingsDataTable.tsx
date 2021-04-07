@@ -1,8 +1,7 @@
 
-// TODO: Add form validation
+// TODO: Display popup if trying to quit page while not pristine
 // TODO: Add search
 // TODO: Add pagination?
-// TODO: Display popup if trying to quit page while not pristine
 // TODO: Work on padding a bit more
 // TODO: Reduce text inputs font size
 
@@ -34,6 +33,7 @@ export interface TableColumn {
   label: string;
   prop: string;
   type: 'text' | 'color' | 'textarea';
+  required?: boolean;
 }
 
 export interface SettingsDataTableProps {
@@ -83,6 +83,7 @@ export class SettingsDataTable extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
+    const hasError = !this.validateAllItems();
 
     return <>
       {this.displayTable()}
@@ -92,14 +93,17 @@ export class SettingsDataTable extends React.Component<
         bottom="0" left="0" padding="20px"
       >
         {/* SAVE BUTTON */}
-        {!this.state.pristine && <Tooltip title="Save changes">
+        {!this.state.pristine && <Tooltip
+          title={hasError ? `You need to fix errors before being able to save` : `Save changes`}
+        ><span>
           <Fab
             color="secondary"
+            disabled={hasError}
             style={{marginLeft: 10}}
             onClick={() => this.saveSettings()}>
             <SaveIcon />
           </Fab>
-        </Tooltip>}
+        </span></Tooltip>}
 
         {/* ADD BUTTON */}
         <Tooltip title={`Create ${this.props.itemNameSingular}`}>
@@ -179,15 +183,15 @@ export class SettingsDataTable extends React.Component<
     return <TableCell
       key={`settings-data-table-row-${item.externalId}-${i}`}
       padding="none"
-      style={{}}
     >
       {/* Text */}
       {(col.type === 'text' || col.type === 'textarea') && <TextField
+        error={this.hasError(col, item[col.prop])}
         fullWidth
         multiline={col.type === 'textarea'}
         onChange={(e) => this.onChange(item, col.prop, e.target.value)}
         placeholder={col.label}
-        required
+        required={col.required}
         size="small"
         style={{fontSize: 14}}
         value={item[col.prop]}
@@ -223,6 +227,36 @@ export class SettingsDataTable extends React.Component<
   }
 
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
+
+  hasError(col: TableColumn, value: any){
+    if (this.state.pristine) {
+      return false;
+    }
+
+    if (col.required && !value) {
+      return true;
+    }
+  }
+
+  validateAllItems(){
+    const cols = this.props.columns;
+    const items = this.state.items;
+    for (let i = 0; i < cols.length; i++) {
+      if (!cols[i].required) {
+        continue;
+      }
+
+      if (cols[i].required) {
+        for (let j = 0; j < items.length; j++) {
+          if (!items[j][cols[i].prop]) {
+            return false;
+            break;
+          }
+        }
+      }
+    }
+    return true;
+  }
 
   onChange(item: any, prop: string, value: any){
     const newItem = {...item} as any;
