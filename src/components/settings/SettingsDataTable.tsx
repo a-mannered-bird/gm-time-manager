@@ -5,7 +5,6 @@
 // TODO: Display popup if trying to quit page while not pristine
 // TODO: Work on padding a bit more
 // TODO: Reduce text inputs font size
-// TODO: Description should automatically get on multilines.
 
 import * as React from 'react';
 
@@ -27,6 +26,7 @@ import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { getAllFromProject } from '../../api/localdb';
+import { sortByName } from '../../helpers/utils';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -149,7 +149,7 @@ export class SettingsDataTable extends React.Component<
         direction={this.state.orderAsc ? 'asc' : 'desc'}
         onClick={() => this.setState({
           orderAsc: !this.state.orderAsc,
-          items: this.sortTypes(this.state.items, !this.state.orderAsc),
+          items: sortByName(this.state.items, !this.state.orderAsc),
         })}
       >
         {column.label}
@@ -217,7 +217,7 @@ export class SettingsDataTable extends React.Component<
   loadDatas() {
     getAllFromProject(this.props.itemNameDb, this.props.projectId, (items) => {
       this.setState({
-        items: this.sortTypes(items, this.state.orderAsc),
+        items: sortByName(items, this.state.orderAsc),
       });
     });
   }
@@ -272,16 +272,6 @@ export class SettingsDataTable extends React.Component<
       itemsSelected = itemsSelected.filter((i) => i.externalId !== item.externalId);
     }
     this.setState({itemsSelected});
-  }
-
-  sortTypes(items: any[], isAsc: boolean) {
-    const newTypes = [...items];
-    newTypes.sort((a, b) => {
-      if(a.name < b.name) { return isAsc ? -1 : 1; }
-      if(a.name > b.name) { return isAsc ? 1 : -1; }
-      return 0;
-    })
-    return newTypes;
   }
 
   onDelete() {

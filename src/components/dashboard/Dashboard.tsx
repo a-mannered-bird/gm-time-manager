@@ -1,5 +1,5 @@
 
-// TODO: Sort event types alphabetically
+// TODO: Tooltips on event categories containing description
 // TODO: Events are colored in the order of the categories they were attributed
 // TODO: Should create events and actions be floating action buttons?
 
@@ -26,6 +26,7 @@ import RoleEvent from '../../models/RoleEvent';
 import RoleEventType from '../../models/RoleEventType';
 
 import { getAllFromProject, putItem, postItem, deleteItem } from '../../api/localdb';
+import { sortByName } from '../../helpers/utils';
 
 export interface DashboardProps {
   project: Project;
@@ -205,7 +206,7 @@ export class Dashboard extends React.Component<
         this.setState({
           firstLoadDone: true,
           roleEvents,
-          roleEventTypes,
+          roleEventTypes: sortByName(roleEventTypes, true),
         });
       });
     });
