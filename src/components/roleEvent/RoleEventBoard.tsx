@@ -197,7 +197,13 @@ export class RoleEventBoardPure extends React.Component<
    * @param e  RoleEvent
    */
   getEventColor(e: RoleEvent): string {
-    const type = this.props.types.find((t) => e.typeIds.indexOf(t.id) !== -1);
+    let type: RoleEventType | undefined;
+    for (let i = 0; i < e.typeIds.length; i++) {
+      type = this.props.types.find((t) => t.id === e.typeIds[i])
+      if (type) {
+        break;
+      }
+    }
     const color = (type || {}).color || this.props.theme.palette.secondary.main;
     return fade(color, 0.3);
   }

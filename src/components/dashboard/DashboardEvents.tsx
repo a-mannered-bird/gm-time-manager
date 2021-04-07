@@ -188,10 +188,10 @@ export class DashboardEvents extends React.Component<
    */
   displayFilterCheckbox(type: RoleEventType, i: number) {
     return <Tooltip
+      key={'RoleEventType-checkbox-' +  type.id}
       title={type.description}
     >
       <FormControlLabel
-        key={'RoleEventType-checkbox-' +  type.id}
         control={<Checkbox
           checked={this.state.activeTypes.indexOf(type.id) !== -1}
           onChange={() => this.toggleTypeFilter(type.id)}
