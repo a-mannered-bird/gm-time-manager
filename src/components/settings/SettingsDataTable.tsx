@@ -250,7 +250,6 @@ export class SettingsDataTable extends React.Component<
         for (let j = 0; j < items.length; j++) {
           if (!items[j][cols[i].prop]) {
             return false;
-            break;
           }
         }
       }

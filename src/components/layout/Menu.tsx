@@ -83,7 +83,7 @@ export function Menu(props: MenuProps) {
           <List>
             {displayItem('Dashboard', 'dashboard', <HomeIcon />)}
             {displayItem('Settings', 'settings', <SettingsIcon />)}
-            {displayItem('Types', 'types', <LocalOfferIcon />)}
+            {displayItem('Event types', 'types', <LocalOfferIcon />)}
             {displayItem('Actions', 'actions', <TouchAppIcon />)}
             {displayItem('Backups', 'backups', <SaveIcon />)}
           </List>
