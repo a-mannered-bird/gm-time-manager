@@ -24,6 +24,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 
+import { RoleEventBoard } from '../roleEvent/RoleEventBoard';
+
 import { getAllFromProject } from '../../api/localdb';
 import { sortByName } from '../../helpers/utils';
 
@@ -32,7 +34,7 @@ import { v4 as uuidv4 } from 'uuid';
 export interface TableColumn {
   label: string;
   prop: string;
-  type: 'text' | 'color' | 'textarea';
+  type: 'text' | 'color' | 'textarea' | 'eventBoard';
   required?: boolean;
 }
 
@@ -204,6 +206,15 @@ export class SettingsDataTable extends React.Component<
         disablePlainColor
         onChange={(color) => this.onChange(item, col.prop, color)}
         value={item[col.prop]}
+      />}
+
+      {/* Event Board */}
+      {col.type === 'eventBoard' && <RoleEventBoard
+        // onRoleEventClick={}
+        roleEvents={item[col.prop]}
+        // TODO: Add types for colors
+        types={[]}
+        variant="compressed"
       />}
     </TableCell>
   }

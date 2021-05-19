@@ -18,7 +18,7 @@ import RoleTime from '../../models/RoleTime';
 export interface RoleEventBoardProps {
   name?: string;
   roleEvents: RoleEvent[];
-  roleTime: RoleTime;
+  roleTime?: RoleTime;
   onLoadMore?: () => void;
   onRoleEventClick?: (e: RoleEvent) => void;
   onChangeTime?: (roleTime: RoleTime) => void;
@@ -26,6 +26,7 @@ export interface RoleEventBoardProps {
   showMoreActive?: boolean;
   theme: any;
   types: RoleEventType[];
+  variant: 'dashboard' | 'compressed'
 }
 
 export interface RoleEventBoardState {
@@ -50,7 +51,7 @@ export class RoleEventBoardPure extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {name, roleEvents} = this.props;
+    const {name, roleEvents, onChangeTime, roleTime, variant} = this.props;
     const {eventMenu} = this.state;
 
     return <Paper style={{
@@ -60,10 +61,10 @@ export class RoleEventBoardPure extends React.Component<
       <List
         dense
         onScroll={(event) =>this.onScroll(event)}
-        style={{
+        style={variant !== 'compressed' ? {
           height: 300,
           overflowY: 'scroll',
-        }}
+        } : {}}
         subheader={name ?
           <ListSubheader
             component="div"
@@ -95,12 +96,12 @@ export class RoleEventBoardPure extends React.Component<
         <MenuItem onClick={() => this.onRoleEventClick((eventMenu || {}).event as RoleEvent)}>
           Edit
         </MenuItem>
-        {this.props.onChangeTime && <MenuItem
+        {roleTime && onChangeTime && <MenuItem
           onClick={() => this.goToEventTime(((eventMenu || {}).event as RoleEvent).start)}
         >
           Go to event start
         </MenuItem>}
-        {this.props.onChangeTime && <MenuItem
+        {roleTime && onChangeTime && <MenuItem
           onClick={() => this.goToEventTime(((eventMenu || {}).event as RoleEvent).end + 1)}
         >
           Go to event end
@@ -158,6 +159,10 @@ export class RoleEventBoardPure extends React.Component<
    */
   displayEventTimeLabel(e: RoleEvent, isRelative?: boolean){
     const {roleTime} = this.props;
+    if (!roleTime) {
+      return '';
+    }
+
     const useStart = this.props.name === 'future'
     const timestamp = useStart ? e.start : e.end;
     if (!isRelative) {
@@ -215,6 +220,10 @@ export class RoleEventBoardPure extends React.Component<
    */
   getEventBg(e: RoleEvent): string {
     const {name, roleTime} = this.props;
+    if (!roleTime) {
+      return '';
+    }
+
     const color = this.getEventColor(e);
     
     switch (name) {
@@ -244,9 +253,11 @@ export class RoleEventBoardPure extends React.Component<
   goToEventTime(time: number) {
     this.setState({
       eventMenu: undefined,
-    }, () => this.props.onChangeTime ?
-      this.props.onChangeTime(new RoleTime(time, this.props.roleTime.timeDefinitions))
-    : null)
+    }, () => {
+      if (this.props.onChangeTime && this.props.roleTime) {
+        this.props.onChangeTime(new RoleTime(time, this.props.roleTime.timeDefinitions));
+      }
+    })
   }
 }
 

@@ -68,6 +68,11 @@ export class ActionsDashboard extends React.Component<
               required: true,
               type: 'textarea',
             },
+            {
+              label: 'Events',
+              prop: 'events',
+              type: 'eventBoard',
+            },
           ]}
           itemNameDb="roleActions"
           itemNameSingular="action"
