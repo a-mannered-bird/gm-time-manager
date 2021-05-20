@@ -109,7 +109,7 @@ class Layout extends React.Component<
             </Route>
             <Route path="/:projectId/types">
               <SettingsEventTypes
-                projectId={selectedProjectId}
+                project={this.state.selectedProject}
               />
             </Route>
             <Route path="/:projectId/actions">

@@ -13,6 +13,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { ColorPicker } from 'material-ui-color';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
+import IconButton from '@material-ui/core/IconButton';
 import SaveIcon from '@material-ui/icons/Save';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -25,6 +26,13 @@ import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { RoleEventBoard } from '../roleEvent/RoleEventBoard';
+import { RoleEventEditForm } from '../roleEvent/RoleEventEditForm';
+import Modal from '../utilities/Modal';
+
+import Project from '../../models/Project';
+import RoleEvent from '../../models/RoleEvent';
+import RoleTime from '../../models/RoleTime';
+import RoleEventType from '../../models/RoleEventType';
 
 import { getAllFromProject } from '../../api/localdb';
 import { sortByName } from '../../helpers/utils';
@@ -44,17 +52,22 @@ export interface SettingsDataTableProps {
   itemNameSingular: string;
   itemNameDb: string;
   onSave: (toCreate: any[], toEdit: any[], toDelete: any[], callback:() => void) => void;
-  projectId: number;
+  project: Project;
+  roletime?: RoleTime;
 }
 
 export interface SettingsDataTableState {
-  pristine: boolean;
-  orderAsc: boolean;
+  hasEvents: boolean;
   items: any[];
   itemsSelected: any[];
   itemsToCreate: any[];
-  itemsToEdit: any[];
   itemsToDelete: any[];
+  itemsToEdit: any[];
+  orderAsc: boolean;
+  pristine: boolean;
+  eventToEdit?: RoleEvent | true;
+  roleEventTypes: RoleEventType[];
+
 }
 
 export class SettingsDataTable extends React.Component<
@@ -69,13 +82,15 @@ export class SettingsDataTable extends React.Component<
     super(props);
 
     this.state = {
-      pristine: true,
-      orderAsc: true,
+      hasEvents: !!props.columns.find((col) => col.type === 'eventBoard'),
       items: [],
       itemsSelected: [],
       itemsToCreate: [],
-      itemsToEdit: [],
       itemsToDelete: [],
+      itemsToEdit: [],
+      orderAsc: true,
+      pristine: true,
+      roleEventTypes: [],
     };
 
     this.displayTableHeader = this.displayTableHeader.bind(this);
@@ -90,7 +105,9 @@ export class SettingsDataTable extends React.Component<
     return <>
       {this.displayTable()}
 
+      {this.state.hasEvents && this.displayCreateEventModal()}
 
+      {/* BUTTONS */}
       <Box width="100%" display="flex" position="absolute" flexDirection="row-reverse"
         bottom="0" left="0" padding="20px"
       >
@@ -209,14 +226,48 @@ export class SettingsDataTable extends React.Component<
       />}
 
       {/* Event Board */}
-      {col.type === 'eventBoard' && <RoleEventBoard
-        // onRoleEventClick={}
-        roleEvents={item[col.prop]}
-        // TODO: Add types for colors
-        types={[]}
-        variant="compressed"
-      />}
+      {col.type === 'eventBoard' && <Box display="flex" alignItems="center">
+        <Box flexGrow="1">
+          <RoleEventBoard
+            onRoleEventClick={(e) => this.setState({eventToEdit: e})}
+            roleEvents={item[col.prop]}
+            types={this.state.roleEventTypes}
+            variant="settings"
+          />
+        </Box>
+
+        <Tooltip title="Add an event">
+          <IconButton
+            aria-label="Create event on the fly"
+            onClick={() => this.setState({eventToEdit: true})}
+          >
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>}
     </TableCell>
+  }
+
+  /**
+   * Display a modal containing the form to create a new event
+   */
+  displayCreateEventModal() {
+    const {project} = this.props;
+    const {eventToEdit} = this.state;
+
+    return <Modal
+      open={!!this.state.eventToEdit}
+      onClose={() => this.setState({eventToEdit: undefined})}
+    ><>
+      <RoleEventEditForm
+        // onConfirmForm={(roleEvent) => this.createRoleEvent(roleEvent)}
+        lockChangeType="relative"
+        project={project}
+        roleEvent={(eventToEdit as RoleEvent || {}).id ? eventToEdit as RoleEvent : undefined}
+        roleTime={new RoleTime('0/0/0/0/0/0', project.settings.timeDefinitions)}
+        roleEventTypes={this.state.roleEventTypes}
+      />
+    </></Modal>;
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
@@ -230,10 +281,20 @@ export class SettingsDataTable extends React.Component<
    * TODO: Add loaders?
    */
   loadDatas() {
-    getAllFromProject(this.props.itemNameDb, this.props.projectId, (items) => {
-      this.setState({
-        items: sortByName(items, this.state.orderAsc),
-      });
+    const {project, itemNameDb} = this.props;
+    const {orderAsc, hasEvents} = this.state;
+    const newState = {} as any;
+
+    getAllFromProject(itemNameDb, project.id, (items) => {
+      newState.items = sortByName(items, orderAsc);
+      if (!hasEvents) {
+        this.setState(newState);
+      } else {
+        getAllFromProject('roleEventTypes', project.id, (roleEventTypes: RoleEventType[]) => {
+          newState.roleEventTypes = roleEventTypes;
+          this.setState(newState);
+        })
+      }
     });
   }
 
@@ -297,7 +358,7 @@ export class SettingsDataTable extends React.Component<
     const newType = {
       id: 0,
       externalId: uuidv4(),
-      projectId: this.props.projectId,
+      projectId: this.props.project.id,
       ...this.props.blankObject,
     };
 

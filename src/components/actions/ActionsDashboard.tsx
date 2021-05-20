@@ -7,9 +7,8 @@ import Typography from '@material-ui/core/Typography';
 
 import {SettingsDataTable} from '../settings/SettingsDataTable';
 
-import RoleAction from '../../models/RoleAction';
-
 import Project from '../../models/Project';
+import RoleAction from '../../models/RoleAction';
 
 import { putItems, postItems, deleteItems, removeItemLinks } from '../../api/localdb';
 
@@ -36,6 +35,8 @@ export class ActionsDashboard extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
+    const {project} = this.props;
+
     return <Paper>
       <Box p={2}>
         <Box display="flex" alignItems="center">
@@ -76,7 +77,7 @@ export class ActionsDashboard extends React.Component<
           ]}
           itemNameDb="roleActions"
           itemNameSingular="action"
-          projectId={this.props.project.id}
+          project={project}
           onSave={this.onSave}
         />
       </Box>

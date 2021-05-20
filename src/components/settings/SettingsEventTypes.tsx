@@ -9,12 +9,13 @@ import Typography from '@material-ui/core/Typography';
 
 import {SettingsDataTable} from './SettingsDataTable';
 
+import Project from '../../models/Project';
 import RoleEventType from '../../models/RoleEventType';
 
 import { putItems, postItems, deleteItems, removeItemLinks } from '../../api/localdb';
 
 export interface SettingsEventTypesProps {
-  projectId: number;
+  project: Project;
 }
 
 export interface SettingsEventTypesState {}
@@ -76,7 +77,7 @@ export class SettingsEventTypes extends React.Component<
           ]}
           itemNameDb="roleEventTypes"
           itemNameSingular="event type"
-          projectId={this.props.projectId}
+          project={this.props.project}
           onSave={this.onSave}
         />
       </Box>

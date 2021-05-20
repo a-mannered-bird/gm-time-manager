@@ -24,6 +24,7 @@ import RoleTime from '../../models/RoleTime';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface RoleEventEditFormProps {
+  lockChangeType?: 'absolute' | 'relative'
   project: Project;
   roleTime: RoleTime;
   roleEvent?: RoleEvent;
@@ -68,7 +69,7 @@ export class RoleEventEditForm extends React.Component<
 
   public render() {
     const {roleEvent, showErrors} = this.state;
-    const {roleTime, onDelete} = this.props;
+    const {roleTime, onDelete, lockChangeType} = this.props;
 
     return <>
       <Typography variant="h6" component="h6" align="center" gutterBottom>
@@ -140,11 +141,12 @@ export class RoleEventEditForm extends React.Component<
       </Typography>
 
       <RoleTimeAdvancedInput
-        changeType={this.props.roleEvent ? 'absolute' : 'relative'}
+        changeType={lockChangeType || (this.props.roleEvent ? 'absolute' : 'relative')}
         defaultValue={this.props.roleEvent ?
           new RoleTime(roleEvent.start, roleTime.timeDefinitions) :
           roleTime
         }
+        hideToggle={!!lockChangeType}
         relativeTimeReference={roleTime}
         onChange={(roleTime) => this.onChange('start', roleTime.formatToNumber())}
         timeInputFormat={roleEvent.isAllDay ? 'date' : 'full'}
@@ -157,13 +159,14 @@ export class RoleEventEditForm extends React.Component<
           End time
         </Typography>
         <RoleTimeAdvancedInput
-          changeType='relative'
+          changeType={lockChangeType || 'relative'}
           changeTypeTooltip={'Absolute let you set the exact date and time you want the event to end. ' +
             'Relative let\'s you simply define the event\'s duration.'}
           defaultValue={this.props.roleEvent ?
             new RoleTime(roleEvent.end, roleTime.timeDefinitions) :
             roleTime
           }
+          hideToggle={!!lockChangeType}
           relativeTimeReference={new RoleTime(roleEvent.start, roleTime.timeDefinitions)}
           onChange={(roleTime) => this.onChange('end', roleTime.formatToNumber())}
         />

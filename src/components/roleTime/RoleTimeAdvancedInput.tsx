@@ -16,6 +16,7 @@ export interface RoleTimeAdvancedInputProps {
   changeType: 'absolute' | 'relative';
   changeTypeTooltip: string;
   defaultValue: RoleTime;
+  hideToggle?: boolean;
   relativeTimeReference?: RoleTime;
   onChange: (roleTime: RoleTime, changeType?: 'absolute' | 'relative') => void;
   timeInputFormat: 'full' | 'date' |'time';
@@ -59,11 +60,12 @@ export class RoleTimeAdvancedInput extends React.Component<
 
   public render() {
     const {changeType, absoluteTime, relativeTime} = this.state;
+    const {hideToggle} = this.props;
     const roleTime = changeType === 'relative' ? relativeTime : absoluteTime;
     return <Box display="flex" flexDirection="column" alignItems="center">
 
       {/* SWITCH ABSOLUTE / RELATIVE */}
-      <Typography component="div">
+      {!hideToggle && <Typography component="div">
         <Grid component="label" container alignItems="center">
           <Grid item>Absolute</Grid>
           <Grid item>
@@ -87,7 +89,7 @@ export class RoleTimeAdvancedInput extends React.Component<
             </Tooltip>
           </Grid>
         </Grid>
-      </Typography>
+      </Typography>}
 
       {/* TIME INPUT */}
       <RoleTimeInput

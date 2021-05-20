@@ -26,7 +26,7 @@ export interface RoleEventBoardProps {
   showMoreActive?: boolean;
   theme: any;
   types: RoleEventType[];
-  variant: 'dashboard' | 'compressed'
+  variant: 'dashboard' | 'settings'
 }
 
 export interface RoleEventBoardState {
@@ -53,18 +53,21 @@ export class RoleEventBoardPure extends React.Component<
   public render() {
     const {name, roleEvents, onChangeTime, roleTime, variant} = this.props;
     const {eventMenu} = this.state;
+    const isDashboard = variant === 'dashboard';
+    const isSettings = variant === 'settings';
 
-    return <Paper style={{
+    return <Paper style={isDashboard ? {
       marginTop: 10, marginBottom: -10, marginLeft: 5, marginRight: 5,
       flexGrow: 1,
-    }}>
+    } : {}}>
       <List
         dense
-        onScroll={(event) =>this.onScroll(event)}
-        style={variant !== 'compressed' ? {
-          height: 300,
-          overflowY: 'scroll',
-        } : {}}
+        onScroll={(event: any) => this.onScroll(event)}
+        style={{
+          height: isDashboard ? 300 : undefined,
+          overflowY: isDashboard ? 'scroll' : undefined,
+          padding: isSettings ? 0 : undefined,
+        }}
         subheader={name ?
           <ListSubheader
             component="div"

@@ -176,6 +176,7 @@ export class DashboardEvents extends React.Component<
         types={this.props.roleEventTypes.filter((type) => this.state.activeTypes.indexOf(type.id) !== -1)}
         roleTime={this.props.roleTime}
         showMoreActive={state[name + 'EventsMore']}
+        variant="dashboard"
       />
     </Grid>;
   }
