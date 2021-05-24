@@ -166,6 +166,17 @@ export class RoleEventBoardPure extends React.Component<
       return '';
     }
 
+    if (this.props.variant === 'settings') {
+      const start = roleTime.calculateRelativeTime(e.start).formatRoundWord();
+      const startRoleTime = new RoleTime(e.start, roleTime.timeDefinitions);
+      let label = `after ${start}`;
+      if (e.end - e.start > 0) {
+        const end = startRoleTime.calculateRelativeTime(e.end).formatRoundWord();
+        label += `, lasts ${end}`;
+      }
+      return label
+    }
+
     const useStart = this.props.name === 'future'
     const timestamp = useStart ? e.start : e.end;
     if (!isRelative) {

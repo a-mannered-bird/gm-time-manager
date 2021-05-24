@@ -53,7 +53,7 @@ export interface SettingsDataTableProps {
   itemNameDb: string;
   onSave: (toCreate: any[], toEdit: any[], toDelete: any[], callback:() => void) => void;
   project: Project;
-  roletime?: RoleTime;
+  roleTime?: RoleTime;
 }
 
 export interface SettingsDataTableState {
@@ -234,6 +234,7 @@ export class SettingsDataTable extends React.Component<
               eventToEdit: e,
             })}
             roleEvents={item[col.prop]}
+            roleTime={this.props.roleTime}
             types={this.state.roleEventTypes}
             variant="settings"
           />
@@ -273,7 +274,7 @@ export class SettingsDataTable extends React.Component<
         project={project}
         roleEvent={eventToEdit}
         roleEventTypes={this.state.roleEventTypes}
-        roleTime={new RoleTime(0, project.settings.timeDefinitions)}
+        roleTime={this.props.roleTime}
       />
     </></Modal>;
   }

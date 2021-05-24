@@ -9,6 +9,7 @@ import {SettingsDataTable} from '../settings/SettingsDataTable';
 
 import Project from '../../models/Project';
 import RoleAction from '../../models/RoleAction';
+import RoleTime from '../../models/RoleTime';
 
 import { putItems, postItems, deleteItems, removeItemLinks } from '../../api/localdb';
 
@@ -78,6 +79,7 @@ export class ActionsDashboard extends React.Component<
           itemNameDb="roleActions"
           itemNameSingular="action"
           project={project}
+          roleTime={new RoleTime(0, project.settings.timeDefinitions)}
           onSave={this.onSave}
         />
       </Box>
