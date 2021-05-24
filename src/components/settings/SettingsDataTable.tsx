@@ -266,13 +266,14 @@ export class SettingsDataTable extends React.Component<
       })}
     ><>
       <RoleEventEditForm
+        lockChangeType="relative"
         onConfirmForm={(roleEvent) => this.saveEvent(roleEvent)}
         onDelete={eventToEdit ? (roleEvent) => this.saveEvent(roleEvent, true) : undefined}
-        lockChangeType="relative"
+        preventNegative={true}
         project={project}
         roleEvent={eventToEdit}
-        roleTime={new RoleTime('0/0/0/0/0/0', project.settings.timeDefinitions)}
         roleEventTypes={this.state.roleEventTypes}
+        roleTime={new RoleTime(0, project.settings.timeDefinitions)}
       />
     </></Modal>;
   }

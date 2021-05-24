@@ -17,8 +17,9 @@ export interface RoleTimeAdvancedInputProps {
   changeTypeTooltip: string;
   defaultValue: RoleTime;
   hideToggle?: boolean;
-  relativeTimeReference?: RoleTime;
   onChange: (roleTime: RoleTime, changeType?: 'absolute' | 'relative') => void;
+  preventNegative?: boolean;
+  relativeTimeReference?: RoleTime;
   timeInputFormat: 'full' | 'date' |'time';
 }
 
@@ -94,6 +95,7 @@ export class RoleTimeAdvancedInput extends React.Component<
       {/* TIME INPUT */}
       <RoleTimeInput
         onChange={this.onChangeRoleTime}
+        preventNegative={this.props.preventNegative}
         timeInputFormat={this.props.timeInputFormat}
         useTimeDefinitionsForMaxMin={changeType === 'absolute'}
         value={roleTime}

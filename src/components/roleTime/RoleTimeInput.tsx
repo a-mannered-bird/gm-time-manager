@@ -8,10 +8,11 @@ import Typography from '@material-ui/core/Typography';
 import RoleTime, {RoleTimeValue} from '../../models/RoleTime';
 
 export interface RoleTimeInputProps {
-  useTimeDefinitionsForMaxMin: boolean;
   label?: string | React.ReactElement;
   onChange: (roleTime: RoleTime) => void;
+  preventNegative?: boolean;
   timeInputFormat: 'full' | 'date' | 'time';
+  useTimeDefinitionsForMaxMin: boolean;
   value: RoleTime;
 }
 
@@ -76,7 +77,8 @@ export class RoleTimeInput extends React.Component<
   }
 
   public displayInput(label: string, name: keyof RoleTimeValue, value: number | undefined, width: number, min: number | undefined, max: number | undefined, isLast: boolean) {
-    const inputProps = this.props.useTimeDefinitionsForMaxMin ? {min, max} : {};
+    const inputProps = this.props.useTimeDefinitionsForMaxMin ? {min, max} :
+      this.props.preventNegative ? {min: 0} : {};
 
     return <TextField
       inputProps={inputProps}

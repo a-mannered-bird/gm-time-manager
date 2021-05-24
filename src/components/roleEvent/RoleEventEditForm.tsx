@@ -24,7 +24,8 @@ import RoleTime from '../../models/RoleTime';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface RoleEventEditFormProps {
-  lockChangeType?: 'absolute' | 'relative'
+  lockChangeType?: 'absolute' | 'relative';
+  preventNegative?: boolean;
   project: Project;
   roleTime: RoleTime;
   roleEvent?: RoleEvent;
@@ -149,6 +150,7 @@ export class RoleEventEditForm extends React.Component<
         hideToggle={!!lockChangeType}
         relativeTimeReference={roleTime}
         onChange={(roleTime) => this.onChange('start', roleTime.formatToNumber())}
+        preventNegative={this.props.preventNegative}
         timeInputFormat={roleEvent.isAllDay ? 'date' : 'full'}
       />
 
@@ -169,6 +171,7 @@ export class RoleEventEditForm extends React.Component<
           hideToggle={!!lockChangeType}
           relativeTimeReference={new RoleTime(roleEvent.start, roleTime.timeDefinitions)}
           onChange={(roleTime) => this.onChange('end', roleTime.formatToNumber())}
+          preventNegative={this.props.preventNegative}
         />
         {this.endDateIsValid() && <Typography
           color="error"
