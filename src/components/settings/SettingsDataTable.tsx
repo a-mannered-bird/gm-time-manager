@@ -65,9 +65,9 @@ export interface SettingsDataTableState {
   itemsToEdit: any[];
   orderAsc: boolean;
   pristine: boolean;
-  eventToEdit?: RoleEvent | true;
+  eventToEdit?: RoleEvent;
+  eventToEditParentIndex?: number;
   roleEventTypes: RoleEventType[];
-
 }
 
 export class SettingsDataTable extends React.Component<
@@ -194,11 +194,11 @@ export class SettingsDataTable extends React.Component<
           onChange={() => this.toggleItemSelection(item, !isSelected)}
         />
       </TableCell>
-      {this.props.columns.map((col, j) => this.displayCell(col, j, item))}
+      {this.props.columns.map((col, j) => this.displayCell(col, j, item, i))}
     </TableRow>
   }
 
-  displayCell(col: TableColumn, i: number, item: any) {
+  displayCell(col: TableColumn, i: number, item: any, itemI: number) {
     return <TableCell
       key={`settings-data-table-row-${item.externalId}-${i}`}
       padding="none"
@@ -229,7 +229,10 @@ export class SettingsDataTable extends React.Component<
       {col.type === 'eventBoard' && <Box display="flex" alignItems="center">
         <Box flexGrow="1">
           <RoleEventBoard
-            onRoleEventClick={(e) => this.setState({eventToEdit: e})}
+            onRoleEventClick={(e) => this.setState({
+              eventToEditParentIndex: itemI,
+              eventToEdit: e,
+            })}
             roleEvents={item[col.prop]}
             types={this.state.roleEventTypes}
             variant="settings"
@@ -239,7 +242,7 @@ export class SettingsDataTable extends React.Component<
         <Tooltip title="Add an event">
           <IconButton
             aria-label="Create event on the fly"
-            onClick={() => this.setState({eventToEdit: true})}
+            onClick={() => this.setState({eventToEditParentIndex: itemI})}
           >
             <AddIcon />
           </IconButton>
@@ -253,17 +256,20 @@ export class SettingsDataTable extends React.Component<
    */
   displayCreateEventModal() {
     const {project} = this.props;
-    const {eventToEdit} = this.state;
+    const {eventToEditParentIndex, eventToEdit} = this.state;
 
     return <Modal
-      open={!!this.state.eventToEdit}
-      onClose={() => this.setState({eventToEdit: undefined})}
+      open={this.state.eventToEditParentIndex !== undefined}
+      onClose={() => this.setState({
+        eventToEdit: undefined,
+        eventToEditParentIndex: undefined,
+      })}
     ><>
       <RoleEventEditForm
-        // onConfirmForm={(roleEvent) => this.createRoleEvent(roleEvent)}
+        onConfirmForm={(roleEvent) => this.saveEvent(roleEvent)}
         lockChangeType="relative"
         project={project}
-        roleEvent={(eventToEdit as RoleEvent || {}).id ? eventToEdit as RoleEvent : undefined}
+        roleEvent={eventToEdit}
         roleTime={new RoleTime('0/0/0/0/0/0', project.settings.timeDefinitions)}
         roleEventTypes={this.state.roleEventTypes}
       />
@@ -409,5 +415,27 @@ export class SettingsDataTable extends React.Component<
         itemsToDelete: [],
       });
     });
+  }
+
+  saveEvent(roleEvent: RoleEvent) {
+    const {eventToEditParentIndex, items} = this.state;
+    if (eventToEditParentIndex === undefined) {
+      return;
+    }
+
+    const item = items[eventToEditParentIndex];
+    const events = item.events;
+
+    if (roleEvent.id === 0) {
+      roleEvent.id = events.length + 1;
+      events.push(roleEvent);
+    } else {
+      events[roleEvent.id - 1] = roleEvent;
+    }
+
+    this.setState({
+      eventToEdit: undefined,
+      eventToEditParentIndex: undefined,
+    }, () => this.onChange(item, 'events', events))
   }
 }
