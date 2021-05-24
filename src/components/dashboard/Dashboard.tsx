@@ -11,6 +11,7 @@ import Box from '@material-ui/core/Box';
 import IconButton from '@material-ui/core/IconButton';
 import Modal from '../utilities/Modal';
 import Tooltip from '@material-ui/core/Tooltip';
+import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 
 import { ClockButton } from './ClockButton';
 import { DashboardEvents } from './DashboardEvents';
@@ -37,6 +38,7 @@ export interface DashboardState {
   roleEvents: RoleEvent[];
   roleEventsResetCount: number;
   roleEventTypes: RoleEventType[];
+  showActionModal: boolean;
   showCreateEventModal: boolean;
   timeHistory: number[];
 }
@@ -57,6 +59,7 @@ export class Dashboard extends React.Component<
       roleEvents: [],
       roleEventsResetCount: 0,
       roleEventTypes: [],
+      showActionModal: false,
       showCreateEventModal: false,
       timeHistory: [],
     };
@@ -102,6 +105,7 @@ export class Dashboard extends React.Component<
         />
 
         {this.displayCreateEventModal(roleTime)}
+        {this.displayActionModal(roleTime)}
       </Box>
     </>;
   }
@@ -138,6 +142,17 @@ export class Dashboard extends React.Component<
           onClick={() => this.setState({showCreateEventModal: true})}
         >
           <LibraryAddIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip
+        title="Use an action (Cmd/Ctrl + A)"
+      >
+        <IconButton
+          aria-label="Use an action"
+          disabled={this.state.clockOn}
+          onClick={() => this.setState({showActionModal: true})}
+        >
+          <VideoLibraryIcon />
         </IconButton>
       </Tooltip>
       <Tooltip
@@ -182,6 +197,20 @@ export class Dashboard extends React.Component<
     </></Modal>;
   }
 
+  /**
+   * Display a modal containing the form to use an action
+   *
+   * @param roleTime: RoleTime
+   */
+  displayActionModal(roleTime: RoleTime) {
+    return <Modal
+      open={this.state.showActionModal}
+      onClose={() => this.setState({showActionModal: false})}
+    ><>
+      Hello World
+    </></Modal>;
+  }
+
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
   componentDidMount() {
@@ -217,6 +246,11 @@ export class Dashboard extends React.Component<
     if (e.keyCode === 69 && e.metaKey && !this.state.clockOn) {
       e.preventDefault();
       this.setState({showCreateEventModal: true});
+
+    // CMD/CTRL A -> Open modal to use action
+    } else if (e.keyCode === 65 && e.metaKey && !this.state.clockOn){
+      e.preventDefault();
+      this.setState({showActionModal: true});      
 
     // CMD/CTRL K -> toggle clock
     } else if (e.keyCode === 75 && e.metaKey) {
