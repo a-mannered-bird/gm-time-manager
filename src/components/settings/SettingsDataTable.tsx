@@ -259,7 +259,7 @@ export class SettingsDataTable extends React.Component<
     const {eventToEditParentIndex, eventToEdit} = this.state;
 
     return <Modal
-      open={this.state.eventToEditParentIndex !== undefined}
+      open={eventToEditParentIndex !== undefined}
       onClose={() => this.setState({
         eventToEdit: undefined,
         eventToEditParentIndex: undefined,
@@ -267,6 +267,7 @@ export class SettingsDataTable extends React.Component<
     ><>
       <RoleEventEditForm
         onConfirmForm={(roleEvent) => this.saveEvent(roleEvent)}
+        onDelete={eventToEdit ? (roleEvent) => this.saveEvent(roleEvent, true) : undefined}
         lockChangeType="relative"
         project={project}
         roleEvent={eventToEdit}
@@ -417,20 +418,27 @@ export class SettingsDataTable extends React.Component<
     });
   }
 
-  saveEvent(roleEvent: RoleEvent) {
+  saveEvent(roleEvent: RoleEvent, deleteEvent?: boolean) {
     const {eventToEditParentIndex, items} = this.state;
     if (eventToEditParentIndex === undefined) {
       return;
     }
 
     const item = items[eventToEditParentIndex];
-    const events = item.events;
+    const events = item.events as RoleEvent[];
+    const isNew = roleEvent.id === 0;
+    const i = isNew ? events.length + 1 : roleEvent.id - 1;
 
-    if (roleEvent.id === 0) {
-      roleEvent.id = events.length + 1;
+    if (isNew) {
+      roleEvent.id = i;
       events.push(roleEvent);
+    } else if (!deleteEvent){
+      events[i] = roleEvent;
     } else {
-      events[roleEvent.id - 1] = roleEvent;
+      events.splice(i, 1);
+      for (let j = i; j < events.length; j++) {
+        events[j].id = events[j].id - 1;
+      }
     }
 
     this.setState({
