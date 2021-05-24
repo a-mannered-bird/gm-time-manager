@@ -34,6 +34,7 @@ export interface DashboardProps {
 
 export interface DashboardState {
   clockOn: boolean;
+  eventToEdit?: RoleEvent;
   firstLoadDone?: boolean;
   roleEvents: RoleEvent[];
   roleEventsResetCount: number;
@@ -66,6 +67,7 @@ export class Dashboard extends React.Component<
 
     this.onKeyDown = this.onKeyDown.bind(this);
     this.setPresentTime = this.setPresentTime.bind(this);
+    this.createRoleEvent = this.createRoleEvent.bind(this);
     this.deleteRoleEvent = this.deleteRoleEvent.bind(this);
     this.editRoleEvent = this.editRoleEvent.bind(this);
   }
@@ -77,6 +79,8 @@ export class Dashboard extends React.Component<
       return null;
     }
 
+    const {eventToEdit, showActionModal, showCreateEventModal} = this.state;
+    const modalOpened = showActionModal || showCreateEventModal || !!eventToEdit;
     const timeDefs = this.props.project.settings.timeDefinitions;
     const roleTime = new RoleTime(this.props.project.dashboardTime, timeDefs);
 
@@ -94,17 +98,17 @@ export class Dashboard extends React.Component<
         {this.displayActions(roleTime)}
 
         <DashboardEvents
-          onEventEdit={this.editRoleEvent}
-          onEventDelete={this.deleteRoleEvent}
+          disableKeyboardShortcuts={modalOpened}
+          onChangeTime={this.setPresentTime}
+          onEventClick={(roleEvent: RoleEvent) => this.setState({eventToEdit: roleEvent})}
           project={this.props.project}
           roleEvents={this.state.roleEvents}
           roleEventsResetCount={this.state.roleEventsResetCount}
           roleEventTypes={this.state.roleEventTypes}
           roleTime={roleTime}
-          onChangeTime={this.setPresentTime}
         />
 
-        {this.displayCreateEventModal(roleTime)}
+        {this.displayEventModal(roleTime)}
         {this.displayActionModal(roleTime)}
       </Box>
     </>;
@@ -179,20 +183,27 @@ export class Dashboard extends React.Component<
   }
 
   /**
-   * Display a modal containing the form to create a new event
+   * Display a modal containing the form to create or edit an event
    *
    * @param roleTime: RoleTime
    */
-  displayCreateEventModal(roleTime: RoleTime) {
+  displayEventModal(roleTime: RoleTime) {
+    const {showCreateEventModal, eventToEdit, roleEventTypes} = this.state;
+
     return <Modal
-      open={this.state.showCreateEventModal}
-      onClose={() => this.setState({showCreateEventModal: false})}
+      open={showCreateEventModal || !!eventToEdit}
+      onClose={() => this.setState({
+        eventToEdit: undefined,
+        showCreateEventModal: false,
+      })}
     ><>
       <RoleEventEditForm
-        onConfirmForm={(roleEvent) => this.createRoleEvent(roleEvent)}
+        onConfirmForm={eventToEdit ? this.editRoleEvent : this.createRoleEvent}
+        onDelete={eventToEdit ? this.deleteRoleEvent : undefined}
         project={this.props.project}
+        roleEvent={eventToEdit}
+        roleEventTypes={roleEventTypes}
         roleTime={roleTime}
-        roleEventTypes={this.state.roleEventTypes}
       />
     </></Modal>;
   }
@@ -242,24 +253,26 @@ export class Dashboard extends React.Component<
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
   onKeyDown(e: KeyboardEvent){
+    const {clockOn, eventToEdit, showActionModal, showCreateEventModal} = this.state;
+    const modalOpened = showActionModal || showCreateEventModal || !!eventToEdit;
+
     // CMD/CTRL E -> Open modal to create event
-    if (e.keyCode === 69 && e.metaKey && !this.state.clockOn) {
+    if (e.keyCode === 69 && e.metaKey && !clockOn && !modalOpened) {
       e.preventDefault();
       this.setState({showCreateEventModal: true});
 
     // CMD/CTRL A -> Open modal to use action
-    } else if (e.keyCode === 65 && e.metaKey && !this.state.clockOn){
+    } else if (e.keyCode === 65 && e.metaKey && !clockOn && !modalOpened){
       e.preventDefault();
       this.setState({showActionModal: true});      
 
     // CMD/CTRL K -> toggle clock
-    } else if (e.keyCode === 75 && e.metaKey) {
+    } else if (e.keyCode === 75 && e.metaKey && !modalOpened) {
       e.preventDefault();
       this.setState({clockOn: !this.state.clockOn});
 
-    // TODO: Forbid when modal is on
     // CMD/CTRL Z -> go back in roleTime history
-    } else if (e.keyCode === 90 && e.metaKey) {
+    } else if (e.keyCode === 90 && e.metaKey && !modalOpened) {
       let {timeHistory} = this.state;
       const {length} = timeHistory;
       if (!length) { return; }

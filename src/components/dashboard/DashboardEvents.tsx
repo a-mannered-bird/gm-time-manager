@@ -8,11 +8,9 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
-import Modal from '../utilities/Modal';
 import Typography from '@material-ui/core/Typography';
 
 import { RoleEventBoard } from '../roleEvent/RoleEventBoard';
-import { RoleEventEditForm } from '../roleEvent/RoleEventEditForm';
 
 import { getAllFromProject } from '../../api/localdb';
 
@@ -25,9 +23,9 @@ const boardNames = ['past', 'present', 'future'] as ('past'|'present'|'future')[
 const eventIncrement = 10;
 
 export interface DashboardEventsProps {
+  disableKeyboardShortcuts?: boolean;
   onChangeTime: (roleTime: RoleTime) => void;
-  onEventEdit: (e: RoleEvent) => void;
-  onEventDelete: (e: RoleEvent) => void;
+  onEventClick: (e: RoleEvent) => void; 
   project: Project;
   roleEvents: RoleEvent[];
   roleEventsResetCount: number;
@@ -38,8 +36,6 @@ export interface DashboardEventsProps {
 export interface DashboardEventsState {
   activeBoards: string[];
   activeTypes: number[];
-  eventToEdit?: RoleEvent;
-
   pastEvents: RoleEvent[];
   pastEventsLimit: number;
   pastEventsMore: boolean;
@@ -147,8 +143,6 @@ export class DashboardEvents extends React.Component<
           label="Untyped events"
         />
       </Box>
-
-      {this.displayEventEditModal()}
     </>;
   }
 
@@ -171,7 +165,7 @@ export class DashboardEvents extends React.Component<
         name={name}
         onChangeTime={this.props.onChangeTime}
         onLoadMore={() => this.setEventsLimit(name, state[name + 'EventsLimit'] + eventIncrement)}
-        onRoleEventClick={(roleEvent) => this.setState({eventToEdit: roleEvent})}
+        onRoleEventClick={this.props.onEventClick}
         roleEvents={state[name + 'Events']}
         types={this.props.roleEventTypes.filter((type) => this.state.activeTypes.indexOf(type.id) !== -1)}
         roleTime={this.props.roleTime}
@@ -201,30 +195,6 @@ export class DashboardEvents extends React.Component<
         label={type.name}
       />
     </Tooltip>
-  }
-
-  /**
-   * Display modal to edit an existing event
-   */
-  displayEventEditModal() {
-    const roleEvent = this.state.eventToEdit;
-    if (!roleEvent) {
-      return null;
-    }
-
-    return <Modal
-      open={!!roleEvent}
-      onClose={() => this.setState({eventToEdit: undefined})}
-    ><>
-      <RoleEventEditForm
-        onConfirmForm={this.props.onEventEdit}
-        onDelete={this.props.onEventDelete}
-        project={this.props.project}
-        roleEvent={roleEvent}
-        roleTime={this.props.roleTime}
-        roleEventTypes={this.props.roleEventTypes}
-      />
-    </></Modal>
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
@@ -279,7 +249,6 @@ export class DashboardEvents extends React.Component<
       });
       newState[time + 'Events'] = events;
       newState[time + 'EventsMore'] = eventsData.showMore;
-      newState.eventToEdit = false;
     });
 
     return newState;
@@ -382,10 +351,12 @@ export class DashboardEvents extends React.Component<
   }
 
   onKeyDown(e: KeyboardEvent){
-    if (e.keyCode === 37 && e.metaKey) {
+    const {disableKeyboardShortcuts} = this.props;
+
+    if (e.keyCode === 37 && e.metaKey && !disableKeyboardShortcuts) {
       e.preventDefault();
       this.goToClosestEvent(false);
-    } else if (e.keyCode === 39 && e.metaKey) {
+    } else if (e.keyCode === 39 && e.metaKey && !disableKeyboardShortcuts) {
       e.preventDefault();
       this.goToClosestEvent(true);
     }
