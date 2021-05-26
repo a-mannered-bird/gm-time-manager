@@ -1,5 +1,5 @@
 
-import React, {useState} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -23,7 +23,16 @@ export interface ActionUseFormProps {
 
 export default function ActionUseForm(props: ActionUseFormProps) {
   const [selectedAction, setSelectedAction] = useState<RoleAction | undefined>(undefined);
+  const submitRef = useRef<HTMLButtonElement>(null);
   const events = (selectedAction || {}).events || [];
+
+  useEffect(() => {
+    // Select submit btn after action selection
+    if (selectedAction) {
+      const submit = submitRef.current
+      submit && submit.focus()
+    }
+  })
 
   const render = () => <>
     <Typography variant="h6" component="h6" align="center" gutterBottom>
@@ -70,6 +79,7 @@ export default function ActionUseForm(props: ActionUseFormProps) {
         color="primary"
         disabled={!selectedAction}
         onClick={() => submitForm(events)}
+        ref={submitRef}
         variant="contained"
       >
         Submit
@@ -85,7 +95,8 @@ export default function ActionUseForm(props: ActionUseFormProps) {
    */
   const submitForm = (events: RoleEvent[]) => {
     let timeCount = props.roleTimeSubmit.formatToNumber();
-    const absoluteEvents = events.map((e) => {
+    const absoluteEvents = events.map((event) => {
+      const e = {...event};
       const length = e.end;
       e.start = timeCount + e.start;
       e.end = timeCount + e.end;

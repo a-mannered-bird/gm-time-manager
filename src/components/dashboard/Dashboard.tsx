@@ -223,7 +223,7 @@ export class Dashboard extends React.Component<
     ><>
       <ActionUseForm
         actions={this.state.roleActions} 
-        onSubmit={(events) => console.log(events)}
+        onSubmit={this.createRoleEvents}
         roleTimeQuickview={new RoleTime(0, roleTime.timeDefinitions)}
         roleTimeSubmit={roleTime}
         roleEventTypes={this.state.roleEventTypes}
@@ -332,12 +332,12 @@ export class Dashboard extends React.Component<
    */
   createRoleEvents(roleEvents: RoleEvent[], state: any = {}) {
     postItems('roleEvents', roleEvents, (data) => {
-      const roleEvents = this.state.roleEvents;
-      roleEvents.push(data.items.find((e: RoleEvent) => e.id === data.count));
+      const roleEvents = data.items;
 
       this.setState({
         roleEvents,
         roleEventsResetCount: this.state.roleEventsResetCount + 1,
+        showActionModal: false,
         showCreateEventModal: false,
         ...state,
       });
