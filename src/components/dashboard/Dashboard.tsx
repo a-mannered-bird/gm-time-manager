@@ -25,7 +25,7 @@ import RoleEvent from '../../models/RoleEvent';
 import RoleEventType from '../../models/RoleEventType';
 import RoleTime from '../../models/RoleTime';
 
-import { getAllFromProject, putItem, postItem, deleteItem } from '../../api/localdb';
+import { getAllFromProject, putItem, postItems, deleteItem } from '../../api/localdb';
 import { sortByName } from '../../helpers/utils';
 
 export interface DashboardProps {
@@ -70,7 +70,7 @@ export class Dashboard extends React.Component<
 
     this.onKeyDown = this.onKeyDown.bind(this);
     this.setPresentTime = this.setPresentTime.bind(this);
-    this.createRoleEvent = this.createRoleEvent.bind(this);
+    this.createRoleEvents = this.createRoleEvents.bind(this);
     this.deleteRoleEvent = this.deleteRoleEvent.bind(this);
     this.editRoleEvent = this.editRoleEvent.bind(this);
   }
@@ -134,7 +134,7 @@ export class Dashboard extends React.Component<
         clockOn={this.state.clockOn}
         roleTime={roleTime}
         onTimerStart={(roleEvent) => roleEvent ?
-          this.createRoleEvent(roleEvent, {clockOn: true}) :
+          this.createRoleEvents([roleEvent], {clockOn: true}) :
           this.setState({clockOn: true})
         }
         onTimerStop={(disableClock) => this.setState({clockOn: !disableClock})}
@@ -201,7 +201,7 @@ export class Dashboard extends React.Component<
       })}
     ><>
       <RoleEventEditForm
-        onConfirmForm={eventToEdit ? this.editRoleEvent : this.createRoleEvent}
+        onConfirmForm={eventToEdit ? this.editRoleEvent : (e) => this.createRoleEvents([e])}
         onDelete={eventToEdit ? this.deleteRoleEvent : undefined}
         project={this.props.project}
         roleEvent={eventToEdit}
@@ -330,8 +330,8 @@ export class Dashboard extends React.Component<
    *
    * @param roleEvent  RoleEvent
    */
-  createRoleEvent(roleEvent: RoleEvent, state: any = {}) {
-    postItem('roleEvents', roleEvent, (data) => {
+  createRoleEvents(roleEvents: RoleEvent[], state: any = {}) {
+    postItems('roleEvents', roleEvents, (data) => {
       const roleEvents = this.state.roleEvents;
       roleEvents.push(data.items.find((e: RoleEvent) => e.id === data.count));
 
@@ -356,6 +356,7 @@ export class Dashboard extends React.Component<
       roleEvents[i] = roleEvent;
 
       this.setState({
+        eventToEdit: undefined,
         roleEvents,
         roleEventsResetCount: this.state.roleEventsResetCount + 1,
       });
@@ -372,6 +373,7 @@ export class Dashboard extends React.Component<
       const roleEvents = this.state.roleEvents.filter((e) => e.id !== roleEvent.id);
 
       this.setState({
+        eventToEdit: undefined,
         roleEvents,
         roleEventsResetCount: this.state.roleEventsResetCount + 1,
       });
