@@ -4,7 +4,6 @@
 import * as React from 'react';
 
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
-// import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import HistoryIcon from '@material-ui/icons/History';
 import UpdateIcon from '@material-ui/icons/Update';
 import Box from '@material-ui/core/Box';
@@ -13,6 +12,7 @@ import Modal from '../utilities/Modal';
 import Tooltip from '@material-ui/core/Tooltip';
 import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 
+import ActionUseForm from '../actions/ActionUseForm';
 import { ClockButton } from './ClockButton';
 import { DashboardEvents } from './DashboardEvents';
 import { RoleTimeCounter } from '../roleTime/RoleTimeCounter';
@@ -20,9 +20,10 @@ import { RoleEventEditForm } from '../roleEvent/RoleEventEditForm';
 import { TimerButton } from './TimerButton';
 
 import Project from '../../models/Project';
-import RoleTime from '../../models/RoleTime';
+import RoleAction from '../../models/RoleAction';
 import RoleEvent from '../../models/RoleEvent';
 import RoleEventType from '../../models/RoleEventType';
+import RoleTime from '../../models/RoleTime';
 
 import { getAllFromProject, putItem, postItem, deleteItem } from '../../api/localdb';
 import { sortByName } from '../../helpers/utils';
@@ -36,6 +37,7 @@ export interface DashboardState {
   clockOn: boolean;
   eventToEdit?: RoleEvent;
   firstLoadDone?: boolean;
+  roleActions: RoleAction[];
   roleEvents: RoleEvent[];
   roleEventsResetCount: number;
   roleEventTypes: RoleEventType[];
@@ -57,6 +59,7 @@ export class Dashboard extends React.Component<
 
     this.state = {
       clockOn: false,
+      roleActions: [],
       roleEvents: [],
       roleEventsResetCount: 0,
       roleEventTypes: [],
@@ -218,7 +221,13 @@ export class Dashboard extends React.Component<
       open={this.state.showActionModal}
       onClose={() => this.setState({showActionModal: false})}
     ><>
-      Hello World
+      <ActionUseForm
+        actions={this.state.roleActions} 
+        onSubmit={(events) => console.log(events)}
+        roleTimeQuickview={new RoleTime(0, roleTime.timeDefinitions)}
+        roleTimeSubmit={roleTime}
+        roleEventTypes={this.state.roleEventTypes}
+      />
     </></Modal>;
   }
 
@@ -239,12 +248,16 @@ export class Dashboard extends React.Component<
    * TODO: Add loaders?
    */
   loadDatas() {
-    getAllFromProject('roleEventTypes', this.props.project.id, (roleEventTypes: RoleEventType[]) => {
-      getAllFromProject('roleEvents', this.props.project.id, (roleEvents: RoleEvent[]) => {
-        this.setState({
-          firstLoadDone: true,
-          roleEvents,
-          roleEventTypes: sortByName(roleEventTypes, true),
+    const id = this.props.project.id
+    getAllFromProject('roleEventTypes', id, (roleEventTypes: RoleEventType[]) => {
+      getAllFromProject('roleEvents', id, (roleEvents: RoleEvent[]) => {
+        getAllFromProject('roleActions', id, (roleActions: RoleAction[]) => {
+          this.setState({
+            firstLoadDone: true,
+            roleActions,
+            roleEvents,
+            roleEventTypes: sortByName(roleEventTypes, true),
+          });
         });
       });
     });
