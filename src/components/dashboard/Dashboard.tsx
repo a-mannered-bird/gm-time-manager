@@ -224,8 +224,7 @@ export class Dashboard extends React.Component<
       <ActionUseForm
         actions={this.state.roleActions} 
         onSubmit={this.createRoleEvents}
-        roleTimeQuickview={new RoleTime(0, roleTime.timeDefinitions)}
-        roleTimeSubmit={roleTime}
+        roleTime={roleTime}
         roleEventTypes={this.state.roleEventTypes}
       />
     </></Modal>;
