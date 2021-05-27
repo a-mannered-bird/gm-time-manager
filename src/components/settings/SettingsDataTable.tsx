@@ -169,6 +169,7 @@ export class SettingsDataTable extends React.Component<
   displayTableHeader(column: TableColumn, i: number) {
     return <TableCell
       key={'settings-data-table-column-' + i}
+      style={{width: column.prop === 'color' ? "1px" : undefined}}
     >
       {column.prop === 'name' && <TableSortLabel
         direction={this.state.orderAsc ? 'asc' : 'desc'}
