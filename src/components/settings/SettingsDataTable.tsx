@@ -10,7 +10,6 @@ import * as React from 'react';
 import AddIcon from '@material-ui/icons/Add';
 import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
-import { ColorPicker } from 'material-ui-color';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
 import IconButton from '@material-ui/core/IconButton';
@@ -24,10 +23,12 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
+import { ColorPicker } from 'material-ui-color';
 
 import { RoleEventBoard } from '../roleEvent/RoleEventBoard';
 import { RoleEventEditForm } from '../roleEvent/RoleEventEditForm';
 import Modal from '../utilities/Modal';
+import ItemSelector from '../utilities/ItemSelector';
 
 import Project from '../../models/Project';
 import RoleEvent from '../../models/RoleEvent';
@@ -42,7 +43,7 @@ import { v4 as uuidv4 } from 'uuid';
 export interface TableColumn {
   label: string;
   prop: string;
-  type: 'text' | 'color' | 'textarea' | 'eventBoard';
+  type: 'text' | 'color' | 'textarea' | 'eventBoard' | 'roleEventTypes';
   required?: boolean;
 }
 
@@ -82,7 +83,9 @@ export class SettingsDataTable extends React.Component<
     super(props);
 
     this.state = {
-      hasEvents: !!props.columns.find((col) => col.type === 'eventBoard'),
+      hasEvents: !!props.columns.find((col) =>
+        ['eventBoard', 'roleEventTypes'].indexOf(col.type) !== -1
+      ),
       items: [],
       itemsSelected: [],
       itemsToCreate: [],
@@ -223,6 +226,14 @@ export class SettingsDataTable extends React.Component<
         disablePlainColor
         onChange={(color) => this.onChange(item, col.prop, color)}
         value={item[col.prop]}
+      />}
+
+      {/* Select propItems */}
+      {['roleEventTypes'].indexOf(col.type) !== -1 && <ItemSelector
+        hasColor
+        items={this.state.roleEventTypes}
+        value={item[col.prop]}
+        onChange={(e) => this.onChange(item, col.prop, e.target.value)}
       />}
 
       {/* Event Board */}

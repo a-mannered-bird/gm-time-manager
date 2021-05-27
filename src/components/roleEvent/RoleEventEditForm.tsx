@@ -4,17 +4,12 @@ import * as React from 'react';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
-import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import ListItemText from '@material-ui/core/ListItemText';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
 import { RoleTimeAdvancedInput } from '../roleTime/RoleTimeAdvancedInput';
+import ItemSelector from '../utilities/ItemSelector'
 
 import Project from '../../models/Project';
 import RoleEvent from '../../models/RoleEvent';
@@ -89,31 +84,13 @@ export class RoleEventEditForm extends React.Component<
       />
 
       {/* CATEGORIES */}
-      <FormControl fullWidth>
-        <InputLabel id="categories">Event type</InputLabel>
-        <Select
-          labelId="categories"
-          multiple
-          value={roleEvent.typeIds}
-          onChange={(e) => this.onChange('typeIds', e.target.value)}
-          input={<Input />}
-          renderValue={(typeIds) => (typeIds as number[])
-            .map((typeId) => (this.props.roleEventTypes.find((t) => t.id === typeId) || {}).name)
-            .join(', ')
-          }
-        >
-          {this.props.roleEventTypes.map((type) => <MenuItem
-            key={'roleEventType-' + type.id}
-            value={type.id}
-          >
-            <Checkbox
-              checked={roleEvent.typeIds.indexOf(type.id) > -1}
-              style={{color: type.color}}
-            />
-            <ListItemText primary={type.name} />
-          </MenuItem>)}
-        </Select>
-      </FormControl>
+      <ItemSelector
+        hasColor
+        label="Event type"
+        items={this.props.roleEventTypes}
+        value={roleEvent.typeIds}
+        onChange={(e) => this.onChange('typeIds', e.target.value)}
+      />
 
       {/* NOTES */}
       <TextField

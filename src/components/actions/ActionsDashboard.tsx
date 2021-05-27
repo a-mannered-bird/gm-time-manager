@@ -71,6 +71,11 @@ export class ActionsDashboard extends React.Component<
               type: 'textarea',
             },
             {
+              label: 'Categories',
+              prop: 'typeIds',
+              type: 'roleEventTypes',
+            },
+            {
               label: 'Events',
               prop: 'events',
               type: 'eventBoard',
