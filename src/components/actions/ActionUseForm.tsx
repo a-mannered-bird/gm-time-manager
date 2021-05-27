@@ -5,8 +5,10 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import { useTheme } from '@material-ui/core/styles';
 
 import { RoleEventBoard } from '../roleEvent/RoleEventBoard';
 import { RoleTimeAdvancedInput } from '../roleTime/RoleTimeAdvancedInput';
@@ -32,6 +34,7 @@ export default function ActionUseForm(props: ActionUseFormProps) {
   const [delayStart, setDelayStart] = useState<boolean>(false)
   const [startTime, setStartTime] = useState<RoleTime>(props.roleTime)
   const submitRef = useRef<HTMLButtonElement>(null);
+  const theme = useTheme();
 
   useEffect(() => {
     // Select submit btn after action selection
@@ -54,13 +57,25 @@ export default function ActionUseForm(props: ActionUseFormProps) {
       id="grouped-demo"
       options={props.actions}
       // TODO: group by types
-      // groupBy={(option) => option.firstLetter}
+      groupBy={(action) => (action.typeIds[0] || -1).toString()}
       onChange={(e, action) => {
         setSelectedAction(action || undefined)
         setEvents((action || {}).events || [])
       }}
       getOptionLabel={(action) => action.name}
       style={{ width: 370 }}
+      renderGroup={(params) => {
+        const type = props.roleEventTypes.find((t) => t.id === parseInt(params.group));
+        const name = (type || {}).name || 'Untyped action'
+        return <>
+          <ListSubheader
+            style={{color: type ? type.color : theme.palette.secondary.main}}
+          >
+            {name}
+          </ListSubheader>
+          {params.children}
+        </>
+      }}
       renderInput={(params) => <TextField {...params}
         autoFocus
         label="Search an action"
