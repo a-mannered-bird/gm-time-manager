@@ -36,7 +36,7 @@ import RoleTime from '../../models/RoleTime';
 import RoleEventType from '../../models/RoleEventType';
 
 import { getAllFromProject } from '../../api/localdb';
-import { sortByName } from '../../helpers/utils';
+import { isArray, sortByName } from '../../helpers/utils';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -382,15 +382,22 @@ export class SettingsDataTable extends React.Component<
   createNewItem() {
     let {items, itemsToCreate, pristine} = this.state;
 
-    const newType = {
+    const newItem = {
       id: 0,
       externalId: uuidv4(),
       projectId: this.props.project.id,
       ...this.props.blankObject,
     };
 
-    itemsToCreate.push(newType);
-    items.push(newType);
+    // This fixes the mutation of the blank object when adding new items in arrays
+    for (let prop in newItem) {
+      if (isArray(newItem[prop]) && !newItem[prop].length) {
+        newItem[prop] = [];
+      }
+    }
+
+    itemsToCreate.push(newItem);
+    items.push(newItem);
     pristine = false;
     this.setState({items, itemsToCreate, pristine});
   }

@@ -1,4 +1,6 @@
 
+// TODO: Sort alphabetically types and actions
+
 import React, {useState, useRef, useEffect} from 'react';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Box from '@material-ui/core/Box';
@@ -56,7 +58,6 @@ export default function ActionUseForm(props: ActionUseFormProps) {
     <Autocomplete
       id="grouped-demo"
       options={props.actions}
-      // TODO: group by types
       groupBy={(action) => (action.typeIds[0] || -1).toString()}
       onChange={(e, action) => {
         setSelectedAction(action || undefined)
