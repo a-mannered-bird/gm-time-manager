@@ -169,7 +169,6 @@ export class SettingsDataTable extends React.Component<
   displayTableHeader(column: TableColumn, i: number) {
     return <TableCell
       key={'settings-data-table-column-' + i}
-      padding="none"
     >
       {column.prop === 'name' && <TableSortLabel
         direction={this.state.orderAsc ? 'asc' : 'desc'}
@@ -204,7 +203,6 @@ export class SettingsDataTable extends React.Component<
   displayCell(col: TableColumn, i: number, item: any, itemI: number) {
     return <TableCell
       key={`settings-data-table-row-${item.externalId}-${i}`}
-      padding="none"
     >
       {/* Text */}
       {(col.type === 'text' || col.type === 'textarea') && <TextField
@@ -215,7 +213,10 @@ export class SettingsDataTable extends React.Component<
         placeholder={col.label}
         required={col.required}
         size="small"
-        style={{fontSize: 14}}
+        style={{
+          fontSize: 14,
+          minWidth: col.type === 'textarea' ? 200 : 100,
+        }}
         value={item[col.prop]}
       />}
 
@@ -237,8 +238,13 @@ export class SettingsDataTable extends React.Component<
       />}
 
       {/* Event Board */}
-      {col.type === 'eventBoard' && <Box display="flex" alignItems="center">
-        <Box flexGrow="1">
+      {col.type === 'eventBoard' && <Box
+        alignItems="center"
+        display="flex"
+        minWidth="250px"
+        flexDirection="column"
+      >
+        <Box width="100%">
           <RoleEventBoard
             onRoleEventClick={(e) => this.setState({
               eventToEditParentIndex: itemI,
@@ -253,7 +259,7 @@ export class SettingsDataTable extends React.Component<
 
         <Tooltip title="Add an event">
           <IconButton
-            aria-label="Create event on the fly"
+            aria-label="Add an event to the action"
             onClick={() => this.setState({eventToEditParentIndex: itemI})}
           >
             <AddIcon />

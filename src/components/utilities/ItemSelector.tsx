@@ -1,5 +1,6 @@
 
 import * as React from 'react';
+import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
 import Chip from '@material-ui/core/Chip';
 import FormControl from '@material-ui/core/FormControl';
@@ -7,6 +8,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+
+import {hexToRgb, getTextColorOnBg} from '../../helpers/utils'
 
 export interface ItemSelectorProps {
   label?: string
@@ -28,13 +31,22 @@ export default function ItemSelector({items, hasColor, label, onChange, value}: 
       value={value}
       onChange={onChange}
       renderValue={(selectedIds) => (
-        <div>
+        <Box display="flex" flexWrap="wrap" maxWidth="300px">
           {(selectedIds as string[]).map((id) => {
             const item = items.find((t) => t.id === parseInt(id))
             if (!item) return null;
-            return <Chip key={`chip-${id}`} label={item.name} />
+            return <Chip
+              key={`chip-${id}`}
+              label={item.name}
+              style={{
+                backgroundColor: hasColor ? item.color : undefined,
+                color: hasColor ? getTextColorOnBg(hexToRgb(item.color || '#ffffff')) : undefined,
+                marginRight: 5,
+                marginBottom: 5,
+              }}
+            />
           })}
-        </div>
+        </Box>
       )}
     >
       {items.map((item) => <MenuItem
