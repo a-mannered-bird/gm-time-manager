@@ -1,5 +1,5 @@
 
-// TODO: Sort alphabetically types and actions
+// TODO: Add the total duration of each event inside the autocomplete dropdown?
 
 import React, {useState, useRef, useEffect} from 'react';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -7,8 +7,10 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import TextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { useTheme } from '@material-ui/core/styles';
 
@@ -82,7 +84,21 @@ export default function ActionUseForm(props: ActionUseFormProps) {
         label="Search an action"
         variant="outlined" 
       />}
+      renderOption={(option) => <Tooltip
+        title={option.description}
+      >
+        <ListItemText>
+          {option.name}
+        </ListItemText>
+      </Tooltip>}
     />
+
+    <br/>
+
+    {/* DESCRIPTION */}
+    {selectedAction && <Typography>
+      {selectedAction.description}
+    </Typography>}
 
     <br/>
 
