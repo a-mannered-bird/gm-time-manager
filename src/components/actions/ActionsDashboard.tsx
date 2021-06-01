@@ -67,7 +67,6 @@ export class ActionsDashboard extends React.Component<
             {
               label: 'Description',
               prop: 'description',
-              required: true,
               type: 'textarea',
             },
             {

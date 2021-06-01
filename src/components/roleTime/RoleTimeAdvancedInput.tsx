@@ -35,8 +35,10 @@ export class RoleTimeAdvancedInput extends React.Component<
 > {
 
   public static defaultProps: Partial<RoleTimeAdvancedInputProps> = {
-    changeTypeTooltip: 'Absolute let you set the exact date and time you want. ' +
-      'Relative will add or remove an amount from the current time.',
+    changeTypeTooltip: `Absolute let you set the exact date and time you want.
+      Relative is the time value separating the event from the current date. For example,
+      If "day" has a value of 1, it means that the event will happen 1 day from now. If "day"
+      has a value of -1, it means the event has happened 1 day ago.`,
     timeInputFormat: 'full',
   };
 
