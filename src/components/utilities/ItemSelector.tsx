@@ -8,6 +8,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import {hexToRgb, getTextColorOnBg} from '../../helpers/utils'
 
@@ -49,16 +50,22 @@ export default function ItemSelector({items, hasColor, label, onChange, value}: 
         </Box>
       )}
     >
-      {items.map((item) => <MenuItem
-        key={'selector-item-' + item.id}
-        value={item.id}
-      >
-        <Checkbox
-          checked={value.indexOf(item.id) > -1}
-          style={{color: hasColor ? item.color : undefined}}
-        />
-        <ListItemText primary={item.name} />
-      </MenuItem>)}
+      {items.map((item) => 
+        <MenuItem
+          key={'selector-item-' + item.id}
+          value={item.id}
+        >
+          <Tooltip title={item.description} style={{width: "100%"}}>
+            <Box display="flex" alignItems="center" width="1OO%">
+              <Checkbox
+                checked={value.indexOf(item.id) > -1}
+                style={{color: hasColor ? item.color : undefined}}
+              />
+              <ListItemText primary={item.name} />
+            </Box>
+          </Tooltip>
+        </MenuItem>
+      )}
     </Select>
   </FormControl>
 }
