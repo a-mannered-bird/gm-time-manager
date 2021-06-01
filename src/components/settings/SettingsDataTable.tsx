@@ -1,9 +1,7 @@
 
-// TODO: Display popup if trying to quit page while not pristine
 // TODO: Add search
 // TODO: Add pagination?
-// TODO: Work on padding a bit more
-// TODO: Reduce text inputs font size
+// TODO: Popup on route to warn user if they haven't saved their contents
 
 import * as React from 'react';
 
@@ -301,6 +299,19 @@ export class SettingsDataTable extends React.Component<
 
   componentDidMount() {
     this.loadDatas();
+
+    /*
+      The event listener below will ask the user for confirmation when he tries to leave
+      close the page without saving his changes first.
+    */
+    window.onbeforeunload = (e: any) => {
+      if (!this.state.pristine) {
+        e.preventDefault();
+        e.returnValue = '';
+        return;
+      }
+      delete e['returnValue'];
+    };
   }
 
   /**
