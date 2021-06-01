@@ -2,9 +2,28 @@
 // --------------------------------- TEST FUNCTIONS -------------------------------
 export const isArray = (x: any) => Array.isArray(x);
 
+// --------------------------------- ARRAY FUNCTIONS -------------------------------
+
+export const duplicateArray = (items: any[]) => items.map((e) => {return {...e}})
+
 export const sortByName = (items: any[], isAsc: boolean) => {
   const newItems = [...items];
   newItems.sort((a, b) => {
+    if(a.name < b.name) { return isAsc ? -1 : 1; }
+    if(a.name > b.name) { return isAsc ? 1 : -1; }
+    return 0;
+  })
+  return newItems;
+}
+
+export const sortByTypeThenName = (items: any[], types: any[], isAsc: boolean = true) => {
+  const newItems = [...items];
+  const noType = {name: 'Untyped'};
+  newItems.sort((a, b) => {
+    const typeA = types.find((t) => t.id === a.typeIds[0]) || noType;
+    const typeB = types.find((t) => t.id === b.typeIds[0]) || noType;
+    if(typeA.name < typeB.name) { return isAsc ? -1 : 1; }
+    if(typeA.name > typeB.name) { return isAsc ? 1 : -1; }
     if(a.name < b.name) { return isAsc ? -1 : 1; }
     if(a.name > b.name) { return isAsc ? 1 : -1; }
     return 0;

@@ -12,6 +12,7 @@ import { RoleTimeAdvancedInput } from '../roleTime/RoleTimeAdvancedInput';
 import ItemSelector from '../utilities/ItemSelector'
 
 import Project from '../../models/Project';
+import RoleAction from '../../models/RoleAction';
 import RoleEvent from '../../models/RoleEvent';
 import RoleEventType from '../../models/RoleEventType';
 import RoleTime from '../../models/RoleTime';
@@ -19,17 +20,19 @@ import RoleTime from '../../models/RoleTime';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface RoleEventEditFormProps {
+  allowCreateAction?: boolean;
   lockChangeType?: 'absolute' | 'relative';
   preventNegative?: boolean;
   project: Project;
   roleTime: RoleTime;
   roleEvent?: RoleEvent;
   roleEventTypes: RoleEventType[];
-  onConfirmForm: (roleEvent: RoleEvent) => void;
+  onConfirmForm: (roleEvent: RoleEvent, roleAction?: RoleAction) => void;
   onDelete?: (roleEvent: RoleEvent) => void;
 }
 
 export interface RoleEventEditFormState {
+  createAction: boolean;
   roleEvent: RoleEvent;
   showErrors?: boolean;
 }
@@ -46,6 +49,7 @@ export class RoleEventEditForm extends React.Component<
 
     const now = props.roleTime.formatToNumber();
     this.state = {
+      createAction: false,
       roleEvent: props.roleEvent ? {...props.roleEvent} : {
         id: 0,
         externalId: uuidv4(),
@@ -64,7 +68,7 @@ export class RoleEventEditForm extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {roleEvent, showErrors} = this.state;
+    const {createAction, roleEvent, showErrors} = this.state;
     const {roleTime, onDelete, lockChangeType} = this.props;
 
     return <>
@@ -159,6 +163,16 @@ export class RoleEventEditForm extends React.Component<
         </Typography>}
       </>}
 
+      {/* CREATE ACTION CHECKBOX */}
+      {/* TODO: Add more info about what actions are */}
+      {this.props.allowCreateAction && <FormControlLabel
+        control={<Checkbox
+          checked={!!createAction}
+          onChange={() => this.setState({createAction: !createAction})}
+        />}
+        label="Create an action based on this event"
+      />}
+
       <Box display="flex" flexDirection="row-reverse">
         {/* VALIDATE BUTTON */}
         <Button
@@ -225,6 +239,7 @@ export class RoleEventEditForm extends React.Component<
    */
   confirmForm() {
     const roleEvent = {...this.state.roleEvent};
+    let roleAction = undefined;
 
     if (
       // Validate event name
@@ -246,7 +261,25 @@ export class RoleEventEditForm extends React.Component<
       roleEvent.end = end.formatToNumber();
     }
 
-    this.props.onConfirmForm(roleEvent);
+    if (this.state.createAction) {
+      roleAction = {
+        id: 0,
+        externalId: uuidv4(),
+        projectId: this.props.project.id,
+        name: roleEvent.name,
+        description: roleEvent.notes,
+        typeIds: [...roleEvent.typeIds],
+        events: [{
+          ...roleEvent,
+          id: 1,
+          externalId: uuidv4(),
+          start: roleEvent.start - this.props.roleTime.formatToNumber(),
+          end: roleEvent.end - this.props.roleTime.formatToNumber(),
+        }],
+      }
+    }
+
+    this.props.onConfirmForm(roleEvent, roleAction);
   }
 
   /**

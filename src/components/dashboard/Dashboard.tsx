@@ -25,7 +25,7 @@ import RoleEvent from '../../models/RoleEvent';
 import RoleEventType from '../../models/RoleEventType';
 import RoleTime from '../../models/RoleTime';
 
-import { getAllFromProject, putItem, postItems, deleteItem } from '../../api/localdb';
+import { getAllFromProject, putItem, postItem, postItems, deleteItem } from '../../api/localdb';
 import { sortByName, sortByTypeThenName } from '../../helpers/utils';
 
 export interface DashboardProps {
@@ -202,7 +202,7 @@ export class Dashboard extends React.Component<
     ><>
       <RoleEventEditForm
         allowCreateAction={!eventToEdit}
-        onConfirmForm={eventToEdit ? this.editRoleEvent : (e, a) => this.createRoleEvents([e])}
+        onConfirmForm={eventToEdit ? this.editRoleEvent : (e, a) => this.createRoleEvents([e], {}, a)}
         onDelete={eventToEdit ? this.deleteRoleEvent : undefined}
         project={this.props.project}
         roleEvent={eventToEdit}
@@ -331,12 +331,29 @@ export class Dashboard extends React.Component<
    *
    * @param roleEvent  RoleEvent
    */
-  createRoleEvents(roleEvents: RoleEvent[], state: any = {}) {
-    postItems('roleEvents', roleEvents, (data) => {
-      const roleEvents = data.items;
+  createRoleEvents(roleEvents: RoleEvent[], state: any = {}, roleAction?: RoleAction) {
+    const promise = new Promise((resolve, reject) => {
+      postItems('roleEvents', roleEvents, (eData: {items: RoleEvent[]}) => {
+        const events = eData.items.filter(e => e.projectId === this.props.project.id)
 
+        if (roleAction) {
+          postItem('roleActions', roleAction, (eActions: {items: RoleAction[]}) => {
+            const actions = eActions.items.filter(a => a.projectId === this.props.project.id)
+            resolve({
+              actions: sortByTypeThenName(actions, this.state.roleEventTypes),
+              events,
+            })
+          })
+        } else {
+          resolve({events, actions: this.state.roleActions})
+        }
+      })
+    })
+
+    promise.then((result: any) => {
       this.setState({
-        roleEvents,
+        roleActions: result.actions,
+        roleEvents: result.events,
         roleEventsResetCount: this.state.roleEventsResetCount + 1,
         showActionModal: false,
         showCreateEventModal: false,

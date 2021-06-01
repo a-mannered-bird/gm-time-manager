@@ -166,10 +166,10 @@ export class RoleEventBoardPure extends React.Component<
       return '';
     }
 
-    if (this.props.variant === 'settings') {
+    if (this.props.variant === 'settings') {
       const start = roleTime.calculateRelativeTime(e.start).formatRoundWord();
       const startRoleTime = new RoleTime(e.start, roleTime.timeDefinitions);
-      let label = `after ${start}`;
+      let label = e.start > 0 ? `after ${start}` : start;
       if (e.end - e.start > 0) {
         const end = startRoleTime.calculateRelativeTime(e.end).formatRoundWord();
         label += `, lasts ${end}`;
