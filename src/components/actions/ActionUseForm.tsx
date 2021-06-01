@@ -68,14 +68,14 @@ export default function ActionUseForm(props: ActionUseFormProps) {
       renderGroup={(params) => {
         const type = props.roleEventTypes.find((t) => t.id === parseInt(params.group));
         const name = (type || {}).name || 'Untyped action'
-        return <>
+        return <React.Fragment key={`action-group-${(type || {}).id}`}>
           <ListSubheader
             style={{color: type ? type.color : theme.palette.secondary.main}}
           >
             {name}
           </ListSubheader>
           {params.children}
-        </>
+        </React.Fragment>
       }}
       renderInput={(params) => <TextField {...params}
         autoFocus

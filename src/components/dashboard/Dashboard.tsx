@@ -26,7 +26,7 @@ import RoleEventType from '../../models/RoleEventType';
 import RoleTime from '../../models/RoleTime';
 
 import { getAllFromProject, putItem, postItems, deleteItem } from '../../api/localdb';
-import { sortByName } from '../../helpers/utils';
+import { sortByName, sortByTypeThenName } from '../../helpers/utils';
 
 export interface DashboardProps {
   project: Project;
@@ -201,7 +201,8 @@ export class Dashboard extends React.Component<
       })}
     ><>
       <RoleEventEditForm
-        onConfirmForm={eventToEdit ? this.editRoleEvent : (e) => this.createRoleEvents([e])}
+        allowCreateAction={!eventToEdit}
+        onConfirmForm={eventToEdit ? this.editRoleEvent : (e, a) => this.createRoleEvents([e])}
         onDelete={eventToEdit ? this.deleteRoleEvent : undefined}
         project={this.props.project}
         roleEvent={eventToEdit}
@@ -251,11 +252,12 @@ export class Dashboard extends React.Component<
     getAllFromProject('roleEventTypes', id, (roleEventTypes: RoleEventType[]) => {
       getAllFromProject('roleEvents', id, (roleEvents: RoleEvent[]) => {
         getAllFromProject('roleActions', id, (roleActions: RoleAction[]) => {
+          const sortedRoleEventTypes = sortByName(roleEventTypes, true)
           this.setState({
             firstLoadDone: true,
-            roleActions,
+            roleActions: sortByTypeThenName(roleActions, sortedRoleEventTypes, true),
             roleEvents,
-            roleEventTypes: sortByName(roleEventTypes, true),
+            roleEventTypes: sortedRoleEventTypes,
           });
         });
       });
