@@ -71,7 +71,7 @@ export class RoleEventEditForm extends React.Component<
     const {createAction, roleEvent, showErrors} = this.state;
     const {roleTime, onDelete, lockChangeType} = this.props;
 
-    return <>
+    return <div style={{maxWidth: 370}}>
       <Typography variant="h6" component="h6" align="center" gutterBottom>
         {this.props.roleEvent ? 'Edit event' : 'Create Event'}
       </Typography>
@@ -194,7 +194,7 @@ export class RoleEventEditForm extends React.Component<
           </Button>
         </Box>}
       </Box>
-    </>;
+    </div>;
   }
 
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
