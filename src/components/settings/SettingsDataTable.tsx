@@ -10,6 +10,7 @@ import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import IconButton from '@material-ui/core/IconButton';
 import SaveIcon from '@material-ui/icons/Save';
 import Table from '@material-ui/core/Table';
@@ -34,7 +35,7 @@ import RoleTime from '../../models/RoleTime';
 import RoleEventType from '../../models/RoleEventType';
 
 import { getAllFromProject } from '../../api/localdb';
-import { isArray, sortByName } from '../../helpers/utils';
+import { duplicateArray, isArray, sortByName } from '../../helpers/utils';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -102,6 +103,7 @@ export class SettingsDataTable extends React.Component<
 
   public render() {
     const hasError = !this.validateAllItems();
+    const hasSelection = !!this.state.itemsSelected.length;
 
     return <>
       {this.displayTable()}
@@ -112,6 +114,36 @@ export class SettingsDataTable extends React.Component<
       <Box width="100%" display="flex" position="absolute" flexDirection="row-reverse"
         bottom="0" left="0" padding="20px"
       >
+        {/* ADD BUTTON */}
+        <Tooltip title={`Create ${this.props.itemNameSingular}`}>
+          <Fab
+            color="primary"
+            style={{marginLeft: 10}}
+            onClick={() => this.createNewItems()}>
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+
+        {/* DELETE BUTTON */}
+        {hasSelection && <Tooltip title="Delete selected item(s)">
+          <Fab
+            color="primary"
+            style={{marginLeft: 10}}
+            onClick={() => this.onDelete()}>
+            <DeleteIcon />
+          </Fab>
+        </Tooltip>}
+
+        {/* DUPLICATE BUTTON */}
+        {hasSelection && <Tooltip title="Duplicate selected item(s)">
+          <Fab
+            color="primary"
+            style={{marginLeft: 10}}
+            onClick={() => this.onDuplicate()}>
+            <FileCopyIcon />
+          </Fab>
+        </Tooltip>}
+
         {/* SAVE BUTTON */}
         {!this.state.pristine && <Tooltip
           title={hasError ? `You need to fix errors before being able to save` : `Save changes`}
@@ -124,26 +156,6 @@ export class SettingsDataTable extends React.Component<
             <SaveIcon />
           </Fab>
         </span></Tooltip>}
-
-        {/* ADD BUTTON */}
-        <Tooltip title={`Create ${this.props.itemNameSingular}`}>
-          <Fab
-            color="primary"
-            style={{marginLeft: 10}}
-            onClick={() => this.createNewItem()}>
-            <AddIcon />
-          </Fab>
-        </Tooltip>
-
-        {/* DELETE BUTTON */}
-        {!!this.state.itemsSelected.length && <Tooltip title="Delete selected item(s)">
-          <Fab
-            color="primary"
-            style={{marginLeft: 10}}
-            onClick={() => this.onDelete()}>
-            <DeleteIcon />
-          </Fab>
-        </Tooltip>}
       </Box>
     </>;
   }
@@ -390,25 +402,29 @@ export class SettingsDataTable extends React.Component<
     this.setState({items, itemsToEdit, pristine});
   }
 
-  createNewItem() {
+  createNewItems(itemsToDuplicate?: any[]) {
     let {items, itemsToCreate, pristine} = this.state;
 
-    const newItem = {
-      id: 0,
-      externalId: uuidv4(),
-      projectId: this.props.project.id,
-      ...this.props.blankObject,
-    };
-
-    // This fixes the mutation of the blank object when adding new items in arrays
-    for (let prop in newItem) {
-      if (isArray(newItem[prop]) && !newItem[prop].length) {
-        newItem[prop] = [];
+    const newItems = (itemsToDuplicate || [this.props.blankObject]).map((i) => {
+      const newItem = {
+        ...i,
+        id: 0,
+        externalId: uuidv4(),
+        projectId: this.props.project.id,
       }
-    }
 
-    itemsToCreate.push(newItem);
-    items.push(newItem);
+      // This fixes the mutation of the blank object when adding new items in arrays
+      for (let prop in newItem) {
+        if (isArray(newItem[prop])) {
+          newItem[prop] = duplicateArray(newItem[prop])
+        }
+      }
+
+      return newItem;
+    });
+
+    itemsToCreate = itemsToCreate.concat(newItems);
+    items = items.concat(newItems);
     pristine = false;
     this.setState({items, itemsToCreate, pristine});
   }
@@ -437,6 +453,11 @@ export class SettingsDataTable extends React.Component<
     });
     pristine = false;
     this.setState({pristine, items, itemsToCreate, itemsToDelete, itemsSelected: []});
+  }
+
+  onDuplicate() {
+    let {itemsSelected} = this.state;
+    this.createNewItems(itemsSelected);
   }
 
   saveSettings() {
