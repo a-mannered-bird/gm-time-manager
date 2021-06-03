@@ -82,6 +82,7 @@ export class ActionsDashboard extends React.Component<
           ]}
           itemNameDb="roleActions"
           itemNameSingular="action"
+          itemsPerPage={1}
           project={project}
           roleTime={new RoleTime(0, project.settings.timeDefinitions)}
           onSave={this.onSave}

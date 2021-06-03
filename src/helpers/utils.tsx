@@ -4,6 +4,8 @@ export const isArray = (x: any) => Array.isArray(x);
 
 // --------------------------------- ARRAY FUNCTIONS -------------------------------
 
+export const times = (n: number) => Array.from({length: n}, (_,x) => x)
+
 export const duplicateArray = (items: any[]) => items.map((e) => {return {...e}})
 
 export const sortByName = (items: any[], isAsc: boolean) => {

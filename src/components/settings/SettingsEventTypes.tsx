@@ -77,6 +77,7 @@ export class SettingsEventTypes extends React.Component<
           ]}
           itemNameDb="roleEventTypes"
           itemNameSingular="event type"
+          itemsPerPage={10}
           project={this.props.project}
           onSave={this.onSave}
         />

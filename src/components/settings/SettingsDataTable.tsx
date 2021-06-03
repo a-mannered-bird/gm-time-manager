@@ -1,6 +1,6 @@
 
+// TODO: fix events with pagination
 // TODO: Add search
-// TODO: Add pagination?
 // TODO: Popup on route to warn user if they haven't saved their contents
 
 import * as React from 'react';
@@ -24,10 +24,11 @@ import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 import { ColorPicker } from 'material-ui-color';
 
+import ItemSelector from '../utilities/ItemSelector';
+import Modal from '../utilities/Modal';
+import Pagination from '../utilities/Pagination';
 import { RoleEventBoard } from '../roleEvent/RoleEventBoard';
 import { RoleEventEditForm } from '../roleEvent/RoleEventEditForm';
-import Modal from '../utilities/Modal';
-import ItemSelector from '../utilities/ItemSelector';
 
 import Project from '../../models/Project';
 import RoleEvent from '../../models/RoleEvent';
@@ -51,6 +52,7 @@ export interface SettingsDataTableProps {
   columns: TableColumn[];
   itemNameSingular: string;
   itemNameDb: string;
+  itemsPerPage: number;
   onSave: (toCreate: any[], toEdit: any[], toDelete: any[], callback:() => void) => void;
   project: Project;
   roleTime?: RoleTime;
@@ -64,6 +66,7 @@ export interface SettingsDataTableState {
   itemsToDelete: any[];
   itemsToEdit: any[];
   orderAsc: boolean;
+  selectedPage: number;
   pristine: boolean;
   eventToEdit?: RoleEvent;
   eventToEditParentIndex?: number;
@@ -91,6 +94,7 @@ export class SettingsDataTable extends React.Component<
       itemsToDelete: [],
       itemsToEdit: [],
       orderAsc: true,
+      selectedPage: 0,
       pristine: true,
       roleEventTypes: [],
     };
@@ -102,65 +106,31 @@ export class SettingsDataTable extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const hasError = !this.validateAllItems();
-    const hasSelection = !!this.state.itemsSelected.length;
-
     return <>
+
+      <Pagination
+        pageCount={Math.ceil(this.state.items.length / this.props.itemsPerPage)}
+        onPageChange={(selectedPage) => this.setState({selectedPage})}
+        selectedPage={this.state.selectedPage}
+      />
+
+      <br/>
+
       {this.displayTable()}
 
       {this.state.hasEvents && this.displayCreateEventModal()}
 
-      {/* BUTTONS */}
-      <Box width="100%" display="flex" position="fixed" flexDirection="row-reverse"
-        bottom="0" left="0" padding="20px"
-      >
-        {/* ADD BUTTON */}
-        <Tooltip title={`Create ${this.props.itemNameSingular}`}>
-          <Fab
-            color="primary"
-            style={{marginLeft: 10}}
-            onClick={() => this.createNewItems()}>
-            <AddIcon />
-          </Fab>
-        </Tooltip>
-
-        {/* DELETE BUTTON */}
-        {hasSelection && <Tooltip title="Delete selected item(s)">
-          <Fab
-            color="primary"
-            style={{marginLeft: 10}}
-            onClick={() => this.onDelete()}>
-            <DeleteIcon />
-          </Fab>
-        </Tooltip>}
-
-        {/* DUPLICATE BUTTON */}
-        {hasSelection && <Tooltip title="Duplicate selected item(s)">
-          <Fab
-            color="primary"
-            style={{marginLeft: 10}}
-            onClick={() => this.onDuplicate()}>
-            <FileCopyIcon />
-          </Fab>
-        </Tooltip>}
-
-        {/* SAVE BUTTON */}
-        {!this.state.pristine && <Tooltip
-          title={hasError ? `You need to fix errors before being able to save` : `Save changes`}
-        ><span>
-          <Fab
-            color="secondary"
-            disabled={hasError}
-            style={{marginLeft: 10}}
-            onClick={() => this.saveSettings()}>
-            <SaveIcon />
-          </Fab>
-        </span></Tooltip>}
-      </Box>
-    </>;
+      {this.displayButtons()}
+    </>
   }
 
   displayTable() {
+    const indexMin = this.state.selectedPage * this.props.itemsPerPage
+    const indexMax = (this.state.selectedPage + 1) * this.props.itemsPerPage
+    const pageItems = this.state.items.filter((item, i) => {
+      return i >= indexMin && i < indexMax
+    })
+
     return <TableContainer>
       <Table size='small'>
         <TableHead>
@@ -170,7 +140,7 @@ export class SettingsDataTable extends React.Component<
           </TableRow>
         </TableHead>
         <TableBody>
-          {this.state.items.map(this.displayRow)}
+          {pageItems.map(this.displayRow)}
         </TableBody>
       </Table>
     </TableContainer>
@@ -307,6 +277,61 @@ export class SettingsDataTable extends React.Component<
     </></Modal>;
   }
 
+  /**
+   * Display a floating bar of buttons
+   */
+  displayButtons() {
+    const hasError = !this.validateAllItems();
+    const hasSelection = !!this.state.itemsSelected.length;
+
+    return <Box display="flex" position="fixed" flexDirection="row-reverse"
+        bottom="0" right="0" padding="20px"
+      >
+      {/* ADD BUTTON */}
+      <Tooltip title={`Create ${this.props.itemNameSingular}`}>
+        <Fab
+          color="primary"
+          style={{marginLeft: 10}}
+          onClick={() => this.createNewItems()}>
+          <AddIcon />
+        </Fab>
+      </Tooltip>
+
+      {/* DELETE BUTTON */}
+      {hasSelection && <Tooltip title="Delete selected item(s)">
+        <Fab
+          color="primary"
+          style={{marginLeft: 10}}
+          onClick={() => this.onDelete()}>
+          <DeleteIcon />
+        </Fab>
+      </Tooltip>}
+
+      {/* DUPLICATE BUTTON */}
+      {hasSelection && <Tooltip title="Duplicate selected item(s)">
+        <Fab
+          color="primary"
+          style={{marginLeft: 10}}
+          onClick={() => this.onDuplicate()}>
+          <FileCopyIcon />
+        </Fab>
+      </Tooltip>}
+
+      {/* SAVE BUTTON */}
+      {!this.state.pristine && <Tooltip
+        title={hasError ? `You need to fix errors before being able to save` : `Save changes`}
+      ><span>
+        <Fab
+          color="secondary"
+          disabled={hasError}
+          style={{marginLeft: 10}}
+          onClick={() => this.saveSettings()}>
+          <SaveIcon />
+        </Fab>
+      </span></Tooltip>}
+    </Box>
+  }
+
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
   componentDidMount() {
@@ -426,7 +451,8 @@ export class SettingsDataTable extends React.Component<
     itemsToCreate = itemsToCreate.concat(newItems);
     items = items.concat(newItems);
     pristine = false;
-    this.setState({items, itemsToCreate, pristine});
+    const selectedPage = Math.ceil(items.length / this.props.itemsPerPage) - 1;
+    this.setState({items, itemsToCreate, pristine, selectedPage});
   }
 
   toggleItemSelection(item: any, toggle: boolean) {
