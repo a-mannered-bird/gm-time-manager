@@ -111,7 +111,7 @@ export class SettingsDataTable extends React.Component<
       {this.state.hasEvents && this.displayCreateEventModal()}
 
       {/* BUTTONS */}
-      <Box width="100%" display="flex" position="absolute" flexDirection="row-reverse"
+      <Box width="100%" display="flex" position="fixed" flexDirection="row-reverse"
         bottom="0" left="0" padding="20px"
       >
         {/* ADD BUTTON */}
