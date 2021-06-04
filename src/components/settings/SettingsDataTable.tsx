@@ -1,5 +1,4 @@
 
-// TODO: fix events with pagination
 // TODO: Add search
 // TODO: Popup on route to warn user if they haven't saved their contents
 
@@ -22,6 +21,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 import { ColorPicker } from 'material-ui-color';
 
 import ItemSelector from '../utilities/ItemSelector';
@@ -106,6 +106,7 @@ export class SettingsDataTable extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
+    const {items, itemsSelected} = this.state;
     return <>
 
       <Pagination
@@ -117,6 +118,16 @@ export class SettingsDataTable extends React.Component<
       <br/>
 
       {this.displayTable()}
+
+      <Box display="flex" flexDirection="column" alignItems="flex-end" mt={1}>
+        <Typography>
+          {`Total: ${items.length} items`}
+        </Typography>
+
+        {!!itemsSelected.length && <Typography>
+          {`Items selected: ${itemsSelected.length}`}
+        </Typography>}
+      </Box>
 
       {this.state.hasEvents && this.displayCreateEventModal()}
 
