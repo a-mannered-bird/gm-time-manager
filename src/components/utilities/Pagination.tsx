@@ -16,17 +16,18 @@ export interface PaginationProps {
 export default function Pagination({pageCount, onPageChange, selectedPage}: PaginationProps) {
   const theme = useTheme();
 
-  const displayLink = (label: string | number, newPage: number, isSelected: boolean, disabled?: boolean) => <Box
+  const displayLink = (label: string | number, newPage: number, selected: boolean, disabled?: boolean) => <Box
     mr={1}
   >
     <Link
+      color={selected ? "inherit" : "secondary"}
       component="button"
       disabled={disabled}
       onClick={() => onPageChange(newPage)}
       style={{
         color: disabled ? theme.palette.grey.A700 : undefined,
-        textDecoration: isSelected ? 'underline' : undefined,
       }}
+      underline={!disabled && !selected ? 'hover' : 'none'}
       variant="h6"
     >
       {label}

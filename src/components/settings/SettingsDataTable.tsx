@@ -467,7 +467,7 @@ export class SettingsDataTable extends React.Component<
   }
 
   onDelete() {
-    let {itemsToCreate, itemsToDelete, itemsSelected, items, pristine} = this.state;
+    let {itemsToCreate, itemsToDelete, itemsSelected, items, pristine, selectedPage} = this.state;
 
     itemsSelected.forEach((item) => {
       if (item.id) {
@@ -478,7 +478,12 @@ export class SettingsDataTable extends React.Component<
       items = items.filter((i) => i.externalId !== item.externalId);
     });
     pristine = false;
-    this.setState({pristine, items, itemsToCreate, itemsToDelete, itemsSelected: []});
+    const maxNewPage = Math.ceil(items.length / this.props.itemsPerPage) - 1;
+    this.setState({
+      pristine, items, itemsToCreate, itemsToDelete,
+      itemsSelected: [],
+      selectedPage: selectedPage > maxNewPage ? maxNewPage : selectedPage,
+    });
   }
 
   onDuplicate() {

@@ -1,4 +1,6 @@
 
+// TODO: Add explanation text
+
 import * as React from 'react';
 
 import Box from '@material-ui/core/Box';
@@ -82,7 +84,7 @@ export class ActionsDashboard extends React.Component<
           ]}
           itemNameDb="roleActions"
           itemNameSingular="action"
-          itemsPerPage={1}
+          itemsPerPage={10}
           project={project}
           roleTime={new RoleTime(0, project.settings.timeDefinitions)}
           onSave={this.onSave}
