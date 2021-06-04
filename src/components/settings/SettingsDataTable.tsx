@@ -509,7 +509,8 @@ export class SettingsDataTable extends React.Component<
       return;
     }
 
-    const item = items[eventToEditParentIndex];
+    const index = this.state.selectedPage * this.props.itemsPerPage + eventToEditParentIndex
+    const item = items[index];
     const events = item.events as RoleEvent[];
     const isNew = roleEvent.id === 0;
     const i = isNew ? events.length + 1 : roleEvent.id - 1;
