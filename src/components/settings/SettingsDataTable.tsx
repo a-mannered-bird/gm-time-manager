@@ -579,10 +579,14 @@ export class SettingsDataTable extends React.Component<
       // Search string props
       if (isString(prop)) {
         found = regex.test(prop)
+      // Search types
       } else if (key === 'typeIds') {
-
+        const types = this.state.roleEventTypes.filter((type) => (prop as number[]).includes(type.id))
+        found = !!types.find((t) => this.findInItemProps(t, regex))
+        console.log(prop, types, found)
+      // Search events
       } else if (key === 'events') {
-        found = !!prop.find((e: any) => this.findInItemProps(e, regex))
+        found = !!prop.find((e: RoleEvent) => this.findInItemProps(e, regex))
       }
     })
     return found;
@@ -592,7 +596,7 @@ export class SettingsDataTable extends React.Component<
     const {items, searchQuery} = this.state
 
     const itemsFiltered = !searchQuery ? items : items.filter((item) => {
-      const regex = new RegExp(searchQuery);
+      const regex = new RegExp(searchQuery, 'i');
       return this.findInItemProps(item, regex);
     })
 
