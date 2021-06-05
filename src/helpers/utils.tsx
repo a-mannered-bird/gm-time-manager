@@ -1,6 +1,7 @@
 
 // --------------------------------- TEST FUNCTIONS -------------------------------
 export const isArray = (x: any) => Array.isArray(x);
+export const isString = (x: any) => typeof x === 'string' || x instanceof String
 
 // --------------------------------- ARRAY FUNCTIONS -------------------------------
 
@@ -32,6 +33,22 @@ export const sortByTypeThenName = (items: any[], types: any[], isAsc: boolean = 
   })
   return newItems;
 }
+
+// --------------------------------- CALLBACKS -------------------------------
+export const debounce = (fn: Function, time: number) => {
+  let timeoutId: NodeJS.Timeout | null
+  const wrapper = (...args: []) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+    timeoutId = setTimeout(() => {
+      timeoutId = null
+      fn(...args)
+    }, time)
+  }
+  return wrapper
+}
+
 
 // --------------------------------- COLORS -------------------------------
 

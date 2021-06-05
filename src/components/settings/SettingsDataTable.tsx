@@ -1,5 +1,4 @@
 
-// TODO: Add search
 // TODO: Popup on route to warn user if they haven't saved their contents
 
 import * as React from 'react';
@@ -10,8 +9,10 @@ import Checkbox from '@material-ui/core/Checkbox';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Fab from '@material-ui/core/Fab';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import SaveIcon from '@material-ui/icons/Save';
+import SearchIcon from '@material-ui/icons/Search';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -36,7 +37,7 @@ import RoleTime from '../../models/RoleTime';
 import RoleEventType from '../../models/RoleEventType';
 
 import { getAllFromProject } from '../../api/localdb';
-import { duplicateArray, isArray, sortByName } from '../../helpers/utils';
+import { debounce, duplicateArray, isArray, isString, sortByName } from '../../helpers/utils';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -61,11 +62,13 @@ export interface SettingsDataTableProps {
 export interface SettingsDataTableState {
   hasEvents: boolean;
   items: any[];
+  itemsFiltered: any[];
   itemsSelected: any[];
   itemsToCreate: any[];
   itemsToDelete: any[];
   itemsToEdit: any[];
   orderAsc: boolean;
+  searchQuery: string;
   selectedPage: number;
   pristine: boolean;
   eventToEdit?: RoleEvent;
@@ -89,11 +92,13 @@ export class SettingsDataTable extends React.Component<
         ['eventBoard', 'roleEventTypes'].indexOf(col.type) !== -1
       ),
       items: [],
+      itemsFiltered: [],
       itemsSelected: [],
       itemsToCreate: [],
       itemsToDelete: [],
       itemsToEdit: [],
       orderAsc: true,
+      searchQuery: '',
       selectedPage: 0,
       pristine: true,
       roleEventTypes: [],
@@ -106,8 +111,23 @@ export class SettingsDataTable extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {items, itemsSelected} = this.state;
+    const {itemsFiltered, itemsSelected, searchQuery} = this.state;
+    const items = searchQuery ? itemsFiltered : this.state.items;
     return <>
+
+      {/* SEARCH */}
+      <Grid container spacing={1} alignItems="flex-end">
+        <Grid item>
+          <SearchIcon />
+        </Grid>
+        <Grid item>
+          <TextField
+            label="Search item(s)"
+            onChange={(e) => this.setState({searchQuery: e.target.value}, this.search)}
+            value={searchQuery}
+          />
+        </Grid>
+      </Grid>
 
       <Pagination
         pageCount={Math.ceil(this.state.items.length / this.props.itemsPerPage)}
@@ -117,8 +137,9 @@ export class SettingsDataTable extends React.Component<
 
       <br/>
 
-      {this.displayTable()}
+      {this.displayTable(items)}
 
+      {/* ITEMS COUNT */}
       <Box display="flex" flexDirection="column" alignItems="flex-end" mt={1}>
         <Typography>
           {`Total: ${items.length} items`}
@@ -135,10 +156,10 @@ export class SettingsDataTable extends React.Component<
     </>
   }
 
-  displayTable() {
+  displayTable(items: any[]) {
     const indexMin = this.state.selectedPage * this.props.itemsPerPage
     const indexMax = (this.state.selectedPage + 1) * this.props.itemsPerPage
-    const pageItems = this.state.items.filter((item, i) => {
+    const pageItems = items.filter((item, i) => {
       return i >= indexMin && i < indexMax
     })
 
@@ -548,4 +569,35 @@ export class SettingsDataTable extends React.Component<
       eventToEditParentIndex: undefined,
     }, () => this.onChange(item, 'events', events))
   }
+
+  findInItemProps(item: any, regex: RegExp) {
+    let found = false;
+    Object.keys(item).forEach((key: string) => {
+      if (found) return;
+      const prop = item[key]
+
+      // Search string props
+      if (isString(prop)) {
+        found = regex.test(prop)
+      } else if (key === 'typeIds') {
+
+      } else if (key === 'events') {
+        found = !!prop.find((e: any) => this.findInItemProps(e, regex))
+      }
+    })
+    return found;
+  }
+
+  search = debounce(() => {
+    const {items, searchQuery} = this.state
+
+    const itemsFiltered = !searchQuery ? items : items.filter((item) => {
+      const regex = new RegExp(searchQuery);
+      return this.findInItemProps(item, regex);
+    })
+
+    this.setState({
+      itemsFiltered
+    })
+  }, 500)
 }
