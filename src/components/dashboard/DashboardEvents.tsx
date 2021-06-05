@@ -12,8 +12,6 @@ import Typography from '@material-ui/core/Typography';
 
 import { RoleEventBoard } from '../roleEvent/RoleEventBoard';
 
-import { getAllFromProject } from '../../api/localdb';
-
 import Project from '../../models/Project';
 import RoleEvent from '../../models/RoleEvent';
 import RoleEventType from '../../models/RoleEventType';
@@ -200,11 +198,13 @@ export class DashboardEvents extends React.Component<
   // --------------------------------- COMPONENT LIFECYCLE -------------------------------
 
   componentDidMount() {
-    this.loadData();
-
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('goToPreviousEvent', () => this.goToClosestEvent(false));
     window.addEventListener('goToNextEvent', () => this.goToClosestEvent(true));
+
+    this.setState({
+      ...this.getEventsState(this.state.activeTypes)
+    });
   }
 
   componentWillUnmount() {
@@ -222,17 +222,6 @@ export class DashboardEvents extends React.Component<
         ...this.getEventsState(this.state.activeTypes)
       });
     }
-  }
-
-  /**
-   * Load events and events types from database
-   */
-  loadData () {
-    getAllFromProject('roleEvents', this.props.project.id, (events: RoleEvent[]) => {
-      this.setState({
-        ...this.getEventsState(this.state.activeTypes),
-      });
-    });
   }
 
   getEventsState(activeTypes: number[]) {
