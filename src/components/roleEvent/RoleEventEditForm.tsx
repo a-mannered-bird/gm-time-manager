@@ -22,17 +22,19 @@ import { v4 as uuidv4 } from 'uuid';
 export interface RoleEventEditFormProps {
   allowCreateAction?: boolean;
   lockChangeType?: 'absolute' | 'relative';
+  onConfirmForm: (roleEvent: RoleEvent, roleAction?: RoleAction) => void;
+  onDelete?: (roleEvent: RoleEvent) => void;
   preventNegative?: boolean;
   project: Project;
   roleTime: RoleTime;
   roleEvent?: RoleEvent;
   roleEventTypes: RoleEventType[];
-  onConfirmForm: (roleEvent: RoleEvent, roleAction?: RoleAction) => void;
-  onDelete?: (roleEvent: RoleEvent) => void;
+  showRecursionInputs?: boolean;
 }
 
 export interface RoleEventEditFormState {
   createAction: boolean;
+  isRecurrent: boolean;
   roleEvent: RoleEvent;
   showErrors?: boolean;
 }
@@ -50,6 +52,7 @@ export class RoleEventEditForm extends React.Component<
     const now = props.roleTime.formatToNumber();
     this.state = {
       createAction: false,
+      isRecurrent: false,
       roleEvent: props.roleEvent ? {...props.roleEvent} : {
         id: 0,
         externalId: uuidv4(),
@@ -68,7 +71,7 @@ export class RoleEventEditForm extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
-    const {createAction, roleEvent, showErrors} = this.state;
+    const {createAction, isRecurrent, roleEvent, showErrors} = this.state;
     const {roleTime, onDelete, lockChangeType} = this.props;
 
     return <div style={{maxWidth: 370}}>
@@ -107,15 +110,7 @@ export class RoleEventEditForm extends React.Component<
       />
 
       <br/>
-
-      {/* IS ALL DAY CHECKBOX */}
-      <FormControlLabel
-        control={<Checkbox
-          checked={!!roleEvent.isAllDay}
-          onChange={() => this.onChange('isAllDay', !roleEvent.isAllDay)}
-        />}
-        label="Lasts all day"
-      />
+      <br/>
 
       {/* START TIME */}
       <Typography variant="h6" align="center">
@@ -133,6 +128,15 @@ export class RoleEventEditForm extends React.Component<
         onChange={(roleTime) => this.onChange('start', roleTime.formatToNumber())}
         preventNegative={this.props.preventNegative}
         timeInputFormat={roleEvent.isAllDay ? 'date' : 'full'}
+      />
+
+      {/* IS ALL DAY CHECKBOX */}
+      <FormControlLabel
+        control={<Checkbox
+          checked={!!roleEvent.isAllDay}
+          onChange={() => this.onChange('isAllDay', !roleEvent.isAllDay)}
+        />}
+        label="Lasts all day"
       />
 
       {/* END TIME */}
@@ -163,6 +167,52 @@ export class RoleEventEditForm extends React.Component<
         </Typography>}
       </>}
 
+      {/* RECURSION CHECKBOX */}
+      {this.props.showRecursionInputs && <FormControlLabel
+        control={<Checkbox
+          checked={!!isRecurrent}
+          onChange={() => this.setState({isRecurrent: !isRecurrent})}
+        />}
+        label="Make this event recurrent"
+      />}
+
+      {isRecurrent && <>
+        <Typography gutterBottom>
+          This event will happen every...
+        </Typography>
+
+        <RoleTimeAdvancedInput
+          absoluteZero
+          changeType="absolute"
+          defaultValue={new RoleTime('0/0/0/0/0/0', roleTime.timeDefinitions)}
+          hideToggle
+          onChange={(roleTime) => console.log(roleTime, new RoleTime('0/0/0/0/0/0', roleTime.timeDefinitions))}
+          preventNegative
+        />
+        {/* TODO: Error if everything is at 0 */}
+
+        <Box>
+          <Typography>
+            Repeat this event
+          </Typography>
+          <TextField
+            // label={label}
+            // onChange={this.onChangeInput}
+            onFocus={(e) => (e.currentTarget as HTMLInputElement).select()}
+            style={{
+              marginBottom: 20,
+              marginRight: 10,
+              width: 50,
+            }}
+            type="number"
+            // value={value !== undefined ? value : ''}
+          />
+          <Typography>
+            times (0 means the reccurence will last indefinitely)
+          </Typography>
+        </Box>
+      </>}
+
       {/* CREATE ACTION CHECKBOX */}
       {/* TODO: Add more info about what actions are */}
       {this.props.allowCreateAction && <FormControlLabel
@@ -185,11 +235,11 @@ export class RoleEventEditForm extends React.Component<
 
         {/* DELETE BUTTON */}
         {onDelete && <Box mr={1}>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => onDelete ? onDelete(roleEvent) : null}
-            >
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => onDelete ? onDelete(roleEvent) : null}
+          >
             Delete
           </Button>
         </Box>}

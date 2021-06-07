@@ -1,5 +1,5 @@
 
-// TODO: Should create events and actions be floating action buttons?
+// TODO: Keyboard shortcut for counter
 
 import * as React from 'react';
 
@@ -208,6 +208,7 @@ export class Dashboard extends React.Component<
         roleEvent={eventToEdit}
         roleEventTypes={roleEventTypes}
         roleTime={roleTime}
+        showRecursionInputs
       />
     </></Modal>;
   }

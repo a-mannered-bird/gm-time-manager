@@ -13,6 +13,7 @@ import {RoleTimeInput} from './RoleTimeInput';
 import RoleTime from '../../models/RoleTime';
 
 export interface RoleTimeAdvancedInputProps {
+  absoluteZero?: boolean;
   changeType: 'absolute' | 'relative';
   changeTypeTooltip: string;
   defaultValue: RoleTime;
@@ -20,7 +21,7 @@ export interface RoleTimeAdvancedInputProps {
   onChange: (roleTime: RoleTime, changeType?: 'absolute' | 'relative') => void;
   preventNegative?: boolean;
   relativeTimeReference?: RoleTime;
-  timeInputFormat: 'full' | 'date' |'time';
+  timeInputFormat: 'full' | 'date' |'time';
 }
 
 export interface RoleTimeAdvancedInputState {
@@ -63,7 +64,7 @@ export class RoleTimeAdvancedInput extends React.Component<
 
   public render() {
     const {changeType, absoluteTime, relativeTime} = this.state;
-    const {hideToggle} = this.props;
+    const {absoluteZero, hideToggle} = this.props;
     const roleTime = changeType === 'relative' ? relativeTime : absoluteTime;
     return <Box display="flex" flexDirection="column" alignItems="center">
 
@@ -99,7 +100,7 @@ export class RoleTimeAdvancedInput extends React.Component<
         onChange={this.onChangeRoleTime}
         preventNegative={this.props.preventNegative}
         timeInputFormat={this.props.timeInputFormat}
-        useTimeDefinitionsForMaxMin={changeType === 'absolute'}
+        useTimeDefinitionsForMaxMin={changeType === 'absolute' && !absoluteZero}
         value={roleTime}
       />
     </Box>;

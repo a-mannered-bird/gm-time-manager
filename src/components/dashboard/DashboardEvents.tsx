@@ -1,4 +1,21 @@
 
+// TODO: Improve performances:
+/* Flow right now is like this:
+  - All events from project are loaded (first filter on all event objects)
+  - When initialized and everytime the roleTime change or an event is edited **,
+    - Array of events is filtered three times (for past, present and future)
+      - * time comparison is done for each events
+      - Then they are sorted with different rules depending on board
+      - Then they are trimmed to limit event display (OK)
+      - Then they are filtered by active types (OK)
+  IMPROVEMENTS POSSIBLE:
+    - * Remove elements filtered from first board to go faster on the next board
+    - ** Maybe there is an lighter way of handling events changes without having to reset
+         Maybe we should just NOT reset and move the event changed in the right array
+         NOT SURE
+    - ?
+*/
+
 import * as React from 'react';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';

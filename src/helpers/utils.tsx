@@ -3,7 +3,7 @@
 export const isArray = (x: any) => Array.isArray(x);
 export const isString = (x: any) => typeof x === 'string' || x instanceof String
 
-// --------------------------------- ARRAY FUNCTIONS -------------------------------
+// --------------------------------- COLLECTION FUNCTIONS -------------------------------
 
 export const times = (n: number) => Array.from({length: n}, (_,x) => x)
 
