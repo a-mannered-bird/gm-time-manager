@@ -5,13 +5,19 @@ import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import Modal, {ModalProps} from '@material-ui/core/Modal';
 
-const useStyles = makeStyles((theme: Theme) =>
+interface FadingModalProps extends ModalProps {
+  isBig?: boolean;
+}
+
+const useStyles = makeStyles((theme: Theme)  =>
   createStyles({
-    modal: {
+    modal: (props: {isBig?: boolean}) => ({
       display: 'flex',
-      alignItems: 'center',
+      alignItems: props.isBig ? 'baseline' : 'center',
       justifyContent: 'center',
-    },
+      overflowY: 'scroll',
+      margin: 20,
+    }),
     paper: {
       backgroundColor: theme.palette.background.paper,
       border: '2px solid #000',
@@ -21,8 +27,8 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function FadingModal(props: ModalProps) {
-  const classes = useStyles();
+export default function FadingModal(props: FadingModalProps) {
+  const classes = useStyles({isBig: props.isBig});
   const {children, ...otherProps} = props;
 
   return (

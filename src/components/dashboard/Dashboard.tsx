@@ -194,6 +194,7 @@ export class Dashboard extends React.Component<
     const {showCreateEventModal, eventToEdit, roleEventTypes} = this.state;
 
     return <Modal
+      isBig
       open={showCreateEventModal || !!eventToEdit}
       onClose={() => this.setState({
         eventToEdit: undefined,

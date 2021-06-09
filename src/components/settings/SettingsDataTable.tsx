@@ -290,6 +290,7 @@ export class SettingsDataTable extends React.Component<
     const {eventToEditParentIndex, eventToEdit} = this.state;
 
     return <Modal
+      isBig
       open={eventToEditParentIndex !== undefined}
       onClose={() => this.setState({
         eventToEdit: undefined,
