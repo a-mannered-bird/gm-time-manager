@@ -171,7 +171,10 @@ export class RoleEventEditForm extends React.Component<
       {this.props.showRecursionInputs && <FormControlLabel
         control={<Checkbox
           checked={!!isRecurrent}
-          onChange={() => this.setState({isRecurrent: !isRecurrent})}
+          onChange={() => this.setState({
+            isRecurrent: !isRecurrent,
+            createAction: false,
+          })}
         />}
         label="Make this event recurrent"
       />}
@@ -192,22 +195,19 @@ export class RoleEventEditForm extends React.Component<
         {/* TODO: Error if everything is at 0 */}
 
         <Box>
-          <Typography>
-            Repeat this event
-          </Typography>
+          <Typography display="inline">Repeat this event</Typography>
           <TextField
             // label={label}
             // onChange={this.onChangeInput}
             onFocus={(e) => (e.currentTarget as HTMLInputElement).select()}
             style={{
-              marginBottom: 20,
-              marginRight: 10,
+              margin: '-3px 5px 0',
               width: 50,
             }}
             type="number"
             // value={value !== undefined ? value : ''}
           />
-          <Typography>
+          <Typography display="inline">
             times (0 means the reccurence will last indefinitely)
           </Typography>
         </Box>
@@ -215,7 +215,7 @@ export class RoleEventEditForm extends React.Component<
 
       {/* CREATE ACTION CHECKBOX */}
       {/* TODO: Add more info about what actions are */}
-      {this.props.allowCreateAction && <FormControlLabel
+      {this.props.allowCreateAction && !isRecurrent && <FormControlLabel
         control={<Checkbox
           checked={!!createAction}
           onChange={() => this.setState({createAction: !createAction})}
