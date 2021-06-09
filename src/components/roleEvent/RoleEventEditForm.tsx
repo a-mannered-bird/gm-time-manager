@@ -52,7 +52,7 @@ export class RoleEventEditForm extends React.Component<
     const now = props.roleTime.formatToNumber();
     this.state = {
       createAction: false,
-      isRecurrent: false,
+      isRecurrent: !!((props.roleEvent) || {}).interval,
       roleEvent: props.roleEvent ? {...props.roleEvent} : {
         id: 0,
         externalId: uuidv4(),
@@ -62,6 +62,8 @@ export class RoleEventEditForm extends React.Component<
         start: now,
         end: now,
         typeIds: [],
+        interval: '',
+        intervalLength: 0,
       },
     };
 
@@ -131,13 +133,13 @@ export class RoleEventEditForm extends React.Component<
       />
 
       {/* IS ALL DAY CHECKBOX */}
-      <FormControlLabel
+      <div><FormControlLabel
         control={<Checkbox
           checked={!!roleEvent.isAllDay}
           onChange={() => this.onChange('isAllDay', !roleEvent.isAllDay)}
         />}
         label="Lasts all day"
-      />
+      /></div>
 
       {/* END TIME */}
       {!roleEvent.isAllDay && <>
@@ -174,41 +176,48 @@ export class RoleEventEditForm extends React.Component<
           onChange={() => this.setState({
             isRecurrent: !isRecurrent,
             createAction: false,
+            roleEvent: {...roleEvent, interval: '', intervalLength: 0, intervalEnd: undefined}
           })}
         />}
         label="Make this event recurrent"
       />}
 
       {isRecurrent && <>
-        <Typography gutterBottom>
+        <Typography gutterBottom align="center" variant="h6">
           This event will happen every...
         </Typography>
 
         <RoleTimeAdvancedInput
           absoluteZero
           changeType="absolute"
-          defaultValue={new RoleTime('0/0/0/0/0/0', roleTime.timeDefinitions)}
+          defaultValue={new RoleTime(roleEvent.interval || '0/0/0/0/0/0', roleTime.timeDefinitions)}
           hideToggle
-          onChange={(roleTime) => console.log(roleTime, new RoleTime('0/0/0/0/0/0', roleTime.timeDefinitions))}
+          onChange={(roleTime) => this.onChange('interval', roleTime.formatToFullString())}
           preventNegative
         />
-        {/* TODO: Error if everything is at 0 */}
+        {this.intervalIsValid() && showErrors && <Typography
+          color="error"
+          variant="caption"
+          align="center"
+        >
+            You need to define a interval of minimum 1 second
+        </Typography>}
 
-        <Box>
+        <Box mb={1}>
           <Typography display="inline">Repeat this event</Typography>
           <TextField
-            // label={label}
-            // onChange={this.onChangeInput}
+            inputProps={{min: 0}}
+            onChange={(e) => this.onChange('intervalLength', e.target.value)}
             onFocus={(e) => (e.currentTarget as HTMLInputElement).select()}
             style={{
               margin: '-3px 5px 0',
               width: 50,
             }}
             type="number"
-            // value={value !== undefined ? value : ''}
+            value={roleEvent.intervalLength || 0}
           />
           <Typography display="inline">
-            times (0 means the reccurence will last indefinitely)
+            times (0 means the recurence will last indefinitely)
           </Typography>
         </Box>
       </>}
@@ -294,8 +303,8 @@ export class RoleEventEditForm extends React.Component<
     if (
       // Validate event name
       !roleEvent.name.trim() ||
-      // Validate end date
-      this.endDateIsValid()
+      this.endDateIsValid() ||
+      this.intervalIsValid()
     ) {
       this.setState({showErrors: true});
       return;
@@ -338,5 +347,10 @@ export class RoleEventEditForm extends React.Component<
   endDateIsValid() {
     const {roleEvent} = this.state;
     return !roleEvent.isAllDay && roleEvent.end < roleEvent.start
+  }
+
+  intervalIsValid() {
+    const {roleEvent, isRecurrent} = this.state;
+    return (isRecurrent && (roleEvent.interval === '0/0/0/0/0/0' || !roleEvent.interval))
   }
 }
