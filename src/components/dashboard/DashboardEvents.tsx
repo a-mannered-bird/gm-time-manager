@@ -9,7 +9,6 @@
       - Then they are trimmed to limit event display (OK)
       - Then they are filtered by active types (OK)
   IMPROVEMENTS POSSIBLE:
-    - * Remove elements filtered from first board to go faster on the next board
     - ** Maybe there is an lighter way of handling events changes without having to reset
          Maybe we should just NOT reset and move the event changed in the right array
          NOT SURE
@@ -246,15 +245,22 @@ export class DashboardEvents extends React.Component<
     // Before filtering the next one
     const newState = {} as any;
 
+    const allEvents = this.sortEvents()
     boardNames.forEach((time) => {
-      const eventsData = this.filterByTime(this.props.roleEvents, time);
-      // Filter by active type
-      const events = eventsData.events.filter((e) => {
-        const typeIds = !e.typeIds.length ? [0] : e.typeIds;
-        return typeIds.find((typeId) => activeTypes.indexOf(typeId) !== -1) !== undefined;
-      });
+      // @ts-ignore
+      const max = this.state[time + 'EventsLimit'];
+      const showMore = allEvents[time].length > max;
+
+      const events = allEvents[time]
+        // Paginate events
+        .slice(0, max)
+        // Filter by active type
+        .filter((e) => {
+          const typeIds = !e.typeIds.length ? [0] : e.typeIds;
+          return typeIds.find((typeId) => activeTypes.indexOf(typeId) !== -1) !== undefined;
+        });
       newState[time + 'Events'] = events;
-      newState[time + 'EventsMore'] = eventsData.showMore;
+      newState[time + 'EventsMore'] = showMore;
     });
 
     return newState;
@@ -263,35 +269,26 @@ export class DashboardEvents extends React.Component<
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
   /**
-   * Filter, sort and then trim events from a list. Depending on the type of time
+   * Filter, and sort events. Depending on the type of time
    * the events belong to (past, present or future), they will be sorted differently
-   *
-   * @param roleEvents  RoleEvent[]
-   * @param time  string
    */
-  filterByTime(roleEvents: RoleEvent[], time: 'past' | 'present' | 'future') {
+  sortEvents() {
     const now = this.props.roleTime.formatToNumber();
-    let events: RoleEvent[] = [];
-
-    switch (time) {
-      case 'past':
-        events = roleEvents.filter((e) => e.end < now)
-          .sort((a, b) => b.end - a.end || b.start - a.start || b.id - a.id);
-        break;
-      case 'present':
-        events = roleEvents.filter((e) => e.start <= now && e.end >= now)
-          .sort((a, b) => a.end - b.end || a.start - b.start || b.id - a.id);
-        break;
-      case 'future':
-        events = roleEvents.filter((e) => e.start > now)
-          .sort((a, b) => a.start - b.start || a.end - b.end || b.id - a.id);
-        break;
+    const allEvents = {
+      past: [] as RoleEvent[],
+      present: [] as RoleEvent[],
+      future: [] as RoleEvent[],
     }
 
-    // @ts-ignore
-    const max = this.state[time + 'EventsLimit'];
-    const showMore = events.length > max;
-    return {showMore, events: events.slice(0, max)};
+    this.props.roleEvents.forEach((e) => {
+      if (e.end < now) { allEvents.past.push(e) }
+      else if (e.start <= now && e.end >= now) { allEvents.present.push(e) }
+      else if (e.start > now) { allEvents.future.push(e) }
+    })
+    allEvents.past.sort((a, b) => b.end - a.end || b.start - a.start || b.id - a.id);
+    allEvents.present.sort((a, b) => a.end - b.end || a.start - b.start || b.id - a.id);
+    allEvents.future.sort((a, b) => a.start - b.start || a.end - b.end || b.id - a.id);
+    return allEvents;
   }
 
   /**
