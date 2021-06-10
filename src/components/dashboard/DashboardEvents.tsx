@@ -324,27 +324,29 @@ export class DashboardEvents extends React.Component<
     return 'present'
   }
 
+  // TODO: Simplify this function?
   calculateClosestOccurrences(roleEvent: RoleEvent, now: number) {
-    // TODO: If interval doesn't have a month value, use a number interval instead, and
-    // use divisions to improve performances ->
-    // Math.floor(now / interval) = number of times the event occurs before
-
     const e = {...roleEvent}
     const timeDefs = this.props.roleTime.timeDefinitions
-    const interval = new RoleTime(e.interval as string, timeDefs)
+    const interval = new RoleTime(e.interval as string, timeDefs).formatToNumber()
     const maxCount = e.intervalLength || Infinity
     const results = {} as {past?: RoleEvent, present?: RoleEvent, future?: RoleEvent};
     const duration = e.end - e.start;
 
+    let closestOccurrence = Math.floor((now - e.start) / interval)
+    if (closestOccurrence) closestOccurrence--;
+    e.start = e.start + (interval * closestOccurrence)
+    e.end = e.start + duration;
+
     let finished = false
-    let count = 0
+    let count = closestOccurrence
     while (!finished) {
       results[this.getEventBoardName(e, now)] = {...e}
       count++;
       if (count >= maxCount || results.future) {
         finished = true
       } else {
-        e.start = new RoleTime(e.start, timeDefs).addRoleTime(interval).formatToNumber()
+        e.start = e.start + interval
         e.end = e.start + duration
       }
     }

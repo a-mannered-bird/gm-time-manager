@@ -1,5 +1,7 @@
 
 // TODO: Keyboard shortcut for counter
+// TODO: Fix bug -> 1st february - 1 day / 29th january + 1 month
+// TODO: Fix bug: Cmd A when counter is opened will open action modal
 
 import * as React from 'react';
 
