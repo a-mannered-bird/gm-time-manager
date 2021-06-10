@@ -21,7 +21,7 @@ export interface RoleTimeAdvancedInputProps {
   onChange: (roleTime: RoleTime, changeType?: 'absolute' | 'relative') => void;
   preventNegative?: boolean;
   relativeTimeReference?: RoleTime;
-  timeInputFormat: 'full' | 'date' |'time';
+  timeInputFormat: 'full' | 'date' | 'time' | 'monthless';
 }
 
 export interface RoleTimeAdvancedInputState {

@@ -195,6 +195,7 @@ export class RoleEventEditForm extends React.Component<
           hideToggle
           onChange={(roleTime) => this.onChange('interval', roleTime.formatToFullString())}
           preventNegative
+          timeInputFormat="monthless"
         />
         {this.intervalIsValid() && showErrors && <Typography
           color="error"

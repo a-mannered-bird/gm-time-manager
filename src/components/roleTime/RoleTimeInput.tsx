@@ -11,7 +11,7 @@ export interface RoleTimeInputProps {
   label?: string | React.ReactElement;
   onChange: (roleTime: RoleTime) => void;
   preventNegative?: boolean;
-  timeInputFormat: 'full' | 'date' | 'time';
+  timeInputFormat: 'full' | 'date' | 'time' | 'monthless';
   useTimeDefinitionsForMaxMin: boolean;
   value: RoleTime;
 }
@@ -45,15 +45,15 @@ export class RoleTimeInput extends React.Component<
 
     // Set which parts of the date and time we display
     let inputs = [] as any[];
-    if (['full', 'date'].indexOf(timeInputFormat) !== -1) {
-      inputs = inputs.concat([
-        ["Year", "year", year, 70],
-        ["Month", "month", month, 50, monthMin, monthMax],
-        ["Day", "day", day, 50, dayMin, dayMax],
-      ]);
+    if (['full', 'date', 'monthless'].indexOf(timeInputFormat) !== -1) {
+      inputs.push(["Year", "year", year, 70])
+      if (timeInputFormat !== 'monthless') {
+        inputs.push(["Month", "month", month, 50, monthMin, monthMax])
+      }
+      inputs.push(["Day", "day", day, 50, dayMin, dayMax])
     }
 
-    if (['full', 'time'].indexOf(timeInputFormat) !== -1) {
+    if (['full', 'time', 'monthless'].indexOf(timeInputFormat) !== -1) {
       inputs = inputs.concat([
         ["Hour", "hour", hour, 50, hourMin, hourMax],
         ["Minute", "minute", minute, 50, minuteMin, minuteMax],
