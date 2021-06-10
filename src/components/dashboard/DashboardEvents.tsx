@@ -281,14 +281,75 @@ export class DashboardEvents extends React.Component<
     }
 
     this.props.roleEvents.forEach((e) => {
-      if (e.end < now) { allEvents.past.push(e) }
-      else if (e.start <= now && e.end >= now) { allEvents.present.push(e) }
-      else if (e.start > now) { allEvents.future.push(e) }
+      /*
+      - If start time is before roleTime and end time is equal to roletime → 1 past and 1 present event.
+      - if start time is equal to roleTime and end time is after roletime → 1 present and 1 future event.
+      - If start time is before RoleTime and end time is after roletime → Maybe 1 past
+      */
+      if (e.interval) {
+        // First occurence is in future
+        if (e.start > now) {
+          allEvents.future.push(e)
+
+        // Last occurrence is in the past
+        } else if (e.intervalEnd && e.intervalEnd < now) {
+          allEvents.past.push({
+            ...e,
+            start: e.intervalEnd - (e.end - e.start),
+            end: e.intervalEnd,
+          })
+
+        // Otherwise we have to find 2 to 3 occurrences and place them in the boards
+        } else {
+          const occurrences = this.calculateClosestOccurrences(e, now)
+          Object.keys(occurrences).forEach((time) => {
+            // @ts-ignore
+            if (occurrences[time]) allEvents[time].push(occurrences[time])
+          })
+        }
+      } else {
+        allEvents[this.getEventBoardName(e, now)].push(e)
+      }
     })
+
     allEvents.past.sort((a, b) => b.end - a.end || b.start - a.start || b.id - a.id);
     allEvents.present.sort((a, b) => a.end - b.end || a.start - b.start || b.id - a.id);
     allEvents.future.sort((a, b) => a.start - b.start || a.end - b.end || b.id - a.id);
     return allEvents;
+  }
+
+  getEventBoardName(e: RoleEvent, now: number): 'past' | 'future' | 'present' {
+    if (e.end < now) { return 'past' }
+    if (e.start > now) { return 'future' }
+    return 'present'
+  }
+
+  calculateClosestOccurrences(roleEvent: RoleEvent, now: number) {
+    // TODO: If interval doesn't have a month value, use a number interval instead, and
+    // use divisions to improve performances ->
+    // Math.floor(now / interval) = number of times the event occurs before
+
+    const e = {...roleEvent}
+    const timeDefs = this.props.roleTime.timeDefinitions
+    const interval = new RoleTime(e.interval as string, timeDefs)
+    const maxCount = e.intervalLength || Infinity
+    const results = {} as {past?: RoleEvent, present?: RoleEvent, future?: RoleEvent};
+    const duration = e.end - e.start;
+
+    let finished = false
+    let count = 0
+    while (!finished) {
+      results[this.getEventBoardName(e, now)] = {...e}
+      count++;
+      if (count >= maxCount || results.future) {
+        finished = true
+      } else {
+        e.start = new RoleTime(e.start, timeDefs).addRoleTime(interval).formatToNumber()
+        e.end = e.start + duration
+      }
+    }
+
+    return results
   }
 
   /**

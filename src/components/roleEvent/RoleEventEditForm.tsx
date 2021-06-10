@@ -331,6 +331,8 @@ export class RoleEventEditForm extends React.Component<
         intervalEnd = intervalEnd.addRoleTime(intervalTime)
       })
       roleEvent.intervalEnd = intervalEnd.formatToNumber() + (roleEvent.end - roleEvent.start)
+    } else if (roleEvent.interval) {
+      roleEvent.intervalEnd = undefined;
     }
 
     if (this.state.createAction) {
