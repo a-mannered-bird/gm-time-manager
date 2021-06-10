@@ -46,7 +46,7 @@ export default class RoleTime implements RoleTimeValue {
     this.valueNames = ['year', 'month', 'day', 'hour', 'minute', 'second'];
 
     // Set time definitions
-    if (this.isRoleTime(time)) {
+    if (this.isRoleTime(time)) {
       this.timeDefinitions = time.timeDefinitions;
     } else {
       this.timeDefinitions = timeDefinitions as TimeDefinitions;
@@ -65,7 +65,7 @@ export default class RoleTime implements RoleTimeValue {
     this.secondMin = 0;
 
     // Set values from RoleTime
-    if (this.isRoleTime(time)) {
+    if (this.isRoleTime(time)) {
       this.valueNames.forEach((name) => this[name] = time[name]);
 
     // From string
@@ -123,7 +123,7 @@ export default class RoleTime implements RoleTimeValue {
    *
    * @param time  string | RoleTime
    */
-  isRoleTime(time: string | RoleTime | number):time is RoleTime {
+  isRoleTime(time: string | RoleTime | number):time is RoleTime {
     return (time as RoleTime).timeDefinitions !== undefined;
   }
 
@@ -296,27 +296,27 @@ export default class RoleTime implements RoleTimeValue {
     // Seconds
     const secondResults = this.addToCappedValue(this.second, toAdd.second, this.secondMin, this.secondMax + 1);
     newRoleTime.second = secondResults.newValue;
-    const minutesToAdd = (toAdd.minute || 0) + secondResults.parentValueAdd;
+    const minutesToAdd = (toAdd.minute || 0) + secondResults.parentValueAdd;
 
     // Minutes
     const minuteResults = this.addToCappedValue(this.minute, minutesToAdd, this.minuteMin, this.minuteMax + 1);
     newRoleTime.minute = minuteResults.newValue;
-    const hoursToAdd = (toAdd.hour || 0) + minuteResults.parentValueAdd;
+    const hoursToAdd = (toAdd.hour || 0) + minuteResults.parentValueAdd;
 
     // Hours
     const hourResults = this.addToCappedValue(this.hour, hoursToAdd, this.hourMin, this.hourMax + 1);
     newRoleTime.hour = hourResults.newValue;
-    const daysToAdd = (toAdd.day || 0) + hourResults.parentValueAdd;
+    const daysToAdd = (toAdd.day || 0) + hourResults.parentValueAdd;
 
     // Days - Exception on this one because maxDay can vary depending on month
     const dayResults = this.addDaysToCappedValue(this.day, daysToAdd, this.dayMin);
     newRoleTime.day = dayResults.newValue;
-    const monthsToAdd = (toAdd.month || 0) + dayResults.parentValueAdd;
+    const monthsToAdd = (toAdd.month || 0) + dayResults.parentValueAdd;
 
     // Months
     const monthResults = this.addToCappedValue(this.month, monthsToAdd, this.monthMin, this.monthMax);
     newRoleTime.month = monthResults.newValue;
-    const yearsToAdd = (toAdd.year || 0) + monthResults.parentValueAdd;
+    const yearsToAdd = (toAdd.year || 0) + monthResults.parentValueAdd;
 
     // Years
     newRoleTime.year = (this.year || 0) + yearsToAdd;
@@ -401,7 +401,7 @@ export default class RoleTime implements RoleTimeValue {
   /**
    * Adjust this RoleTime's values so it is at the beginning of the day.
    */
-  beginningOfDay() {
+  beginningOfDay() {
     this.hour = this.hourMin;
     this.minute = this.minuteMin;
     this.second = this.secondMin;
@@ -436,9 +436,9 @@ export default class RoleTime implements RoleTimeValue {
     if (timestamp >= 0) {
       this.month = (this.month || this.monthMin) - 1;
       this.day = (this.day || this.dayMin) - 1;
-    } else if (timestamp < 0) {
+    } else if (timestamp < 0) {
       this.valueNames.forEach((name) => {
-        if (name === 'year') {
+        if (name === 'year') {
           this.year = (this.year || -1) + 1;
         } else if (name === 'second'){
           this.second = (this.second || this.secondMin) - (this[name + 'Max'] + 1);

@@ -18,6 +18,7 @@ import RoleEventType from '../../models/RoleEventType';
 import RoleTime from '../../models/RoleTime';
 
 import { v4 as uuidv4 } from 'uuid';
+import {times} from '../../helpers/utils'
 
 export interface RoleEventEditFormProps {
   allowCreateAction?: boolean;
@@ -207,7 +208,7 @@ export class RoleEventEditForm extends React.Component<
           <Typography display="inline">Repeat this event</Typography>
           <TextField
             inputProps={{min: 0}}
-            onChange={(e) => this.onChange('intervalLength', e.target.value)}
+            onChange={(e) => this.onChange('intervalLength', parseInt(e.target.value))}
             onFocus={(e) => (e.currentTarget as HTMLInputElement).select()}
             style={{
               margin: '-3px 5px 0',
@@ -217,7 +218,7 @@ export class RoleEventEditForm extends React.Component<
             value={roleEvent.intervalLength || 0}
           />
           <Typography display="inline">
-            times (0 means the recurence will last indefinitely)
+            times (0 means the recurrence will last indefinitely)
           </Typography>
         </Box>
       </>}
@@ -310,14 +311,26 @@ export class RoleEventEditForm extends React.Component<
       return;
     }
 
+    const timeDefs = this.props.roleTime.timeDefinitions;
     // Adjust start and end of event if it's supposed to be for the whole
     if (roleEvent.isAllDay) {
-      const start = new RoleTime(roleEvent.start, this.props.roleTime.timeDefinitions);
+      const start = new RoleTime(roleEvent.start, timeDefs);
       start.beginningOfDay();
-      const end = new RoleTime(roleEvent.start, this.props.roleTime.timeDefinitions);
+      const end = new RoleTime(roleEvent.start, timeDefs);
       end.endOfDay();
       roleEvent.start = start.formatToNumber();
       roleEvent.end = end.formatToNumber();
+    }
+
+    // We add here the end time of the whole interval if it exists, for more performent
+    // calculations later en recurrent event readings.
+    if (roleEvent.interval && roleEvent.intervalLength) {
+      let intervalEnd = new RoleTime(roleEvent.start, timeDefs);
+      const intervalTime = new RoleTime(roleEvent.interval as string, timeDefs)
+      times(roleEvent.intervalLength).forEach((i) => {
+        intervalEnd = intervalEnd.addRoleTime(intervalTime)
+      })
+      roleEvent.intervalEnd = intervalEnd.formatToNumber() + (roleEvent.end - roleEvent.start)
     }
 
     if (this.state.createAction) {

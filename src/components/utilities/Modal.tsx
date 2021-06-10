@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme)  =>
 
 export default function FadingModal(props: FadingModalProps) {
   const classes = useStyles({isBig: props.isBig});
-  const {children, ...otherProps} = props;
+  const {children, isBig, ...otherProps} = props;
 
   return (
     <Modal
