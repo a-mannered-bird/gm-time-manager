@@ -289,7 +289,7 @@ export class DashboardEvents extends React.Component<
       if (e.interval) {
         // First occurence is in future
         if (e.start > now) {
-          allEvents.future.push(e)
+          allEvents.future.push({...e, intervalIndex: 0})
 
         // Last occurrence is in the past
         } else if (e.intervalEnd && e.intervalEnd < now) {
@@ -297,6 +297,7 @@ export class DashboardEvents extends React.Component<
             ...e,
             start: e.intervalEnd - (e.end - e.start),
             end: e.intervalEnd,
+            intervalIndex: (e.intervalLength as number) - 1,
           })
 
         // Otherwise we have to find 2 to 3 occurrences and place them in the boards
@@ -341,7 +342,7 @@ export class DashboardEvents extends React.Component<
     let finished = false
     let count = closestOccurrence
     while (!finished) {
-      results[this.getEventBoardName(e, now)] = {...e}
+      results[this.getEventBoardName(e, now)] = {...e, intervalIndex: count}
       count++;
       if (count >= maxCount || results.future) {
         finished = true

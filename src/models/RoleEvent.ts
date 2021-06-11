@@ -12,4 +12,6 @@ export default interface RoleEvent {
   interval?: string;
   intervalEnd?: number;
   intervalLength?: number;
+  intervalIndex?: number;
+  intervalIgnoredIndexes?: number[];
 }

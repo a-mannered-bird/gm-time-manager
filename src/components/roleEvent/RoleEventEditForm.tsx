@@ -221,6 +221,10 @@ export class RoleEventEditForm extends React.Component<
           <Typography display="inline">
             times (0 means the recurrence will last indefinitely)
           </Typography>
+
+          {roleEvent.intervalIndex !== undefined && <Typography><strong>
+            This is the occurrence number {roleEvent.intervalIndex + 1} of this series
+          </strong></Typography>}
         </Box>
       </>}
 
