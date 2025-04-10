@@ -3,7 +3,7 @@ import * as React from 'react';
 import Button from '@material-ui/core/Button';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import PublishIcon from '@material-ui/icons/Publish';
-import { projectTitleCodename } from '../../general-settings.json';
+import settings from '../../general-settings.json';
 
 import { getDb, putDb, getValue, putValue } from '../../api/localdb';
 
@@ -130,7 +130,7 @@ export class Backups extends React.Component<
     getDb((db) => {
       console.log(db);
       const now = new Date();
-      let backupTitle = `${projectTitleCodename}-backup-${now.getFullYear()}-${now.getMonth()}-`;
+      let backupTitle = `${settings.projectTitleCodename}-backup-${now.getFullYear()}-${now.getMonth()}-`;
       backupTitle += `${now.getDay()}-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
       this.downloadObjectAsJson(db, backupTitle);
       // TODO: Store in DB time of when downloaded a backup 

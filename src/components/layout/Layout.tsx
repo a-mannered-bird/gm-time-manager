@@ -191,12 +191,10 @@ class Layout extends React.Component<
    */
   public updateProject(project: Project) {
     putItem('projects', project, (data) => {
-      const {projects} = this.state;
-      const index = this.state.projects.findIndex((p) => project.id === p.id);
-      projects[index] = project;
+      const newProjects = data.items.map((p: Project) => ({...p}))
       this.setState({
-        projects,
-        selectedProject: project,
+        projects: newProjects,
+        selectedProject: {...project},
       });
     });
   }

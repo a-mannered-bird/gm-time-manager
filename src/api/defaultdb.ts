@@ -1,5 +1,5 @@
 
-export default {
+const defaultDb = {
   backups: {
     lastBackupDate: new Date().valueOf(),
   },
@@ -165,3 +165,4 @@ export default {
     ],
   },
 }
+ export default defaultDb

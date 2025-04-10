@@ -3,9 +3,9 @@ import low from 'lowdb';
 import LocalStorage from 'lowdb/adapters/LocalStorage'
 import defaultDb from './defaultdb';
 import {isArray} from '../helpers/utils';
-import { projectTitleKebabCase } from '../general-settings.json';
+import settings from '../general-settings.json';
 
-const adapter = new LocalStorage(projectTitleKebabCase + '-db')
+const adapter = new LocalStorage(settings.projectTitleKebabCase + '-db')
 const db = low(adapter)
 
 /******** DEFAULT DB ********/
@@ -77,7 +77,7 @@ export const postItem = (itemName: string, item: any, callback: (data: any) => v
         return items
           .concat({...item, id})
           // TODO - Solve this bug in a more performant way
-          .map((n) => cleanItem(n))
+          // .map((n) => cleanItem(n))
       })
       .write()
   );
@@ -109,7 +109,7 @@ export const putItem = (itemName: string, item: any, callback: (data: any) => vo
       .update('items', (items: any[]) => {
         const i = items.findIndex((n) => n.id === item.id);
         items[i] = item;
-        items.map((n) => cleanItem(n))
+        // items.map((n) => cleanItem(n))
         return items;
       })
       .write()

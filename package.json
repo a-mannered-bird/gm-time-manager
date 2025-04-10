@@ -6,26 +6,29 @@
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
-    "@types/jest": "24.0.19",
-    "@types/lowdb": "^1.0.9",
-    "@types/node": "12.11.1",
-    "@types/react": "16.9.9",
-    "@types/react-dom": "16.9.2",
-    "@types/react-router-dom": "^5.1.0",
-    "@types/react-select": "^3.0.5",
-    "@types/showdown": "^1.9.3",
     "lowdb": "^1.0.0",
     "material-table": "^1.52.0",
     "material-ui-color": "^1.1.0",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.2.0",
+    "react-scripts": "5.0.1",
     "react-select": "^3.0.8",
-    "showdown": "^1.9.0",
+    "showdown": "^1.9.1",
     "typeface-roboto": "^0.0.75",
     "typescript": "3.6.4",
     "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/jest": "24.0.19",
+    "@types/lowdb": "^1.0.15",
+    "@types/node": "12.11.1",
+    "@types/react-dom": "16.9.25",
+    "@types/react-router-dom": "^5.1.9",
+    "@types/react-select": "^3.0.28",
+    "@types/react": "16.14.63",
+    "@types/showdown": "^1.9.4",
+    "@types/uuid": "^8.3.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -48,8 +51,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:3001/",
-  "devDependencies": {
-    "@types/uuid": "^8.3.0"
-  }
+  "proxy": "http://localhost:3001/"
 }

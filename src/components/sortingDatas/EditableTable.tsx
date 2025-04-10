@@ -41,12 +41,15 @@ export class EditableTable extends React.Component<
   // --------------------------------- RENDER -------------------------------
 
   public render() {
+    // Fix for issue when updating
+    const items = this.props.items.map((item, i) => ({...item, tableData: {id: i}}))
+
     const columns = this.getColumns();
     // @ts-ignore
     return <MaterialTable icons={tableIcons}
       title={this.props.itemType.plural}
       columns={columns}
-      data={this.props.items}
+      data={items}
       options={{
         actionsColumnIndex: columns.length,
         pageSize: 10,
@@ -59,7 +62,7 @@ export class EditableTable extends React.Component<
         onRowAdd: (newData) => new Promise((resolve, reject) => {
           this.props.onAdd(newData, resolve);
         }),
-        onRowUpdate: (newData, oldData) => new Promise((resolve, reject) => {
+        onRowUpdate: (newData) => new Promise((resolve, reject) => {
           this.props.onEdit(newData, resolve);
         }),
         onRowDelete: (oldData) => new Promise((resolve, reject) => {
@@ -95,7 +98,6 @@ export class EditableTable extends React.Component<
    */
   public getColumns() {
     const columns = [{title: 'Name', field: 'name', filterPlaceholder: 'Search by name...' }] as any[];
-    columns.push({title: 'Color', field: 'color', filterPlaceholder: 'Search by color...' });
 
   //   if (this.props.categories){
   //     const categoriesLookup = {} as any;

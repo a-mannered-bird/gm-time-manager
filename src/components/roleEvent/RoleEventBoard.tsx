@@ -9,7 +9,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withTheme } from '@material-ui/core/styles';
-import { fade } from '@material-ui/core/styles/colorManipulator';
+import { alpha } from '@material-ui/core/styles/colorManipulator';
 
 import RoleEvent from '../../models/RoleEvent';
 import RoleEventType from '../../models/RoleEventType';
@@ -224,7 +224,7 @@ export class RoleEventBoardPure extends React.Component<
       }
     }
     const color = (type || {}).color || this.props.theme.palette.secondary.main;
-    return fade(color, 0.3);
+    return alpha(color, 0.3);
   }
 
   /**

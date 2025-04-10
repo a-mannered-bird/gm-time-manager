@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { projectTitle } from '../../general-settings.json';
+import settings from '../../general-settings.json';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
@@ -96,7 +96,7 @@ export function TopBar(props: TopBarProps) {
           </IconButton>
 
           <Typography variant="h6" className={classes.title}>
-            {projectTitle}
+            {settings.projectTitle}
           </Typography>
 
           {displaySelectProject()}

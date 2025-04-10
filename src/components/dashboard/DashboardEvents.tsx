@@ -119,7 +119,7 @@ export class DashboardEvents extends React.Component<
       </Grid>
 
       {/* BOARDS */}
-      <Grid container justify="space-around" alignItems="flex-start">
+      <Grid container justifyContent="space-around" alignItems="flex-start">
         {boardNames
           .filter((name) => activeBoards.indexOf(name) !== -1)
           .map(this.displayBoard)
