@@ -4,6 +4,7 @@
 */
 
 import * as React from 'react';
+import defaultDb from '../../api/defaultdb'
 import { EditableTable } from './EditableTable';
 import Project from '../../models/Project';
 
@@ -67,7 +68,7 @@ export class Projects extends React.Component<
    */
   public handleCreateItem(item: any, resolve: any) {
     if (item.name) {
-      postItem('projects', item, (res) => {
+      postItem('projects', {...defaultDb.projects.items[0], ...item}, (res) => {
         this.props.setProjects(res.items);
         resolve();
       });
