@@ -54,7 +54,7 @@ export class SettingsTimeDefinitions extends React.Component<
 
       {this.displayAccordeon(
         'Number of days per month',
-        this.displayInputListForCount(timeDefinitions.yearMonthsCount, 'Month days count', 'number', 'monthDaysCount', 30)
+        this.displayInputListForCount(timeDefinitions.yearMonthsCount, 'Month days count', 'number', 'monthDaysCount')
       )}
 
       {this.displayAccordeon(
@@ -77,17 +77,17 @@ export class SettingsTimeDefinitions extends React.Component<
     </Accordion>;
   }
 
-  public displayInputListForCount(inputCount: number, label: string, valueType: string, propertyTarget: keyof TimeDefinitions, newItemDefaultValue?: any){
+  public displayInputListForCount(inputCount: number, label: string, valueType: string, propertyTarget: keyof TimeDefinitions){
     const fields = [];
     for (let i = 0; i < inputCount; i++) {
-      fields.push(this.displayInput(label, valueType, propertyTarget, i, (newItemDefaultValue || `${label} ${i + 1}`)))
+      fields.push(this.displayInput(label, valueType, propertyTarget, i))
     }
     return <>
       {fields}
     </>;
   }
 
-  public displayInput(label: string, valueType: string, propertyTarget: keyof TimeDefinitions, key?: number, newItemDefaultValue?: any){
+  public displayInput(label: string, valueType: string, propertyTarget: keyof TimeDefinitions, key?: number){
 
     const {timeDefinitions} = this.props.project.settings;
 
@@ -97,7 +97,7 @@ export class SettingsTimeDefinitions extends React.Component<
       name={propertyTarget + (key !== undefined ? '.' + key : '')}
       label={label + (key !== undefined ? ' ' + (key + 1) : '')}
       type={valueType}
-      defaultValue={key !== undefined ? timeDefinitions[propertyTarget][key] || newItemDefaultValue : timeDefinitions[propertyTarget]}
+      defaultValue={key !== undefined ? timeDefinitions[propertyTarget][key] : timeDefinitions[propertyTarget]}
       onChange={this.onChangeSettings}
       required
     />
