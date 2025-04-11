@@ -232,10 +232,17 @@ export class DashboardEvents extends React.Component<
   componentDidUpdate(prevProps: DashboardEventsProps) {
     if (
       (prevProps.roleTime.formatToNumber() !== this.props.roleTime.formatToNumber()) ||
+      // roleEventsResetCount is used as a signal to refresh the events
       (prevProps.roleEventsResetCount !== this.props.roleEventsResetCount)
     ) {
+      
+      // If roleEventsResetCount has been decremented, it counts as a full reset.
+      const activeTypes = prevProps.roleEventsResetCount > this.props.roleEventsResetCount ?
+        [0].concat(this.props.roleEventTypes.map((type) => type.id)) : // event types are reset
+        this.state.activeTypes
+
       this.setState({
-        ...this.getEventsState(this.state.activeTypes)
+        ...this.getEventsState(activeTypes)
       });
     }
   }
@@ -263,6 +270,7 @@ export class DashboardEvents extends React.Component<
       newState[time + 'EventsMore'] = showMore;
     });
 
+    newState.activeTypes = activeTypes
     return newState;
   }
 

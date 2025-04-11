@@ -84,6 +84,7 @@ export class Dashboard extends React.Component<
       return null;
     }
 
+
     const {eventToEdit, showActionModal, showCreateEventModal} = this.state;
     const modalOpened = showActionModal || showCreateEventModal || !!eventToEdit;
     const timeDefs = this.props.project.settings.timeDefinitions;
@@ -243,6 +244,12 @@ export class Dashboard extends React.Component<
     window.addEventListener('keydown', this.onKeyDown);
   }
 
+  public componentDidUpdate(prevProps: DashboardProps) {
+    if (prevProps.project.id !== this.props.project.id){
+      this.loadDatas()
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('keydown', this.onKeyDown);
   }
@@ -262,6 +269,7 @@ export class Dashboard extends React.Component<
             roleActions: sortByTypeThenName(roleActions, sortedRoleEventTypes, true),
             roleEvents,
             roleEventTypes: sortedRoleEventTypes,
+            roleEventsResetCount: this.state.roleEventsResetCount - 1,
           });
         });
       });

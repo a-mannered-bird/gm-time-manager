@@ -107,7 +107,7 @@ export class RoleEventEditForm extends React.Component<
         label="Notes"
         fullWidth
         multiline
-        rowsMax={4}
+        maxRows={4}
         value={roleEvent.notes}
         onChange={(e) => this.onChange('notes', e.currentTarget.value)}
       />
