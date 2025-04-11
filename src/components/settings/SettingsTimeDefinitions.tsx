@@ -54,7 +54,7 @@ export class SettingsTimeDefinitions extends React.Component<
 
       {this.displayAccordeon(
         'Number of days per month',
-        this.displayInputListForCount(timeDefinitions.yearMonthsCount, 'Month days count', 'text', 'monthDaysCount')
+        this.displayInputListForCount(timeDefinitions.yearMonthsCount, 'Month days count', 'number', 'monthDaysCount', 30)
       )}
 
       {this.displayAccordeon(
@@ -77,17 +77,17 @@ export class SettingsTimeDefinitions extends React.Component<
     </Accordion>;
   }
 
-  public displayInputListForCount(inputCount: number, label: string, valueType: string, propertyTarget: keyof TimeDefinitions){
+  public displayInputListForCount(inputCount: number, label: string, valueType: string, propertyTarget: keyof TimeDefinitions, newItemDefaultValue?: any){
     const fields = [];
     for (let i = 0; i < inputCount; i++) {
-      fields.push(this.displayInput(label, valueType, propertyTarget, i));
+      fields.push(this.displayInput(label, valueType, propertyTarget, i, (newItemDefaultValue || `${label} ${i + 1}`)))
     }
     return <>
       {fields}
     </>;
   }
 
-  public displayInput(label: string, valueType: string, propertyTarget: keyof TimeDefinitions, key?: number){
+  public displayInput(label: string, valueType: string, propertyTarget: keyof TimeDefinitions, key?: number, newItemDefaultValue?: any){
 
     const {timeDefinitions} = this.props.project.settings;
 
@@ -97,7 +97,7 @@ export class SettingsTimeDefinitions extends React.Component<
       name={propertyTarget + (key !== undefined ? '.' + key : '')}
       label={label + (key !== undefined ? ' ' + (key + 1) : '')}
       type={valueType}
-      defaultValue={key !== undefined ? timeDefinitions[propertyTarget][key] : timeDefinitions[propertyTarget]}
+      defaultValue={key !== undefined ? timeDefinitions[propertyTarget][key] || newItemDefaultValue : timeDefinitions[propertyTarget]}
       onChange={this.onChangeSettings}
       required
     />
@@ -109,6 +109,25 @@ export class SettingsTimeDefinitions extends React.Component<
   // --------------------------------- CUSTOM FUNCTIONS -------------------------------
 
   private onChangeSettings(e: any){
-    this.props.onChangeSettings(e, 'timeDefinitions');
+    const fieldName = e.currentTarget.name;
+    const fieldValue = e.currentTarget.value;
+    const changes = {} as Record<string, string|number|Array<string|number>>
+    const {timeDefinitions} = this.props.project.settings;
+
+    if (fieldName === 'weekDaysCount') {
+      changes.weekDaysNames = Array.from({ length: fieldValue }, (_, i) => 
+        timeDefinitions.weekDaysNames[i] || `Weekday name ${i + 1}`
+      );
+    } else if (fieldName === 'yearMonthsCount') {
+      changes.monthNames = Array.from({ length: fieldValue }, (_, i) => 
+        timeDefinitions.monthNames[i] || `Month name ${i + 1}`
+      );
+
+      changes.monthDaysCount = Array.from({ length: fieldValue }, (_, i) => 
+        timeDefinitions.monthDaysCount[i] || 30
+      );
+    } 
+    changes[fieldName] = fieldValue
+    this.props.onChangeSettings(changes, 'timeDefinitions');
   }
 }

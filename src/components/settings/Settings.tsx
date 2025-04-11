@@ -116,15 +116,18 @@ export class Settings extends React.Component<
    * @param e  event
    * @param settingProperty  string
    */
-  onChangeSettings(e: any, settingProperty: string) {
-    const project = this.state.project;
-    const fieldName = e.currentTarget.name;
-    const fieldNameSplit = fieldName.split(".");
+  onChangeSettings(changes: Record<string, string|number|Array<string|number>>, settingProperty: string) {
+    const project = {...this.state.project};
 
-    if (fieldNameSplit.length > 1) {
-      project.settings[settingProperty][fieldNameSplit[0]][fieldNameSplit[1]] = e.currentTarget.value;
-    } else {
-      project.settings[settingProperty][fieldNameSplit[0]] = e.currentTarget.value;
+    for (const key in changes) {
+      const fieldNameSplit = key.split(".");
+      const value = changes[key]
+
+      if (fieldNameSplit.length > 1) {
+        project.settings[settingProperty][fieldNameSplit[0]][fieldNameSplit[1]] = value;
+      } else {
+        project.settings[settingProperty][fieldNameSplit[0]] = value;
+      }
     }
 
     this.setState({
