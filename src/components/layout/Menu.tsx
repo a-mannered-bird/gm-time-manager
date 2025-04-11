@@ -96,7 +96,7 @@ export function Menu(props: MenuProps) {
     const pathname = "/" + props.selectedProjectId + "/" + routeName;
     return <ListItemLink
       icon={icon}
-      to={routeName}
+      to={pathname}
       primary={label}
       selected={pathname === props.location.pathname}
     />
